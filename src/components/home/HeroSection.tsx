@@ -29,7 +29,7 @@ const HeroSection = () => {
             data-aos="fade-up" 
             data-aos-delay="100"
           >
-            Industrial Solutions for Modern Engineering
+            Shayam Venchers: Engineering Excellence
           </h1>
           <p 
             className="text-lg md:text-xl text-industry-100 mb-8"
@@ -43,7 +43,7 @@ const HeroSection = () => {
             data-aos="fade-up" 
             data-aos-delay="300"
           >
-            <Button size="lg" className="bg-electric-500 hover:bg-electric-600 text-white">
+            <Button size="lg" className="bg-electric-500 hover:bg-electric-600 text-white" onClick={scrollToProducts}>
               Explore Products
             </Button>
             <Button size="lg" className="bg-transparent border border-white hover:bg-white/10 text-white">

@@ -34,9 +34,9 @@ const AboutSection = () => {
           </div>
           
           <div className="reveal-right">
-            <h2 className="text-3xl font-bold text-industry-900 mb-4">About BoltWorks</h2>
+            <h2 className="text-3xl font-bold text-industry-900 mb-4">About Shayam Venchers</h2>
             <p className="text-lg text-industry-700 mb-6">
-              Since 1998, BoltWorks has been a leading supplier of high-quality fasteners and electrical components to industries across the nation. Our commitment to excellence and innovation has established us as a trusted partner for businesses of all sizes.
+              Since 1998, Shayam Venchers has been a leading supplier of high-quality fasteners and electrical components to industries across the nation. Our commitment to excellence and innovation has established us as a trusted partner for businesses of all sizes.
             </p>
             
             <div className="mb-8">
