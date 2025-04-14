@@ -2,7 +2,7 @@
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Tool } from 'lucide-react';
+import { ArrowRight, Wrench } from 'lucide-react';
 
 interface ProductCardProps {
   name: string;
@@ -93,7 +93,7 @@ const Fasteners = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-3 mb-4" data-aos="fade-up">
             <div className="bg-electric-100 p-2 rounded-full">
-              <Tool size={24} className="text-electric-600" />
+              <Wrench size={24} className="text-electric-600" />
             </div>
             <h1 className="text-4xl font-bold text-industry-900" data-aos="fade-up">Fasteners</h1>
           </div>

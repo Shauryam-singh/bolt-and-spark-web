@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Bolt, Tool } from 'lucide-react';
+import { ArrowRight, Bolt, Wrench } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ProductCardProps {
@@ -138,7 +138,7 @@ const ProductsSection = () => {
           title="Fasteners"
           description="Our fasteners are manufactured to the highest industry standards, providing reliable and durable solutions for all your construction and manufacturing needs."
           products={fastenerProducts}
-          icon={<Tool size={24} className="text-electric-600" />}
+          icon={<Wrench size={24} className="text-electric-600" />}
           linkTo="/fasteners"
         />
 
