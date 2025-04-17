@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Bolt, Wrench } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Bolt, Wrench } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ProductCardProps {
   image: string;
@@ -28,6 +30,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ image, title, description, li
           className="w-96 h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
       </div>
+      <CardHeader className="p-5 pb-0">
+        <CardTitle className="text-xl text-industry-800">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="p-5 pt-2">
+        <CardDescription className="text-industry-600">{description}</CardDescription>
+      </CardContent>
+      <CardFooter className="p-5 pt-0">
       <CardHeader className="p-5 pb-0">
         <CardTitle className="text-xl text-industry-800">{title}</CardTitle>
       </CardHeader>
@@ -96,6 +105,7 @@ const ProductCategorySection: React.FC<{
 
 const ProductsSection = () => {
   const fastenerProducts = [
+  const fastenerProducts = [
     {
       image: "https://m.media-amazon.com/images/I/61VIHcLUrlL.jpg",
       title: "Socket Screws",
@@ -129,8 +139,12 @@ const ProductsSection = () => {
   ];
 
   const electricalProducts = [
+  ];
+
+  const electricalProducts = [
     {
       image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=600&h=400",
+      title: "Power Distribution Boards",
       title: "Power Distribution Boards",
       description: "Reliable and safe electrical distribution systems for residential and commercial use.",
       linkTo: "/electrical",
@@ -139,20 +153,40 @@ const ProductsSection = () => {
       image: "https://images.unsplash.com/photo-1624969862644-791f3dc98927?auto=format&fit=crop&q=80&w=600&h=400",
       title: "Premium Cables",
       description: "High-quality electrical wires and cables designed for efficiency and long-lasting performance.",
+      title: "Premium Cables",
+      description: "High-quality electrical wires and cables designed for efficiency and long-lasting performance.",
       linkTo: "/electrical",
     },
   ];
 
   return (
     <section id="products" className="py-20 bg-gradient-to-b from-white to-industry-50">
+    <section id="products" className="py-20 bg-gradient-to-b from-white to-industry-50">
       <div className="container mx-auto px-4">
+        <div className="text-center mb-16">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-industry-900 mb-4 reveal">Our Product Range</h2>
           <p className="text-lg text-industry-700 max-w-2xl mx-auto reveal">
             Shayam Venchers offers a comprehensive selection of high-quality fasteners and electrical components for all your project needs.
+            Shayam Venchers offers a comprehensive selection of high-quality fasteners and electrical components for all your project needs.
           </p>
         </div>
 
+        <ProductCategorySection
+          title="Fasteners"
+          description="Our fasteners are manufactured to the highest industry standards, providing reliable and durable solutions for all your construction and manufacturing needs."
+          products={fastenerProducts}
+          icon={<Wrench size={24} className="text-electric-600" />}
+          linkTo="/fasteners"
+        />
+
+        <ProductCategorySection
+          title="Electrical Components"
+          description="High-grade electrical components designed for safety, efficiency, and longevity, suitable for both residential and commercial applications."
+          products={electricalProducts}
+          icon={<Bolt size={24} className="text-electric-600" />}
+          linkTo="/electrical"
+        />
         <ProductCategorySection
           title="Fasteners"
           description="Our fasteners are manufactured to the highest industry standards, providing reliable and durable solutions for all your construction and manufacturing needs."

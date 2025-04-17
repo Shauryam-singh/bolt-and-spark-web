@@ -23,6 +23,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, cat
           New
         </div>
       )}
+    <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
+      {isNew && (
+        <div className="bg-secondary text-white text-xs font-bold px-3 py-1 absolute top-2 right-2 rounded-full">
+          New
+        </div>
+      )}
       <div className="h-48 overflow-hidden">
         <img src={image} alt={name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
       </div>
