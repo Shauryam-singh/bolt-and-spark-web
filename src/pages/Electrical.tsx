@@ -1,21 +1,21 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, PlugZap, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Link } from 'react-router-dom';
 
 interface ProductCardProps {
   name: string;
   image: string;
   description: string;
-  price?: string;
-  rating?: number;
+  categories: string[];
+  price: string;
   isNew?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, price, rating, isNew }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, categories, price, isNew }) => {
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
       {isNew && (
@@ -23,30 +23,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, pri
           New
         </div>
       )}
-      <div className="h-48 overflow-hidden relative">
+      <div className="h-48 overflow-hidden">
         <img src={image} alt={name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
       </div>
       <div className="p-6">
         <h3 className="text-xl font-semibold mb-2 text-industry-800">{name}</h3>
-        {rating && (
-          <div className="flex items-center mb-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <svg
-                key={i}
-                className={`w-4 h-4 ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.799-2.034c-.784-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            ))}
-          </div>
-        )}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {categories.map((category, index) => (
+            <span key={index} className="bg-industry-100 text-industry-700 px-2 py-1 rounded text-xs">
+              {category}
+            </span>
+          ))}
+        </div>
         <p className="text-industry-600 mb-4">{description}</p>
-        <div className="flex items-center justify-between">
-          {price && <p className="text-lg font-bold text-industry-900">{price}</p>}
-          <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50">
-            View Details <ArrowRight className="ml-2 h-4 w-4" />
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-lg font-bold text-industry-900">{price}</span>
+          <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 group">
+            View Details <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
       </div>
@@ -57,67 +50,188 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, pri
 const Electrical = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const createProduct = (
-    name: string,
-    image: string,
-    description: string,
-    price: string,
-    rating: number,
-    isNew?: boolean
-  ) => ({ name, image, description, price, rating, isNew });
-
   const switchboards = [
-    createProduct("Distribution Board 12-Way", "https://images.unsplash.com/photo-1558494949-ef010cbdcc31", "12-way DB with MCB protection.", "$149.99", 5),
-    createProduct("Industrial Switchboard", "https://images.unsplash.com/photo-1597676345712-ba4536073513", "Heavy-duty industrial switchboard.", "$399.99", 4),
-    createProduct("Smart Distribution Board", "https://images.unsplash.com/photo-1581092160607-ee52953789c8", "IoT-enabled DB.", "$249.99", 5, true),
-    createProduct("Outdoor Waterproof Cabinet", "https://images.unsplash.com/photo-1586864301279-ab8be21e6a82", "Weather-resistant cabinet.", "$189.99", 4),
-    createProduct("MCB Box 8-Way", "https://images.unsplash.com/photo-1562183241-0f0fb8eac315", "8-way protection MCB box.", "$99.00", 4),
-    createProduct("Surface Mount Panel", "https://images.unsplash.com/photo-1599492561173-890cdd3dbd16", "Easy-to-install surface panel.", "$69.00", 3)
+    {
+      name: "Distribution Board 12-Way",
+      image: "https://cdn.moglix.com/p/LJQ1jN6NcFNt7-xxlarge.jpg",
+      description: "12-way DB with MCB protection.",
+      categories: ["Distribution", "Protection", "Commercial"],
+      price: "$149.99",
+      isNew: true
+    },
+    {
+      name: "Industrial Switchboard",
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9ru5uHeu7wf0TTn73g5tl9zkpFd2tccqFmA&s",
+      description: "Heavy-duty industrial switchboard.",
+      categories: ["Industrial", "Heavy-duty", "Power"],
+      price: "$399.99"
+    },
+    {
+      name: "Smart Distribution Board",
+      image: "https://powereasy.in/assets/images/products/main/smart-db/single-phase/smart-db-single-phase.png",
+      description: "IoT-enabled DB.",
+      categories: ["Smart", "IoT", "Automation"],
+      price: "$249.99",
+      isNew: true
+    },
+    {
+      name: "Outdoor Waterproof Cabinet",
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTexWTeW6IeUBRN3QT6CWf5fypeoKS_FbI5kn2uv0BQLGIAX-EOUZ-pvJrQYHaNvfjFEfU&usqp=CAU",
+      description: "Weather-resistant cabinet.",
+      categories: ["Outdoor", "Waterproof", "Protection"],
+      price: "$189.99"
+    },
+    {
+      name: "Load Center 8-Way",
+      image: "https://s.alicdn.com/@sc04/kf/HTB1rha7KkSWBuNjSszdq6zeSpXaT.jpg_720x720q50.jpg",
+      description: "8-way load center for residential and commercial use.",
+      categories: ["Residential", "Commercial", "Power"],
+      price: "$129.99",
+      isNew: true
+    },
+    {
+      name: "Heavy Duty Power Switchboard",
+      image: "https://tiimg.tistatic.com/fp/1/007/875/rectangular-shape-plastic-electrical-switch-board-for-home-and-office--449.jpg",
+      description: "For heavy industrial applications.",
+      categories: ["Industrial", "Heavy-duty", "Power"],
+      price: "$499.99"
+    },
+    // New items
+    {
+      name: "Panelboard 24-Way",
+      image: "https://5.imimg.com/data5/SX/TN/FJ/SELLER-4015706/electric-distribution-board-500x500.jpg",
+      description: "24-way panelboard for large-scale systems.",
+      categories: ["Industrial", "Power", "Commercial"],
+      price: "$559.99",
+      isNew: true
+    },
+    {
+      name: "Compact Distribution Board",
+      image: "https://3.imimg.com/data3/EW/OH/MY-2693575/compact-distribution-board-500x500.jpg",
+      description: "Compact distribution board for smaller installations.",
+      categories: ["Residential", "Compact", "Energy"],
+      price: "$99.99"
+    }
   ];
 
   const wires = [
-    createProduct("Copper Building Wire (100m)", "https://images.unsplash.com/photo-1624969862644-791f3dc98927", "High-quality copper building wire.", "$79.99", 5),
-    createProduct("Armored Cable (50m)", "https://images.unsplash.com/photo-1601084881623-cdf9a8ea242c", "Steel wire armored cable.", "$129.99", 4),
-    createProduct("Fire Resistant Cable (25m)", "https://images.unsplash.com/photo-1558959847-a71ae80fe735", "Fire-safe cabling.", "$149.99", 5, true),
-    createProduct("Network Cable Cat6 (100m)", "https://images.unsplash.com/photo-1614064641938-3bbee52942c7", "Ethernet Cat6 cable.", "$59.99", 5),
-    createProduct("Fiber Optic Cable", "https://images.unsplash.com/photo-1603986991481-e91ccfcb8f86", "High-speed optical cable.", "$199.99", 4),
-    createProduct("Aluminum Service Wire", "https://images.unsplash.com/photo-1593032457866-e4ed1b9b26b6", "Overhead wiring solution.", "$89.99", 3)
+    {
+      name: "Copper Building Wire (100m)",
+      image: "https://image.made-in-china.com/202f0j00CicbyIUzgEkD/Weight-Copper-Cable-Cable-Electrical-Italy-100m-Power-Cable.jpg",
+      description: "High-quality copper building wire.",
+      categories: ["Copper", "Building", "Industrial"],
+      price: "$79.99",
+      isNew: true
+    },
+    {
+      name: "Armored Cable (50m)",
+      image: "https://m.media-amazon.com/images/I/51rofQXGpKL.jpg",
+      description: "Steel wire armored cable.",
+      categories: ["Armored", "Steel", "Industrial"],
+      price: "$129.99"
+    },
+    {
+      name: "Fire Resistant Cable (25m)",
+      image: "https://media.screwfix.com/is/image/ae235/339PF_P?$fxSharpen$=&wid=257&hei=257&dpr=on",
+      description: "Fire-safe cabling.",
+      categories: ["Fire Resistant", "Safety", "Building"],
+      price: "$149.99",
+      isNew: true
+    },
+    {
+      name: "Electrical PVC Insulated Cable",
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTftG1mNNmxE825d7ZuOfJfzKwHAxIyhs9eTQ&s",
+      description: "PVC insulated cable for general wiring.",
+      categories: ["PVC", "Insulated", "Building"],
+      price: "$49.99"
+    },
+    {
+      name: "Flexible Extension Cable (10m)",
+      image: "https://m.media-amazon.com/images/I/61+neQ3vAzL._AC_UF1000,1000_QL80_.jpg",
+      description: "Flexible and durable extension cable.",
+      categories: ["Flexible", "Extension", "Power"],
+      price: "$19.99"
+    },
+    // New items
+    {
+      name: "Multi-Core Cable (100m)",
+      image: "https://5.imimg.com/data5/CU/IK/JC/SELLER-3059229/electrical-wires-1-mm-4-core-500x500.jpg",
+      description: "Multi-core cable for various applications.",
+      categories: ["Multi-Core", "Industrial", "Power"],
+      price: "$189.99",
+      isNew: true
+    },
+    {
+      name: "Low Voltage Power Cable",
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTZTxgCL5Sq9nLsAaRxMK7vL356yLKswISNg&s",
+      description: "Low voltage cable for power distribution.",
+      categories: ["Low Voltage", "Power", "Building"],
+      price: "$99.99"
+    }
   ];
 
   const accessories = [
-    createProduct("Modular Wall Switches", "https://images.unsplash.com/photo-1563874257547-d19fbb71b46c", "Modern design modular switches.", "$12.99", 4),
-    createProduct("Industrial Sockets Set", "https://images.unsplash.com/photo-1532959801411-cf64d5dddd73", "Heavy-duty sockets.", "$29.99", 5),
-    createProduct("Smart Wi-Fi Power Outlets", "https://images.unsplash.com/photo-1558002038-1055907df827", "Remote-controlled outlets.", "$34.99", 4, true),
-    createProduct("Cable Management System", "https://images.unsplash.com/photo-1603539279542-e5fc757026ba", "Wire organizers and trays.", "$19.99", 5),
-    createProduct("Electric Bell", "https://images.unsplash.com/photo-1593941707874-efb51c5e5e93", "Electric door bell for homes.", "$9.99", 4),
-    createProduct("Voltage Tester", "https://images.unsplash.com/photo-1615065603463-82c1ac7f4b9c", "Handheld voltage indicator.", "$14.99", 5)
+    {
+      name: "Modular Wall Switches",
+      image: "https://5.imimg.com/data5/SELLER/Default/2023/10/352782418/GA/AJ/KV/90013704/black-modular-electrical-switch-boards.jpg",
+      description: "Modern design modular switches.",
+      categories: ["Modular", "Switches", "Residential"],
+      price: "$12.99"
+    },
+    {
+      name: "Industrial Sockets Set",
+      image: "https://images-cdn.ubuy.co.in/661730a73ce78476ff438d8b-industrial-plug-socket-3-phase-plug-4.jpg",
+      description: "Heavy-duty sockets.",
+      categories: ["Industrial", "Sockets", "Power"],
+      price: "$29.99"
+    },
+    {
+      name: "Smart Wi-Fi Power Outlets",
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU35Bo-yaB3gHwjCyhRedXTNtdMEQpqT20UsQaC2vW9IOo2SALjufLk0Hvv4jgVkwyDKk&usqp=CAU",
+      description: "Remote-controlled outlets.",
+      categories: ["Smart", "Wi-Fi", "Automation"],
+      price: "$34.99",
+      isNew: true
+    },
+    {
+      name: "Ceiling Fan Regulator",
+      image: "https://havells.com/media/catalog/product/cache/844a913d283fe95e56e39582c5f2767b/import/REO-Switches/AHERFXW001.jpg",
+      description: "Regulate ceiling fan speed.",
+      categories: ["Fan", "Regulator", "Residential"],
+      price: "$18.99"
+    },
+    {
+      name: "Power Strip with USB",
+      image: "https://m.media-amazon.com/images/I/71FtSiqsK3L.jpg",
+      description: "Power strip with multiple outlets and USB ports.",
+      categories: ["Power", "USB", "Accessories"],
+      price: "$25.99",
+      isNew: true
+    },
+    // New items
+    {
+      name: "Smart LED Light Switch",
+      image: "https://img.joomcdn.net/ddb08b986aa428e819f3e5f70791d46e5c0e9794_original.jpeg",
+      description: "Smart LED light switch for modern homes.",
+      categories: ["Smart", "LED", "Switches"],
+      price: "$29.99"
+    },
+    {
+      name: "Surge Protector Power Strip",
+      image: "https://honeywellconnection.com/in/wp-content/uploads/2024/08/1-2.jpg",
+      description: "Surge protector power strip with 6 outlets.",
+      categories: ["Surge Protector", "Power", "Safety"],
+      price: "$19.99"
+    }
   ];
 
-  const lighting = [
-    createProduct("LED Bulb 9W", "https://images.unsplash.com/photo-1589739905272-9b8c96fe59dd", "Energy-efficient LED bulb.", "$4.99", 5),
-    createProduct("Tube Light 18W", "https://images.unsplash.com/photo-1637165038605-f54e44e1a435", "Long-lasting tube light.", "$7.99", 4),
-    createProduct("Ceiling Panel Light", "https://images.unsplash.com/photo-1623150823819-6e5f4b334d75", "Recessed LED panel light.", "$19.99", 5),
-    createProduct("Emergency Light", "https://images.unsplash.com/photo-1602691346066-e95f8cb3c2f1", "Rechargeable LED emergency light.", "$24.99", 4),
-    createProduct("Bulb Holders Pack", "https://images.unsplash.com/photo-1558980672-91dfe9b3f618", "10x B22 bulb holders.", "$5.99", 3),
-    createProduct("Spotlight Fixture", "https://images.unsplash.com/photo-1586350986603-3b42f5451c37", "Adjustable spotlight fitting.", "$15.99", 4)
-  ];
-
-  const conduits = [
-    createProduct("PVC Electrical Conduit (25mm)", "https://images.unsplash.com/photo-1649360895486-df567c92f0f1", "Flexible and durable PVC pipe.", "$1.99", 4),
-    createProduct("Flexible Conduit Roll", "https://images.unsplash.com/photo-1620996409374-2c9ab0321fcb", "Flexible pipe for tight spaces.", "$9.99", 4),
-    createProduct("Conduit Junction Box", "https://images.unsplash.com/photo-1596782394791-b5c4df1a10f0", "Plastic 4-way box for conduits.", "$2.49", 5),
-    createProduct("PVC Elbow Joint", "https://images.unsplash.com/photo-1621258169486-10f2b967d9da", "For right angle turns in wiring.", "$0.99", 4),
-    createProduct("HDPE Underground Pipe", "https://images.unsplash.com/photo-1637191797232-e4cc1ffbc3e2", "Heavy-duty underground conduit.", "$19.99", 5),
-    createProduct("Surface Mounting Box", "https://images.unsplash.com/photo-1601084882011-f5dc65c5e4f6", "PVC mounting box for switches.", "$1.49", 3)
-  ];
-
-  const tabs = [
-    { id: 'switchboards', label: 'Switch Boards', products: switchboards },
-    { id: 'wires', label: 'Wires & Cables', products: wires },
-    { id: 'accessories', label: 'Accessories', products: accessories },
-    { id: 'lighting', label: 'Lighting', products: lighting },
-    { id: 'conduits', label: 'Conduits & Pipes', products: conduits }
-  ];
+  const filterProducts = (products) => {
+    return products.filter(product => 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.categories.some(category => category.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  };
 
   return (
     <Layout>
@@ -127,71 +241,78 @@ const Electrical = () => {
             <div className="bg-electric-100 p-2 rounded-full">
               <PlugZap size={24} className="text-electric-600" />
             </div>
-            <h1 className="text-4xl font-bold text-industry-900" data-aos="fade-up">Electrical Components</h1>
+            <h1 className="text-4xl font-bold text-industry-900">Electrical Components</h1>
           </div>
+          
           <p className="text-lg text-industry-700 max-w-3xl mb-12" data-aos="fade-up" data-aos-delay="100">
-              Top-tier electrical products for safe, efficient installations across all sectors. Explore our range of switchboards, wires, and more.
-            </p>
-            <div className="max-w-md mx-auto mt-6">
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="Search electrical products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pr-10"
-                />
-                <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
+            Browse our comprehensive range of high-quality electrical components designed for various applications. 
+            All products meet or exceed industry standards for safety and performance.
+          </p>
+
+          <div className="max-w-md mx-auto mt-6 mb-8" data-aos="fade-up" data-aos-delay="200">
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Search electrical products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pr-10"
+              />
+              <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
           </div>
 
-          <Tabs defaultValue="switchboards">
+          <Tabs defaultValue="switchboards" className="w-full mb-8">
             <TabsList className="w-full flex justify-center mb-8">
-              {tabs.map(({ id, label }) => (
-                <TabsTrigger key={id} value={id} className="text-base px-5 py-2.5">{label}</TabsTrigger>
-              ))}
+              <TabsTrigger value="switchboards" className="text-base px-5 py-2.5">Switchboards</TabsTrigger>
+              <TabsTrigger value="wires" className="text-base px-5 py-2.5">Wires & Cables</TabsTrigger>
+              <TabsTrigger value="accessories" className="text-base px-5 py-2.5">Accessories</TabsTrigger>
             </TabsList>
-
-            {tabs.map(({ id, products }) => (
-              <TabsContent key={id} value={id}>
+            
+            <TabsContent value="switchboards">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {products
-                    .filter(product =>
-                      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      product.description.toLowerCase().includes(searchTerm.toLowerCase())
-                    )
-                    .map((product, index) => (
-                      <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
-                        <ProductCard {...product} />
-                      </div>
-                    ))}
-                </div>
-              </TabsContent>
-            ))}
+                {filterProducts(switchboards).map((product, index) => (
+                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
+                    <ProductCard {...product} />
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="wires">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {filterProducts(wires).map((product, index) => (
+                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
+                    <ProductCard {...product} />
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="accessories">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {filterProducts(accessories).map((product, index) => (
+                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
+                    <ProductCard {...product} />
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
           </Tabs>
 
-          <div className="mt-16 bg-white p-8 rounded-lg shadow-md">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              <div>
-                <h2 className="text-2xl font-bold text-industry-900 mb-4">Need Custom Electrical Solutions?</h2>
-                <p className="text-industry-700 mb-6">
-                  Need help sourcing specific components? Our experts can customize and advise.
-                </p>
-                <Button className="bg-electric-600 hover:bg-electric-700 text-white">
-                  Request a Consultation
-                </Button>
-              </div>
-              <div className="rounded-lg overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1581094794329-c8112a89af12" 
-                  alt="Custom Electrical Solutions" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
+          <div className="mt-12 bg-white p-8 rounded-lg shadow-md border border-electric-100" data-aos="fade-up">
+            <h2 className="text-2xl font-bold text-industry-900 mb-4">Custom Electrical Solutions</h2>
+            <p className="text-industry-700 mb-6">
+              Don't see exactly what you need? We offer custom solutions and configurations to meet your specific requirements. 
+              Our engineering team can work with you to design and implement electrical systems tailored to your needs.
+            </p>
+            <Link to="/contact" className="bg-industry-700 hover:bg-industry-800 text-white group inline-flex items-center px-4 py-2 rounded">
+              Inquire About Custom Orders 
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform"/>
+            </Link>
           </div>
         </div>
+      </div>
     </Layout>
   );
 };
