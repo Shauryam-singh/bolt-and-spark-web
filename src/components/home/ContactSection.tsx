@@ -1,15 +1,53 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 const ContactSection = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    subject: '',
+    message: '',
+  });
+
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Form submission logic would go here
-    console.log('Form submitted');
-    // Show a success message or toast notification
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          subject: '',
+          message: '',
+        });
+        alert('Message sent successfully!');
+      } else {
+        alert('Failed to send message.');
+      }
+    } catch (err) {
+      console.error('Error submitting contact form:', err);
+      alert('An error occurred.');
+    }
   };
 
   return (
@@ -33,11 +71,13 @@ const ContactSection = () => {
                   id="name"
                   type="text"
                   placeholder="John Doe"
+                  value={formData.name}
+                  onChange={handleChange}
                   required
                   className="w-full"
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-industry-800 mb-1">
                   Email Address
@@ -46,11 +86,13 @@ const ContactSection = () => {
                   id="email"
                   type="email"
                   placeholder="john@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   className="w-full"
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-industry-800 mb-1">
                   Phone Number
@@ -58,11 +100,13 @@ const ContactSection = () => {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+1 (234) 567-890"
+                  placeholder="+91 1234567890"
+                  value={formData.phone}
+                  onChange={handleChange}
                   className="w-full"
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="company" className="block text-sm font-medium text-industry-800 mb-1">
                   Company Name
@@ -71,11 +115,13 @@ const ContactSection = () => {
                   id="company"
                   type="text"
                   placeholder="Your Company"
+                  value={formData.company}
+                  onChange={handleChange}
                   className="w-full"
                 />
               </div>
             </div>
-            
+
             <div className="space-y-4 reveal-right">
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-industry-800 mb-1">
@@ -85,11 +131,13 @@ const ContactSection = () => {
                   id="subject"
                   type="text"
                   placeholder="Product Inquiry"
+                  value={formData.subject}
+                  onChange={handleChange}
                   required
                   className="w-full"
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-industry-800 mb-1">
                   Your Message
@@ -97,11 +145,13 @@ const ContactSection = () => {
                 <Textarea
                   id="message"
                   placeholder="Tell us about your requirements..."
+                  value={formData.message}
+                  onChange={handleChange}
                   required
                   className="w-full h-40 resize-none"
                 />
               </div>
-              
+
               <Button type="submit" className="w-full bg-electric-500 hover:bg-electric-600 text-white">
                 Send Message
               </Button>

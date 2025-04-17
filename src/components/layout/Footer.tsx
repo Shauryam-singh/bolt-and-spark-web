@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4">BoltWorks</h3>
+            <h3 className="text-xl font-bold mb-4">Shayam Venchers</h3>
             <p className="mb-4 text-industry-100">
               Your trusted partner for quality fasteners and electrical components.
             </p>
@@ -81,19 +81,19 @@ const Footer = () => {
               <li className="flex items-start">
                 <MapPin className="mr-2 h-5 w-5 text-industry-100 mt-0.5" />
                 <span className="text-industry-100">
-                  123 Industrial Ave, Suite 100<br />Business District, City, 12345
+                Unit 27-28, Industrial Area<br />Phase II, New Delhi - 110020, India
                 </span>
               </li>
               <li className="flex items-center">
                 <Phone className="mr-2 h-5 w-5 text-industry-100" />
                 <a href="tel:+1234567890" className="text-industry-100 hover:text-white transition-colors">
-                  +1 (234) 567-890
+                  +91 1234567890
                 </a>
               </li>
               <li className="flex items-center">
                 <Mail className="mr-2 h-5 w-5 text-industry-100" />
-                <a href="mailto:info@boltworks.com" className="text-industry-100 hover:text-white transition-colors">
-                  info@boltworks.com
+                <a href="mailto:info@Shayam Venchers.com" className="text-industry-100 hover:text-white transition-colors">
+                  info@Shayam Venchers.com
                 </a>
               </li>
             </ul>
@@ -101,7 +101,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-industry-700 mt-8 pt-6 text-center text-industry-100">
-          <p>&copy; {new Date().getFullYear()} BoltWorks. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Shayam Venchers. All rights reserved.</p>
         </div>
       </div>
     </footer>

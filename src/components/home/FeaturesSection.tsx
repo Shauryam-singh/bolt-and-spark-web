@@ -57,7 +57,7 @@ const FeaturesSection = () => {
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-industry-900 mb-4 reveal">Why Choose BoltWorks</h2>
+          <h2 className="text-3xl font-bold text-industry-900 mb-4 reveal">Why Choose Shayam Venchers</h2>
           <p className="text-lg text-industry-700 max-w-2xl mx-auto reveal">
             We take pride in delivering exceptional products and services that keep your operations running smoothly.
           </p>
