@@ -1,13 +1,18 @@
-
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, ChevronDown, LogIn, LogOut, User } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { signOut } from "@/lib/auth";
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +25,23 @@ const Navbar = () => {
     };
   }, []);
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+      });
+    }
+  };
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
@@ -29,17 +51,14 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/90 backdrop-blur-md shadow-md py-2' : 'bg-transparent py-4'
-      }`}
-    >
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
+      scrolled ? 'bg-white/90 backdrop-blur-md shadow-md py-2' : 'bg-transparent py-4'
+    }`}>
       <div className="container mx-auto flex items-center justify-between px-4">
         <Link to="/" className="flex items-center">
           <span className="text-2xl font-bold text-industry-900">Shayam Venchers</span>
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden lg:flex items-center space-x-8">
           <Link to="/" className="text-industry-800 hover:text-primary font-medium transition-colors">
             Home
@@ -79,7 +98,6 @@ const Navbar = () => {
           </Button>
         </div>
 
-        {/* Mobile Toggle Button */}
         <div className="lg:hidden">
           <button onClick={toggleMenu} className="text-industry-800">
             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -87,7 +105,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
       <div
         className={`lg:hidden fixed inset-0 bg-white z-40 transition-transform duration-300 ease-in-out transform ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
@@ -126,9 +143,17 @@ const Navbar = () => {
             Contact
           </Link>
           
-          <Button className="bg-primary hover:bg-primary/90 text-white w-full mt-4">
-            Request Quote
-          </Button>
+          {user ? (
+            <Button onClick={handleSignOut} className="w-full">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button onClick={() => navigate("/auth")} className="w-full">
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
+            </Button>
+          )}
         </div>
       </div>
     </nav>
