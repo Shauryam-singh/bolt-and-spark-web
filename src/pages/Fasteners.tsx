@@ -12,17 +12,10 @@ interface ProductCardProps {
   description: string;
   categories: string[];
   isNew?: boolean;
-  price: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, categories, isNew, price }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, categories, isNew }) => {
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
-      {isNew && (
-        <div className="bg-secondary text-white text-xs font-bold px-3 py-1 absolute top-2 right-2 rounded-full">
-          New
-        </div>
-      )}
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
       {isNew && (
         <div className="bg-secondary text-white text-xs font-bold px-3 py-1 absolute top-2 right-2 rounded-full">
@@ -42,13 +35,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, cat
           ))}
         </div>
         <p className="text-industry-600 mb-4">{description}</p>
-        <div className="flex items-center justify-between">
-          {price && <p className="text-lg font-bold text-industry-900">{price}</p>}
-          <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50">
-            View Details <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-        </div>
+        <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 group">
+          View Details <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+        </Button>
+      </div>
     </div>
   );
 };
@@ -56,55 +46,69 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, cat
 const Fasteners = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const createProduct = (
-    name: string,
-    image: string,
-    description: string,
-    price: string,
-    categories: string[],
-    isNew = false
-  ) => ({ name, image, description, price, categories, isNew });
-
   const industrialFasteners = [
-    createProduct("Socket Screws", "https://m.media-amazon.com/images/I/61VIHcLUrlL.jpg", "High-torque rated socket screws for precision.", "$1.99", ["Hex", "Allen", "Industrial"], true),
-    createProduct("Durlok", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBPhNDhgro-YrCPzmUlvrS-xsLHkKzyl5Q5w&s", "Vibration-resistant patented fastener system.", "$2.49", ["Self-locking", "Anti-vibration", "Heavy-duty"]),
-    createProduct("Hex Bolt", "https://www.fastdep.in/images/product/ss-hex-bolt-inch_hu1f6ff40bf773d9b8df443a823106ec08_400315_750x750_resize_q85_box.jpg", "Reliable steel hex bolts for construction and machinery.", "$0.75", ["Steel", "Stainless", "Galvanized"]),
-    createProduct("Hex Nut", "https://images-cdn.ubuy.co.in/667e6bc2bd456f54a4352a6b-5-16-18-50pcs-stainless-steel-hex-nuts.jpg", "Standard fastening nuts for bolts.", "$0.35", ["Steel", "Stainless", "Brass"]),
-    createProduct("Carriage Bolts", "https://www.boltdepot.com/images/catalog/Carriage-bolt-full-thread-steel-zinc.jpg", "Wood-to-wood bolts with smooth rounded heads.", "$0.99", ["Wood", "Rounded Head", "Zinc"], true),
-    createProduct("Stud Bolts", "https://cdn11.bigcommerce.com/s-04e33/images/stencil/1280x1280/products/2510/2453/stud-bolts__30392.1638797286.jpg", "Heavy-duty bolting for pipelines.", "$3.75", ["Industrial", "Flange", "Steel"]),
-    createProduct("U-Bolts", "https://www.boltdepot.com/images/catalog/U-bolt-round-steel-zinc.jpg", "Secure piping and round objects to surfaces.", "$1.25", ["Pipe", "Support", "Zinc"]),
-    createProduct("Eye Bolts", "https://www.boltdepot.com/images/catalog/Eyebolt-shoulder-lag-stainless.jpg", "Secure rigging for ropes and cables.", "$1.99", ["Rigging", "Lifting", "Stainless"]),
-    createProduct("Threaded Rods", "https://www.boltdepot.com/images/catalog/Threaded-rod-steel-zinc.jpg", "Full-length threaded rods for structural support.", "$2.49", ["Rod", "Threaded", "Support"]),
-    createProduct("Flange Bolts", "https://cdn11.bigcommerce.com/s-85a5e/images/stencil/1280x1280/products/697/3770/hex-flange-bolts-yellow-zinc-1__83014.1574962443.jpg", "Integrated washer bolts for better clamping.", "$1.85", ["Steel", "Integrated Washer", "High Torque"]),
-    createProduct("Anchor Bolts", "https://5.imimg.com/data5/QB/BP/MY-49540910/anchor-bolts.jpg", "Anchor supports into concrete foundations.", "$2.99", ["Concrete", "Structural", "Heavy-duty"])
+    {
+      name: "Socket Screws",
+      image: "https://m.media-amazon.com/images/I/61VIHcLUrlL.jpg",
+      description: "Designed for high-torque applications, available in various head styles and materials.",
+      categories: ["Hex", "Allen", "Industrial"],
+      isNew: true
+    },
+    {
+      name: "Durlok",
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBPhNDhgro-YrCPzmUlvrS-xsLHkKzyl5Q5w&s",
+      description: "A patented fastener system that provides a secure, vibration-resistant connection.",
+      categories: ["Self-locking", "Anti-vibration", "Heavy-duty"]
+    },
+    {
+      name: "Hex Bolt",
+      image: "https://www.fastdep.in/images/product/ss-hex-bolt-inch_hu1f6ff40bf773d9b8df443a823106ec08_400315_750x750_resize_q85_box.jpg",
+      description: "Hex bolts are used in a variety of applications, including construction, automotive, and machinery.",
+      categories: ["Steel", "Stainless", "Galvanized"]
+    },
+    {
+      name: "Hex Nut",
+      image: "https://images-cdn.ubuy.co.in/667e6bc2bd456f54a4352a6b-5-16-18-50pcs-stainless-steel-hex-nuts.jpg",
+      description: "Hex nuts are used with bolts to create a secure fastening system, available in various sizes and materials.",
+      categories: ["Steel", "Stainless", "Brass"]
+    }
   ];
 
   const specialtyFasteners = [
-    createProduct("Washers", "https://m.media-amazon.com/images/I/61d4W0NjzUL.jpg", "Distributes load and reduces surface damage.", "$0.20", ["Flat", "Lock", "Fender"], true),
-    createProduct("Structural Assemblies", "https://www.allfasteners.com.au/pub/media/catalog/product/cache/edb9286c9d01d6f06c69c30d5c8dd932/6/d/6d.001_3_4.jpg", "Pre-assembled fastener kits for heavy-duty jobs.", "$4.99", ["Heavy-duty", "Industrial", "Construction"]),
-    createProduct("Panel Fasteners", "https://www.electronicspecifier.com/uploads/images/1b9d8d42b61db0540717b6377b46c356.jpg", "Quick-access fasteners for removable panels.", "$1.49", ["Removable", "Panel", "Quick-Release"]),
-    createProduct("Captive Screws", "https://cdn.shopify.com/s/files/1/0020/7603/9960/products/captive-screw_1800x1800.jpg", "Retains screws in place even when loosened.", "$1.25", ["Non-removable", "Safety", "Panel"]),
-    createProduct("Spring Clips", "https://5.imimg.com/data5/SELLER/Default/2021/4/RO/QD/XB/49294891/industrial-metal-spring-clip-500x500.jpg", "Retaining clips for tension-secured components.", "$0.89", ["Retaining", "Tension", "Metal"]),
-    createProduct("Shear Bolts", "https://5.imimg.com/data5/BG/HY/VJ/SELLER-81245025/shear-bolts-500x500.jpg", "Tamper-proof bolts break at a preset torque.", "$1.99", ["Security", "Tamper-proof", "Controlled Torque"]),
-    createProduct("Security Screws", "https://www.boltdepot.com/images/catalog/Security-screw-pin-hex-stainless.jpg", "Special removal tools required.", "$0.75", ["Tamper-resistant", "Special Tools", "Secure"]),
-    createProduct("Blind Rivets", "https://cdn11.bigcommerce.com/s-e2a4a/images/stencil/1280x1280/products/199/1329/aluminum-pop-rivets__17490.1600118659.jpg", "One-sided installation rivets.", "$0.30", ["One-sided", "Aluminum", "Structural"]),
-    createProduct("Retaining Rings", "https://5.imimg.com/data5/SELLER/Default/2022/4/ZD/RJ/XF/10919470/internal-circlips-500x500.jpg", "Snap-in rings to hold assemblies together.", "$0.45", ["Circlip", "Internal", "Retaining"])
+    {
+      name: "Washers",
+      image: "https://m.media-amazon.com/images/I/61d4W0NjzUL.jpg",
+      description: "Used to distribute load and prevent damage to surfaces, available in flat, lock, and fender styles.",
+      categories: ["Flat", "Lock", "Fender"],
+      isNew: true
+    },
+    {
+      name: "Structural Assemblies",
+      image: "https://www.allfasteners.com.au/pub/media/catalog/product/cache/edb9286c9d01d6f06c69c30d5c8dd932/6/d/6d.001_3_4.jpg",
+      description: "Designed for heavy-duty applications, these assemblies include bolts, nuts, and washers for secure connections.",
+      categories: ["Heavy-duty", "Industrial", "Construction"]
+    }
   ];
 
   const marineFasteners = [
-    createProduct("Stainless Steel", "https://m.media-amazon.com/images/I/61nlYFCSOkL.jpg", "Marine-grade corrosion-resistant fasteners.", "$1.49", ["Marine", "Corrosion-resistant", "Outdoor"]),
-    createProduct("Petrochemical Studbolts", "https://5.imimg.com/data5/SELLER/Default/2025/3/494482212/QK/GN/TQ/8047850/b7-stud-bolts-500x500.webp", "For high-temp and high-pressure chemical use.", "$3.99", ["High-temperature", "High-pressure", "Petrochemical"], true),
-    createProduct("Brass Fasteners", "https://5.imimg.com/data5/SELLER/Default/2023/7/331122208/AV/QF/ME/11175268/brass-fasteners.jpg", "Naturally corrosion-resistant marine fasteners.", "$1.25", ["Marine", "Brass", "Corrosion-resistant"]),
-    createProduct("316 Stainless Steel Screws", "https://www.boltdepot.com/images/catalog/Screw-sheet-metal-pan-316.jpg", "Top-tier marine-grade stainless fasteners.", "$1.99", ["316", "Marine", "High-corrosion"]),
-    createProduct("Nylon Fasteners", "https://cdn11.bigcommerce.com/s-v1ztgoyc/images/stencil/1280x1280/products/674/1181/nylon-machine-screws__27470.1549409013.jpg", "Non-metallic fasteners for sensitive electronics.", "$0.65", ["Nylon", "Lightweight", "Non-metallic"]),
-    createProduct("Silicon Bronze Screws", "https://cdn11.bigcommerce.com/s-c7s9hhq/images/stencil/1280x1280/products/288/2681/bronze-wood-screws__09412.1607435893.jpg", "Perfect for wooden boat building.", "$2.25", ["Bronze", "Wood", "Marine"]),
-    createProduct("Titanium Fasteners", "https://m.media-amazon.com/images/I/61dguXtA3HL.jpg", "Ultra-durable titanium fasteners for marine/chemical use.", "$5.99", ["Titanium", "Premium", "Corrosion-proof"], true),
-    createProduct("Duplex Steel Fasteners", "https://5.imimg.com/data5/ANDROID/Default/2022/9/OL/LP/YX/65624195/product-jpeg-500x500.jpg", "Ideal for extreme chemical environments.", "$4.75", ["Duplex", "High-strength", "Marine"])
+    {
+      name: "Stainless Steel",
+      image: "https://m.media-amazon.com/images/I/61nlYFCSOkL.jpg",
+      description: "Corrosion-resistant fasteners suitable for marine and outdoor applications, available in various grades.",
+      categories: ["Marine", "Corrosion-resistant", "Outdoor"]
+    },
+    {
+      name: "Petrochemical Studbolts",
+      image: "https://5.imimg.com/data5/SELLER/Default/2025/3/494482212/QK/GN/TQ/8047850/b7-stud-bolts-500x500.webp",
+      description: "Specialized fasteners designed for high-temperature and high-pressure.",
+      categories: ["High-temperature", "High-pressure", "Petrochemical"],
+      isNew: true
+    }
   ];
 
   const filterProducts = (products) => {
-    return products.filter(product =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    return products.filter(product => 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.categories.some(category => category.toLowerCase().includes(searchTerm.toLowerCase()))
     );
@@ -114,22 +118,23 @@ const Fasteners = () => {
     <Layout>
       <div className="pt-24 pb-12 bg-industry-50">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-4" data-aos="fade-up">
             <div className="bg-electric-100 p-2 rounded-full">
               <Wrench size={24} className="text-electric-600" />
             </div>
-            <h1 className="text-4xl font-bold text-industry-900">Fasteners</h1>
+            <h1 className="text-4xl font-bold text-industry-900" data-aos="fade-up">Fasteners</h1>
           </div>
-
-          <p className="text-lg text-industry-700 max-w-3xl mb-12">
-            Explore premium fasteners engineered for strength, corrosion-resistance, and industrial-grade performance.
+          
+          <p className="text-lg text-industry-700 max-w-3xl mb-12" data-aos="fade-up" data-aos-delay="100">
+            Browse our comprehensive range of high-quality fasteners designed for various industrial applications. 
+            All Shayam Venchers products meet or exceed industry standards for strength, durability, and performance.
           </p>
 
-          <div className="max-w-md mx-auto mb-10">
+          <div className="max-w-md mx-auto mt-6 mb-8" data-aos="fade-up" data-aos-delay="200">
             <div className="relative">
               <Input
                 type="text"
-                placeholder="Search fasteners by name, category, or type..."
+                placeholder="Search fasteners by name, description, or category..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pr-10"
@@ -139,47 +144,73 @@ const Fasteners = () => {
           </div>
 
           <Tabs defaultValue="industrial" className="w-full mb-8">
-            <TabsList className="w-full flex justify-center gap-4">
-              <TabsTrigger value="industrial">Industrial</TabsTrigger>
-              <TabsTrigger value="specialty">Specialty</TabsTrigger>
-              <TabsTrigger value="marine">Marine & Chemical</TabsTrigger>
+            <TabsList className="w-full flex justify-center mb-8">
+              <TabsTrigger value="industrial" className="text-base px-5 py-2.5">Industrial Fasteners</TabsTrigger>
+              <TabsTrigger value="specialty" className="text-base px-5 py-2.5">Specialty Fasteners</TabsTrigger>
+              <TabsTrigger value="marine" className="text-base px-5 py-2.5">Marine & Chemical</TabsTrigger>
             </TabsList>
-
+            
             <TabsContent value="industrial">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filterProducts(industrialFasteners).map((product, idx) => (
-                  <ProductCard key={idx} {...product} />
+                {filterProducts(industrialFasteners).map((product, index) => (
+                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
+                    <ProductCard 
+                      name={product.name}
+                      image={product.image}
+                      description={product.description}
+                      categories={product.categories}
+                      isNew={product.isNew}
+                    />
+                  </div>
                 ))}
               </div>
             </TabsContent>
-
+            
             <TabsContent value="specialty">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filterProducts(specialtyFasteners).map((product, idx) => (
-                  <ProductCard key={idx} {...product} />
+                {filterProducts(specialtyFasteners).map((product, index) => (
+                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
+                    <ProductCard 
+                      name={product.name}
+                      image={product.image}
+                      description={product.description}
+                      categories={product.categories}
+                      isNew={product.isNew}
+                    />
+                  </div>
                 ))}
               </div>
             </TabsContent>
-
+            
             <TabsContent value="marine">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filterProducts(marineFasteners).map((product, idx) => (
-                  <ProductCard key={idx} {...product} />
+                {filterProducts(marineFasteners).map((product, index) => (
+                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
+                    <ProductCard 
+                      name={product.name}
+                      image={product.image}
+                      description={product.description}
+                      categories={product.categories}
+                      isNew={product.isNew}
+                    />
+                  </div>
                 ))}
               </div>
             </TabsContent>
           </Tabs>
 
-          <div className="mt-12 bg-white p-8 rounded-lg shadow-md border border-electric-100">
+          <div className="mt-12 bg-white p-8 rounded-lg shadow-md border border-electric-100" data-aos="fade-up">
             <h2 className="text-2xl font-bold text-industry-900 mb-4">Custom Fastener Solutions</h2>
             <p className="text-industry-700 mb-6">
-              Need something more specific? We offer custom fasteners tailored to your technical and structural needs.
+              Don't see exactly what you need? We offer custom fastener manufacturing services to meet your specific requirements. 
+              Our engineering team can work with you to design and produce fasteners tailored to your application.
             </p>
-            <Link to="/contact" className="bg-industry-700 hover:bg-industry-800 text-white inline-flex items-center px-4 py-2 rounded group">
+            <Link to="/contact" className="bg-industry-700 hover:bg-industry-800 text-white group inline-flex items-center px-4 py-2 rounded">
               Inquire About Custom Orders 
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform"/>
             </Link>
           </div>
+
         </div>
       </div>
     </Layout>
