@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, LogIn, LogOut, User } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogIn, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -23,6 +24,20 @@ const Navbar = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
+  }, []);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSignOut = async () => {
@@ -93,9 +108,20 @@ const Navbar = () => {
         </div>
 
         <div className="hidden lg:block">
-          <Button className="bg-primary hover:bg-primary/90 text-white">
-            Request Quote
-          </Button>
+          {user ? (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate("/profile")}
+            >
+              <User className="h-6 w-6" />
+            </Button>
+          ) : (
+            <Button onClick={() => navigate("/auth")}>
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
+            </Button>
+          )}
         </div>
 
         <div className="lg:hidden">
