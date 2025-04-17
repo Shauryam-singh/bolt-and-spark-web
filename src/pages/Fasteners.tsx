@@ -4,17 +4,17 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Search, Wrench } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Link } from 'react-router-dom';
 
 interface ProductCardProps {
   name: string;
   image: string;
   description: string;
   categories: string[];
+  price: string;
   isNew?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, categories, isNew }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, categories, price, isNew }) => {
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
       {isNew && (
@@ -35,9 +35,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, cat
           ))}
         </div>
         <p className="text-industry-600 mb-4">{description}</p>
-        <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 group">
-          View Details <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-        </Button>
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-lg font-bold text-industry-900">{price}</span>
+          <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 group">
+            View Details <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -52,6 +55,7 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61VIHcLUrlL.jpg",
       description: "Designed for high-torque applications, available in various head styles and materials.",
       categories: ["Hex", "Allen", "Industrial"],
+      price: "$12.99",
       isNew: true
     },
     {
@@ -80,6 +84,7 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61d4W0NjzUL.jpg",
       description: "Used to distribute load and prevent damage to surfaces, available in flat, lock, and fender styles.",
       categories: ["Flat", "Lock", "Fender"],
+      price: "$8.99",
       isNew: true
     },
     {
@@ -95,7 +100,8 @@ const Fasteners = () => {
       name: "Stainless Steel",
       image: "https://m.media-amazon.com/images/I/61nlYFCSOkL.jpg",
       description: "Corrosion-resistant fasteners suitable for marine and outdoor applications, available in various grades.",
-      categories: ["Marine", "Corrosion-resistant", "Outdoor"]
+      categories: ["Marine", "Corrosion-resistant", "Outdoor"],
+      price: "$24.99"
     },
     {
       name: "Petrochemical Studbolts",
@@ -159,6 +165,7 @@ const Fasteners = () => {
                       image={product.image}
                       description={product.description}
                       categories={product.categories}
+                      price={product.price}
                       isNew={product.isNew}
                     />
                   </div>
@@ -175,6 +182,7 @@ const Fasteners = () => {
                       image={product.image}
                       description={product.description}
                       categories={product.categories}
+                      price={product.price}
                       isNew={product.isNew}
                     />
                   </div>
@@ -191,6 +199,7 @@ const Fasteners = () => {
                       image={product.image}
                       description={product.description}
                       categories={product.categories}
+                      price={product.price}
                       isNew={product.isNew}
                     />
                   </div>
