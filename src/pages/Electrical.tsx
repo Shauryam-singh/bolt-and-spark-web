@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search } from 'lucide-react';
+import { ArrowRight, PlugZap, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface ProductCardProps {
@@ -123,10 +123,14 @@ const Electrical = () => {
     <Layout>
       <div className="pt-24 pb-12 bg-industry-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-industry-900 mb-4">Electrical Components</h1>
-            <p className="text-lg text-industry-700 max-w-3xl mx-auto">
-              Top-tier electrical products for safe, efficient installations across all sectors.
+          <div className="flex items-center gap-3 mb-4" data-aos="fade-up">
+            <div className="bg-electric-100 p-2 rounded-full">
+              <PlugZap size={24} className="text-electric-600" />
+            </div>
+            <h1 className="text-4xl font-bold text-industry-900" data-aos="fade-up">Electrical Components</h1>
+          </div>
+          <p className="text-lg text-industry-700 max-w-3xl mb-12" data-aos="fade-up" data-aos-delay="100">
+              Top-tier electrical products for safe, efficient installations across all sectors. Explore our range of switchboards, wires, and more.
             </p>
             <div className="max-w-md mx-auto mt-6">
               <div className="relative">
@@ -143,7 +147,7 @@ const Electrical = () => {
           </div>
 
           <Tabs defaultValue="switchboards">
-            <TabsList className="flex flex-wrap justify-center mb-8 gap-2">
+            <TabsList className="w-full flex justify-center mb-8">
               {tabs.map(({ id, label }) => (
                 <TabsTrigger key={id} value={id} className="text-base px-5 py-2.5">{label}</TabsTrigger>
               ))}
@@ -151,7 +155,7 @@ const Electrical = () => {
 
             {tabs.map(({ id, products }) => (
               <TabsContent key={id} value={id}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {products
                     .filter(product =>
                       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -188,7 +192,6 @@ const Electrical = () => {
             </div>
           </div>
         </div>
-      </div>
     </Layout>
   );
 };
