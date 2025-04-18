@@ -1,10 +1,12 @@
-
 import React from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Package, Truck, Shield, Info, Tag, Percent, Award } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
 
 interface Product {
   id: string;
@@ -510,7 +512,7 @@ const ProductDetails = () => {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <div className="relative">
             {product.isNew && (
               <div className="absolute top-4 right-4 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-full z-10">
@@ -540,13 +542,106 @@ const ProductDetails = () => {
                 </span>
               ))}
             </div>
-            <p className="text-xl font-bold text-industry-900 mb-4">{product.price}</p>
-            <p className="text-industry-600 mb-8">{product.description}</p>
+            <p className="text-2xl font-bold text-industry-900 mb-4">{product.price}</p>
+
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center gap-2 text-green-700 mb-2">
+                <Truck className="h-4 w-4" />
+                <span className="font-medium">Free Delivery</span>
+              </div>
+              <div className="flex items-center gap-2 text-green-700">
+                <Shield className="h-4 w-4" />
+                <span className="font-medium">2 Year Warranty</span>
+              </div>
+            </div>
             
-            <Button className="w-full md:w-auto">
+            <Button className="w-full md:w-auto mb-6">
               <ShoppingCart className="mr-2 h-4 w-4" />
               Add to Cart
             </Button>
+
+            <Separator className="my-6" />
+
+            <Tabs defaultValue="specifications" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="specifications">Specifications</TabsTrigger>
+                <TabsTrigger value="offers">Offers</TabsTrigger>
+                <TabsTrigger value="about">About</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="specifications">
+                <Card>
+                  <CardContent className="pt-6">
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value="specs">
+                        <AccordionTrigger>
+                          <div className="flex items-center gap-2">
+                            <Package className="h-4 w-4" />
+                            Product Specifications
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-2">
+                            {product.categories.map((cat, index) => (
+                              <div key={index} className="flex justify-between py-2 border-b">
+                                <span className="text-muted-foreground">{cat}</span>
+                                <span className="font-medium">✓</span>
+                              </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="offers">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Percent className="h-5 w-5 text-secondary mt-1" />
+                        <div>
+                          <h4 className="font-medium">Bundle Discount</h4>
+                          <p className="text-sm text-muted-foreground">Save 10% when buying 3 or more items</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Tag className="h-5 w-5 text-secondary mt-1" />
+                        <div>
+                          <h4 className="font-medium">Bulk Order Pricing</h4>
+                          <p className="text-sm text-muted-foreground">Special pricing for commercial quantities</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="about">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Info className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <h4 className="font-medium">About this item</h4>
+                          <p className="text-sm text-muted-foreground">{product.description}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Award className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <h4 className="font-medium">Quality Assurance</h4>
+                          <p className="text-sm text-muted-foreground">All our products undergo rigorous quality testing</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
