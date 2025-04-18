@@ -16,6 +16,8 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, categories, price, isNew }) => {
+  const id = name.toLowerCase().replace(/\s+/g, '-'); // Generate ID from name
+
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
       {isNew && (
@@ -38,9 +40,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, cat
         <p className="text-industry-600 mb-4">{description}</p>
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold text-industry-900">{price}</span>
-          <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 group">
-            View Details <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          <Link to={`/electrical/${id}`}>
+            <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 group">
+              View Details <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

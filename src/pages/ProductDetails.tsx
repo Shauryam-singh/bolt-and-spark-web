@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -235,13 +234,76 @@ const ProductDetails = () => {
     }
   ];
 
-  // Helper function to get product details
+  const switchboards = [
+    {
+      id: "switchboard1",
+      name: "Switchboard 1",
+      image: "https://example.com/switchboard1.jpg",
+      description: "Description of switchboard 1",
+      categories: ["Switchboard", "Electrical"],
+      price: "$100.00"
+    },
+    {
+      id: "switchboard2",
+      name: "Switchboard 2",
+      image: "https://example.com/switchboard2.jpg",
+      description: "Description of switchboard 2",
+      categories: ["Switchboard", "Electrical"],
+      price: "$150.00"
+    }
+  ];
+
+  const wires = [
+    {
+      id: "wire1",
+      name: "Wire 1",
+      image: "https://example.com/wire1.jpg",
+      description: "Description of wire 1",
+      categories: ["Wire", "Electrical"],
+      price: "$5.00"
+    },
+    {
+      id: "wire2",
+      name: "Wire 2",
+      image: "https://example.com/wire2.jpg",
+      description: "Description of wire 2",
+      categories: ["Wire", "Electrical"],
+      price: "$10.00"
+    }
+  ];
+
+  const accessories = [
+    {
+      id: "accessory1",
+      name: "Accessory 1",
+      image: "https://example.com/accessory1.jpg",
+      description: "Description of accessory 1",
+      categories: ["Accessory", "Electrical"],
+      price: "$20.00"
+    },
+    {
+      id: "accessory2",
+      name: "Accessory 2",
+      image: "https://example.com/accessory2.jpg",
+      description: "Description of accessory 2",
+      categories: ["Accessory", "Electrical"],
+      price: "$30.00"
+    }
+  ];
+
   const getProductDetails = () => {
     if (category === 'fasteners') {
       const allProducts = [
         ...industrialFasteners,
         ...specialtyFasteners,
         ...marineFasteners
+      ];
+      return allProducts.find(product => product.id === id);
+    } else if (category === 'electrical') {
+      const allProducts = [
+        ...switchboards.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') })),
+        ...wires.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') })),
+        ...accessories.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') }))
       ];
       return allProducts.find(product => product.id === id);
     }
