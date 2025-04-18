@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -13,11 +14,10 @@ interface ProductCardProps {
   categories: string[];
   price: string;
   isNew?: boolean;
+  id: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, image, description, categories, price, isNew }) => {
-  const id = name.toLowerCase().replace(/\s+/g, '-'); // Generate ID from name
-
+const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description, categories, price, isNew }) => {
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
       {isNew && (
@@ -56,6 +56,7 @@ const Electrical = () => {
 
   const switchboards = [
     {
+      id: "distribution-board-12-way",
       name: "Distribution Board 12-Way",
       image: "https://cdn.moglix.com/p/LJQ1jN6NcFNt7-xxlarge.jpg",
       description: "12-way DB with MCB protection.",
@@ -64,13 +65,16 @@ const Electrical = () => {
       isNew: true
     },
     {
+      id: "industrial-switchboard",
       name: "Industrial Switchboard",
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9ru5uHeu7wf0TTn73g5tl9zkpFd2tccqFmA&s",
       description: "Heavy-duty industrial switchboard.",
       categories: ["Industrial", "Heavy-duty", "Power"],
-      price: "$399.99"
+      price: "$399.99",
+      isNew: false
     },
     {
+      id: "smart-distribution-board",
       name: "Smart Distribution Board",
       image: "https://powereasy.in/assets/images/products/main/smart-db/single-phase/smart-db-single-phase.png",
       description: "IoT-enabled DB.",
@@ -79,13 +83,16 @@ const Electrical = () => {
       isNew: true
     },
     {
+      id: "outdoor-waterproof-cabinet",
       name: "Outdoor Waterproof Cabinet",
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTexWTeW6IeUBRN3QT6CWf5fypeoKS_FbI5kn2uv0BQLGIAX-EOUZ-pvJrQYHaNvfjFEfU&usqp=CAU",
       description: "Weather-resistant cabinet.",
       categories: ["Outdoor", "Waterproof", "Protection"],
-      price: "$189.99"
+      price: "$189.99",
+      isNew: false
     },
     {
+      id: "load-center-8-way",
       name: "Load Center 8-Way",
       image: "https://s.alicdn.com/@sc04/kf/HTB1rha7KkSWBuNjSszdq6zeSpXaT.jpg_720x720q50.jpg",
       description: "8-way load center for residential and commercial use.",
@@ -94,13 +101,16 @@ const Electrical = () => {
       isNew: true
     },
     {
+      id: "heavy-duty-power-switchboard",
       name: "Heavy Duty Power Switchboard",
       image: "https://tiimg.tistatic.com/fp/1/007/875/rectangular-shape-plastic-electrical-switch-board-for-home-and-office--449.jpg",
       description: "For heavy industrial applications.",
       categories: ["Industrial", "Heavy-duty", "Power"],
-      price: "$499.99"
+      price: "$499.99",
+      isNew: false
     },
     {
+      id: "panelboard-24-way",
       name: "Panelboard 24-Way",
       image: "https://5.imimg.com/data5/SX/TN/FJ/SELLER-4015706/electric-distribution-board-500x500.jpg",
       description: "24-way panelboard for large-scale systems.",
@@ -109,16 +119,19 @@ const Electrical = () => {
       isNew: true
     },
     {
+      id: "compact-distribution-board",
       name: "Compact Distribution Board",
       image: "https://3.imimg.com/data3/EW/OH/MY-2693575/compact-distribution-board-500x500.jpg",
       description: "Compact distribution board for smaller installations.",
       categories: ["Residential", "Compact", "Energy"],
-      price: "$99.99"
+      price: "$99.99",
+      isNew: false
     }
   ];
 
   const wires = [
     {
+      id: "copper-building-wire-100m",
       name: "Copper Building Wire (100m)",
       image: "https://image.made-in-china.com/202f0j00CicbyIUzgEkD/Weight-Copper-Cable-Cable-Electrical-Italy-100m-Power-Cable.jpg",
       description: "High-quality copper building wire.",
@@ -127,13 +140,16 @@ const Electrical = () => {
       isNew: true
     },
     {
+      id: "armored-cable-50m",
       name: "Armored Cable (50m)",
       image: "https://m.media-amazon.com/images/I/51rofQXGpKL.jpg",
       description: "Steel wire armored cable.",
       categories: ["Armored", "Steel", "Industrial"],
-      price: "$129.99"
+      price: "$129.99",
+      isNew: false
     },
     {
+      id: "fire-resistant-cable-25m",
       name: "Fire Resistant Cable (25m)",
       image: "https://media.screwfix.com/is/image/ae235/339PF_P?$fxSharpen$=&wid=257&hei=257&dpr=on",
       description: "Fire-safe cabling.",
@@ -142,20 +158,25 @@ const Electrical = () => {
       isNew: true
     },
     {
+      id: "electrical-pvc-insulated-cable",
       name: "Electrical PVC Insulated Cable",
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTftG1mNNmxE825d7ZuOfJfzKwHAxIyhs9eTQ&s",
       description: "PVC insulated cable for general wiring.",
       categories: ["PVC", "Insulated", "Building"],
-      price: "$49.99"
+      price: "$49.99",
+      isNew: false
     },
     {
+      id: "flexible-extension-cable-10m",
       name: "Flexible Extension Cable (10m)",
       image: "https://m.media-amazon.com/images/I/61+neQ3vAzL._AC_UF1000,1000_QL80_.jpg",
       description: "Flexible and durable extension cable.",
       categories: ["Flexible", "Extension", "Power"],
-      price: "$19.99"
+      price: "$19.99",
+      isNew: false
     },
     {
+      id: "multi-core-cable-100m",
       name: "Multi-Core Cable (100m)",
       image: "https://5.imimg.com/data5/CU/IK/JC/SELLER-3059229/electrical-wires-1-mm-4-core-500x500.jpg",
       description: "Multi-core cable for various applications.",
@@ -164,30 +185,37 @@ const Electrical = () => {
       isNew: true
     },
     {
+      id: "low-voltage-power-cable",
       name: "Low Voltage Power Cable",
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTZTxgCL5Sq9nLsAaRxMK7vL356yLKswISNg&s",
       description: "Low voltage cable for power distribution.",
       categories: ["Low Voltage", "Power", "Building"],
-      price: "$99.99"
+      price: "$99.99",
+      isNew: false
     }
   ];
 
   const accessories = [
     {
+      id: "modular-wall-switches",
       name: "Modular Wall Switches",
       image: "https://5.imimg.com/data5/SELLER/Default/2023/10/352782418/GA/AJ/KV/90013704/black-modular-electrical-switch-boards.jpg",
       description: "Modern design modular switches.",
       categories: ["Modular", "Switches", "Residential"],
-      price: "$12.99"
+      price: "$12.99",
+      isNew: false
     },
     {
+      id: "industrial-sockets-set",
       name: "Industrial Sockets Set",
       image: "https://images-cdn.ubuy.co.in/661730a73ce78476ff438d8b-industrial-plug-socket-3-phase-plug-4.jpg",
       description: "Heavy-duty sockets.",
       categories: ["Industrial", "Sockets", "Power"],
-      price: "$29.99"
+      price: "$29.99",
+      isNew: false
     },
     {
+      id: "smart-wi-fi-power-outlets",
       name: "Smart Wi-Fi Power Outlets",
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU35Bo-yaB3gHwjCyhRedXTNtdMEQpqT20UsQaC2vW9IOo2SALjufLk0Hvv4jgVkwyDKk&usqp=CAU",
       description: "Remote-controlled outlets.",
@@ -196,13 +224,16 @@ const Electrical = () => {
       isNew: true
     },
     {
+      id: "ceiling-fan-regulator",
       name: "Ceiling Fan Regulator",
       image: "https://havells.com/media/catalog/product/cache/844a913d283fe95e56e39582c5f2767b/import/REO-Switches/AHERFXW001.jpg",
       description: "Regulate ceiling fan speed.",
       categories: ["Fan", "Regulator", "Residential"],
-      price: "$18.99"
+      price: "$18.99",
+      isNew: false
     },
     {
+      id: "power-strip-with-usb",
       name: "Power Strip with USB",
       image: "https://m.media-amazon.com/images/I/71FtSiqsK3L.jpg",
       description: "Power strip with multiple outlets and USB ports.",
@@ -211,18 +242,22 @@ const Electrical = () => {
       isNew: true
     },
     {
+      id: "smart-led-light-switch",
       name: "Smart LED Light Switch",
       image: "https://img.joomcdn.net/ddb08b986aa428e819f3e5f70791d46e5c0e9794_original.jpeg",
       description: "Smart LED light switch for modern homes.",
       categories: ["Smart", "LED", "Switches"],
-      price: "$29.99"
+      price: "$29.99",
+      isNew: false
     },
     {
+      id: "surge-protector-power-strip",
       name: "Surge Protector Power Strip",
       image: "https://honeywellconnection.com/in/wp-content/uploads/2024/08/1-2.jpg",
       description: "Surge protector power strip with 6 outlets.",
       categories: ["Surge Protector", "Power", "Safety"],
-      price: "$19.99"
+      price: "$19.99",
+      isNew: false
     }
   ];
 
