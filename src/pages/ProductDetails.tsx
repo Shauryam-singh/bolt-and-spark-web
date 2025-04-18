@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -6,11 +5,20 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ShoppingCart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+  description: string;
+  categories: string[];
+  price?: string;
+  isNew?: boolean;
+}
+
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Define the product arrays
   const industrialFasteners = [
     {
       id: "socket-screws",
@@ -100,7 +108,7 @@ const ProductDetails = () => {
       price: "$3.99"
     }
   ];
-  
+
   const specialtyFasteners = [
     {
       id: "washers",
@@ -167,7 +175,7 @@ const ProductDetails = () => {
       price: "$2.79"
     }
   ];
-  
+
   const marineFasteners = [
     {
       id: "stainless-steel",
@@ -235,14 +243,15 @@ const ProductDetails = () => {
     }
   ];
 
-  const switchboards = [
+  const switchboards: Product[] = [
     {
       id: "switchboard1",
       name: "Switchboard 1",
       image: "https://example.com/switchboard1.jpg",
       description: "Description of switchboard 1",
       categories: ["Switchboard", "Electrical"],
-      price: "$100.00"
+      price: "$100.00",
+      isNew: false
     },
     {
       id: "switchboard2",
@@ -250,18 +259,20 @@ const ProductDetails = () => {
       image: "https://example.com/switchboard2.jpg",
       description: "Description of switchboard 2",
       categories: ["Switchboard", "Electrical"],
-      price: "$150.00"
+      price: "$150.00",
+      isNew: false
     }
   ];
 
-  const wires = [
+  const wires: Product[] = [
     {
       id: "wire1",
       name: "Wire 1",
       image: "https://example.com/wire1.jpg",
       description: "Description of wire 1",
       categories: ["Wire", "Electrical"],
-      price: "$5.00"
+      price: "$5.00",
+      isNew: false
     },
     {
       id: "wire2",
@@ -269,18 +280,20 @@ const ProductDetails = () => {
       image: "https://example.com/wire2.jpg",
       description: "Description of wire 2",
       categories: ["Wire", "Electrical"],
-      price: "$10.00"
+      price: "$10.00",
+      isNew: false
     }
   ];
 
-  const accessories = [
+  const accessories: Product[] = [
     {
       id: "accessory1",
       name: "Accessory 1",
       image: "https://example.com/accessory1.jpg",
       description: "Description of accessory 1",
       categories: ["Accessory", "Electrical"],
-      price: "$20.00"
+      price: "$20.00",
+      isNew: false
     },
     {
       id: "accessory2",
@@ -288,7 +301,8 @@ const ProductDetails = () => {
       image: "https://example.com/accessory2.jpg",
       description: "Description of accessory 2",
       categories: ["Accessory", "Electrical"],
-      price: "$30.00"
+      price: "$30.00",
+      isNew: false
     }
   ];
 
@@ -304,9 +318,9 @@ const ProductDetails = () => {
       return allProducts.find(product => product.id === id);
     } else if (category === 'electrical') {
       const allProducts = [
-        ...switchboards.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-'), isNew: p.isNew || false })),
-        ...wires.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-'), isNew: p.isNew || false })),
-        ...accessories.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-'), isNew: p.isNew || false }))
+        ...switchboards.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') })),
+        ...wires.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') })),
+        ...accessories.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') }))
       ];
       return allProducts.find(product => product.id === id);
     }
