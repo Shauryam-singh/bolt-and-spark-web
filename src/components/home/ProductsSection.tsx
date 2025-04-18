@@ -99,31 +99,31 @@ const ProductsSection = () => {
       image: "https://m.media-amazon.com/images/I/61VIHcLUrlL.jpg",
       title: "Socket Screws",
       description: "The socket head cap screws are 100% stainless steel 304 (A2-70), which is corrosion resistant and durable.",
-      linkTo: "/fasteners",
+      linkTo: "/fasteners/socket-screws",
     },
     {
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBPhNDhgro-YrCPzmUlvrS-xsLHkKzyl5Q5w&s",
       title: "Durlok",
       description: "Self locking, Anti Vibration Fasteners, Durlok Fasteners are used in various applications.",
-      linkTo: "/fasteners",
+      linkTo: "/fasteners/durlok",
     },
     {
       image: "https://www.fastdep.in/images/product/ss-hex-bolt-inch_hu1f6ff40bf773d9b8df443a823106ec08_400315_750x750_resize_q85_box.jpg",
       title: "Hex Bolts",
       description: "Hex bolts are used in a variety of applications, including construction, automotive, and machinery.",
-      linkTo: "/fasteners",
+      linkTo: "/fasteners/hex-bolt",
     },
     {
       image: "https://images-cdn.ubuy.co.in/667e6bc2bd456f54a4352a6b-5-16-18-50pcs-stainless-steel-hex-nuts.jpg",
       title: "Hex Nut",
       description: "Hex nuts are used in conjunction with hex bolts to fasten two or more parts together.",
-      linkTo: "/fasteners",
+      linkTo: "/fasteners/hex-nut",
     },
     {
       image: "https://m.media-amazon.com/images/I/61d4W0NjzUL.jpg",
       title: "Washers",
       description: "Washers are used to distribute the load of a threaded fastener, such as a screw or nut.",
-      linkTo: "/fasteners",
+      linkTo: "/fasteners/washers",
     },
   ];
 
@@ -132,31 +132,31 @@ const ProductsSection = () => {
       image: "https://5.imimg.com/data5/SELLER/Default/2024/5/417420416/QS/BR/BX/114588085/power-distribution-board.png",
       title: "Power Distribution Boards",
       description: "Reliable and safe electrical distribution systems for residential and commercial use.",
-      linkTo: "/electrical",
+      linkTo: "/electrical/distribution-board-12-way",
     },
     {
       image: "https://img500.exportersindia.com/product_images/bc-500/2020/7/2154824/electric-cables-1594103183-4557025.jpeg",
       title: "Premium Cables",
       description: "High-quality electrical wires and cables designed for efficiency and long-lasting performance.",
-      linkTo: "/electrical",
+      linkTo: "/electrical/electrical-pvc-insulated-cable",
     },
     {
       image: "https://www.generatorsource.com/getattachment/Articles/Generator-Info/How-to-Choose-a-Circuit-Breaker/Circuit-Breakers.jpg.aspx?lang=en-US", // Replace with actual image link
       title: "Circuit Breakers",
       description: "Protect your electrical circuits with our high-quality circuit breakers designed for safety.",
-      linkTo: "/electrical/circuit-breakers",
+      linkTo: "/electrical",
     },
     {
       image: "https://5.imimg.com/data5/WZ/MT/OX/SELLER-38763336/hosper-roma-modular-switch-500x500.jpg", // Replace with actual image link
       title: "Electrical Switches",
       description: "Durable and easy-to-use electrical switches for both residential and commercial use.",
-      linkTo: "/electrical/switches",
+      linkTo: "/electrical/modular-wall-switches",
     },
     {
       image: "https://www.crestonhardware.com/cdn/shop/products/4_FW8420.png?v=1740970055", // Replace with actual image link
       title: "Voltage Regulators",
       description: "Maintain steady voltage levels with our reliable voltage regulators for all applications.",
-      linkTo: "/electrical/voltage-regulators",
+      linkTo: "/electrical",
     },
   ];
   
