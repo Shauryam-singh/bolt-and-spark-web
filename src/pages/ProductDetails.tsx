@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -6,7 +7,7 @@ import { ArrowLeft, ShoppingCart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const ProductDetails = () => {
-  const { category, id } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
 
   // Define the product arrays
@@ -292,6 +293,8 @@ const ProductDetails = () => {
   ];
 
   const getProductDetails = () => {
+    const { category } = useParams();
+    
     if (category === 'fasteners') {
       const allProducts = [
         ...industrialFasteners,
@@ -301,9 +304,9 @@ const ProductDetails = () => {
       return allProducts.find(product => product.id === id);
     } else if (category === 'electrical') {
       const allProducts = [
-        ...switchboards.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') })),
-        ...wires.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') })),
-        ...accessories.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') }))
+        ...switchboards.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-'), isNew: p.isNew || false })),
+        ...wires.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-'), isNew: p.isNew || false })),
+        ...accessories.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-'), isNew: p.isNew || false }))
       ];
       return allProducts.find(product => product.id === id);
     }
