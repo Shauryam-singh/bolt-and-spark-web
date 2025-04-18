@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ShoppingCart } from 'lucide-react';
@@ -18,6 +19,7 @@ interface Product {
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const industrialFasteners = [
     {
@@ -307,27 +309,36 @@ const ProductDetails = () => {
   ];
 
   const getProductDetails = () => {
-    const { category } = useParams();
+    // Determine category from URL path
+    const pathCategory = location.pathname.includes('/fasteners/') ? 'fasteners' : 
+                         location.pathname.includes('/electrical/') ? 'electrical' : '';
     
-    if (category === 'fasteners') {
+    console.log("Current path:", location.pathname);
+    console.log("Determined category:", pathCategory);
+    console.log("Looking for product ID:", id);
+    
+    if (pathCategory === 'fasteners') {
       const allProducts = [
         ...industrialFasteners,
         ...specialtyFasteners,
         ...marineFasteners
       ];
       return allProducts.find(product => product.id === id);
-    } else if (category === 'electrical') {
+    } else if (pathCategory === 'electrical') {
       const allProducts = [
         ...switchboards.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') })),
         ...wires.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') })),
         ...accessories.map(p => ({ ...p, id: p.name.toLowerCase().replace(/\s+/g, '-') }))
       ];
-      return allProducts.find(product => product.id === id);
+      const found = allProducts.find(product => product.id === id);
+      console.log("Found electrical product:", found);
+      return found;
     }
     return null;
   };
 
   const product = getProductDetails();
+  console.log("Final product:", product);
 
   if (!product) {
     return (
