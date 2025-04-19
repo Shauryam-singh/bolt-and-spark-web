@@ -29,6 +29,7 @@ const ProductDetails = () => {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const { toast } = useToast();
+  const [wishlistLoading, setWishlistLoading] = React.useState(false);
 
   const industrialFasteners = [
     {
@@ -464,7 +465,6 @@ const ProductDetails = () => {
   const getProductDetails = () => {
     const pathCategory = location.pathname.includes('/fasteners/') ? 'fasteners' : 
                          location.pathname.includes('/electrical/') ? 'electrical' : '';
-    
     console.log("Current path:", location.pathname);
     console.log("Determined category:", pathCategory);
     console.log("Looking for product ID:", id);
@@ -521,25 +521,59 @@ const ProductDetails = () => {
   }, {} as Record<string, Product>);
 
   async function handleWishlistToggle() {
-    if (!user || !product) return;
-    const { data, error } = await supabase
-      .from("wishlists")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("product_id", product.id)
-      .maybeSingle();
-    if (data?.id) {
-      await supabase.from("wishlists").delete().eq("id", data.id);
-      toast({ title: "Wishlist", description: "Removed from wishlist." });
-    } else {
-      await supabase
-        .from("wishlists")
-        .insert({
-          user_id: user.id,
-          product_id: product.id,
-        });
-      toast({ title: "Wishlist", description: "Added to wishlist!" });
+    if (!user || !product) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "You need to log in to manage your wishlist.",
+      });
+      return;
     }
+    setWishlistLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("wishlists")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("product_id", product.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (data?.id) {
+        const { error: removeErr } = await supabase.from("wishlists").delete().eq("id", data.id);
+        if (removeErr) {
+          toast({
+            variant: "destructive",
+            title: "Wishlist",
+            description: "Failed to remove from wishlist.",
+          });
+        } else {
+          toast({ title: "Wishlist", description: "Removed from wishlist." });
+        }
+      } else {
+        const { error: insertErr } = await supabase
+          .from("wishlists")
+          .insert({
+            user_id: user.id,
+            product_id: product.id,
+          });
+        if (insertErr) {
+          toast({
+            variant: "destructive",
+            title: "Wishlist",
+            description: "Failed to add to wishlist.",
+          });
+        } else {
+          toast({ title: "Wishlist", description: "Added to wishlist!" });
+        }
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Wishlist",
+        description: "There was a problem updating your wishlist.",
+      });
+    }
+    setWishlistLoading(false);
   }
 
   return (
@@ -608,9 +642,10 @@ const ProductDetails = () => {
                 variant="outline"
                 onClick={handleWishlistToggle}
                 className="w-full md:w-auto"
+                disabled={wishlistLoading}
               >
                 <Heart className="mr-2 h-4 w-4" />
-                Wishlist
+                {wishlistLoading ? "Please wait..." : "Wishlist"}
               </Button>
             </div>
 
