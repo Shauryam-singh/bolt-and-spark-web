@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,6 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { ShoppingCart } from 'lucide-react';
+import { useCart } from "@/hooks/useCart";
 import type { Tables } from '@/integrations/supabase/types';
 
 type Wishlist = Tables<'wishlists'>;
@@ -15,6 +16,7 @@ export default function WishList() {
   const { toast } = useToast();
   const [wishlist, setWishlist] = useState<Wishlist[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if (user) {
@@ -82,13 +84,26 @@ export default function WishList() {
                     <div>
                       <p>Product ID: {item.product_id}</p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFromWishlist(item.id)}
-                    >
-                      <Heart className="h-4 w-4 fill-current" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFromWishlist(item.id)}
+                      >
+                        <Heart className="h-4 w-4 fill-current" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          addToCart(item.product_id, 1);
+                          toast({ description: "Added to cart" });
+                        }}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-1" />
+                        Add to Cart
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

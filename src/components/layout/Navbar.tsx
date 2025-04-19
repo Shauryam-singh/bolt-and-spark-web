@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown, User, LogIn, LogOut } from 'lucide-react';
@@ -6,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
+import CartDrawer from "@/components/cart/CartDrawer";
+import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/hooks/useCart";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +16,7 @@ const Navbar = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -109,13 +112,24 @@ const Navbar = () => {
 
         <div className="hidden lg:block">
           {user ? (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => navigate("/profile")}
-            >
-              <User className="h-6 w-6" />
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCartDrawerOpen(true)}
+                className="relative"
+              >
+                <ShoppingCart className="h-6 w-6" />
+                {/* Optionally show cart total */}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/profile")}
+              >
+                <User className="h-6 w-6" />
+              </Button>
+            </div>
           ) : (
             <Button onClick={() => navigate("/auth")}>
               <LogIn className="h-4 w-4 mr-2" />
@@ -182,6 +196,14 @@ const Navbar = () => {
           )}
         </div>
       </div>
+
+      {user && (
+        <CartDrawer
+          open={cartDrawerOpen}
+          setOpen={setCartDrawerOpen}
+          productMap={{}}
+        />
+      )}
     </nav>
   );
 };

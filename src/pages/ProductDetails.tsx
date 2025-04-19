@@ -7,6 +7,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/hooks/useCart";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Product {
   id: string;
@@ -22,6 +26,9 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
 
   const industrialFasteners = [
     {
@@ -455,7 +462,6 @@ const ProductDetails = () => {
   ];
 
   const getProductDetails = () => {
-    // Determine category from URL path
     const pathCategory = location.pathname.includes('/fasteners/') ? 'fasteners' : 
                          location.pathname.includes('/electrical/') ? 'electrical' : '';
     
@@ -501,17 +507,51 @@ const ProductDetails = () => {
     );
   }
 
+  const allProducts = [
+    ...industrialFasteners,
+    ...specialtyFasteners,
+    ...marineFasteners,
+    ...switchboards,
+    ...wires,
+    ...accessories,
+  ];
+  const productMap = allProducts.reduce((map, prod) => {
+    map[prod.id] = prod;
+    return map;
+  }, {} as Record<string, Product>);
+
+  async function handleWishlistToggle() {
+    if (!user || !product) return;
+    const { data, error } = await supabase
+      .from("wishlists")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("product_id", product.id)
+      .maybeSingle();
+    if (data?.id) {
+      await supabase.from("wishlists").delete().eq("id", data.id);
+      toast({ title: "Wishlist", description: "Removed from wishlist." });
+    } else {
+      await supabase
+        .from("wishlists")
+        .insert({
+          user_id: user.id,
+          product_id: product.id,
+        });
+      toast({ title: "Wishlist", description: "Added to wishlist!" });
+    }
+  }
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-24">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate(-1)} 
+        <Button
+          variant="outline"
+          onClick={() => navigate(-1)}
           className="mb-8"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <div className="relative">
             {product.isNew && (
@@ -521,9 +561,9 @@ const ProductDetails = () => {
             )}
             <Card>
               <CardContent className="p-0">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
+                <img
+                  src={product.image}
+                  alt={product.name}
                   className="w-full h-[400px] object-cover rounded-t-lg"
                 />
               </CardContent>
@@ -531,44 +571,58 @@ const ProductDetails = () => {
           </div>
 
           <div>
-            <h1 className="text-3xl font-bold text-industry-900 mb-4">{product.name}</h1>
-            <div className="flex flex-wrap gap-2 mb-6">
+            <h1 className="text-3xl font-bold text-industry-900 mb-2">
+              {product.name}
+            </h1>
+            <div className="flex flex-wrap gap-2 mb-2">
               {product.categories.map((category, index) => (
-                <span 
-                  key={index} 
+                <span
+                  key={index}
                   className="bg-industry-100 text-industry-700 px-3 py-1 rounded-full text-sm"
                 >
                   {category}
                 </span>
               ))}
             </div>
-            <p className="text-2xl font-bold text-industry-900 mb-4">{product.price}</p>
-
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center gap-2 text-green-700 mb-2">
-                <Truck className="h-4 w-4" />
-                <span className="font-medium">Free Delivery</span>
-              </div>
-              <div className="flex items-center gap-2 text-green-700">
-                <Shield className="h-4 w-4" />
-                <span className="font-medium">2 Year Warranty</span>
-              </div>
+            <p className="text-2xl font-bold text-industry-900 mb-3">
+              {product.price ?? "-"}
+            </p>
+            <p className="mb-4 text-muted-foreground">
+              {product.description}
+            </p>
+            <div className="mb-5 flex items-center gap-3">
+              <Button
+                className="font-semibold w-full md:w-auto"
+                onClick={() => {
+                  addToCart(product.id, 1);
+                  toast({
+                    title: "Cart",
+                    description: "Added to cart!",
+                  });
+                }}
+              >
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Add to Cart
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleWishlistToggle}
+                className="w-full md:w-auto"
+              >
+                <Heart className="mr-2 h-4 w-4" />
+                Wishlist
+              </Button>
             </div>
-            
-            <Button className="w-full md:w-auto mb-6">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Add to Cart
-            </Button>
 
             <Separator className="my-6" />
 
             <Tabs defaultValue="specifications" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="specifications">Specifications</TabsTrigger>
                 <TabsTrigger value="offers">Offers</TabsTrigger>
                 <TabsTrigger value="about">About</TabsTrigger>
+                <TabsTrigger value="additional">Additional Info</TabsTrigger>
               </TabsList>
-              
               <TabsContent value="specifications">
                 <Card>
                   <CardContent className="pt-6">
@@ -583,8 +637,13 @@ const ProductDetails = () => {
                         <AccordionContent>
                           <div className="space-y-2">
                             {product.categories.map((cat, index) => (
-                              <div key={index} className="flex justify-between py-2 border-b">
-                                <span className="text-muted-foreground">{cat}</span>
+                              <div
+                                key={index}
+                                className="flex justify-between py-2 border-b"
+                              >
+                                <span className="text-muted-foreground">
+                                  {cat}
+                                </span>
                                 <span className="font-medium">✓</span>
                               </div>
                             ))}
@@ -595,7 +654,6 @@ const ProductDetails = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
-
               <TabsContent value="offers">
                 <Card>
                   <CardContent className="pt-6">
@@ -604,21 +662,33 @@ const ProductDetails = () => {
                         <Percent className="h-5 w-5 text-secondary mt-1" />
                         <div>
                           <h4 className="font-medium">Bundle Discount</h4>
-                          <p className="text-sm text-muted-foreground">Save 10% when buying 3 or more items</p>
+                          <p className="text-sm text-muted-foreground">
+                            Save 10% when buying 3 or more items
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <Tag className="h-5 w-5 text-secondary mt-1" />
                         <div>
                           <h4 className="font-medium">Bulk Order Pricing</h4>
-                          <p className="text-sm text-muted-foreground">Special pricing for commercial quantities</p>
+                          <p className="text-sm text-muted-foreground">
+                            Special pricing for commercial quantities
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Award className="h-5 w-5 text-secondary mt-1" />
+                        <div>
+                          <h4 className="font-medium">Loyalty Points</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Earn points with every purchase, redeem for discounts!
+                          </p>
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
-
               <TabsContent value="about">
                 <Card>
                   <CardContent className="pt-6">
@@ -627,17 +697,41 @@ const ProductDetails = () => {
                         <Info className="h-5 w-5 text-primary mt-1" />
                         <div>
                           <h4 className="font-medium">About this item</h4>
-                          <p className="text-sm text-muted-foreground">{product.description}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {product.description}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <Award className="h-5 w-5 text-primary mt-1" />
                         <div>
                           <h4 className="font-medium">Quality Assurance</h4>
-                          <p className="text-sm text-muted-foreground">All our products undergo rigorous quality testing</p>
+                          <p className="text-sm text-muted-foreground">
+                            All our products undergo rigorous quality testing for consistent performance.
+                          </p>
                         </div>
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="additional">
+                <Card>
+                  <CardContent className="pt-6">
+                    <ul className="list-disc pl-6 space-y-2">
+                      <li>
+                        Shipping: Free on all orders.
+                      </li>
+                      <li>
+                        Return Policy: 30-day easy returns for unused products.
+                      </li>
+                      <li>
+                        Warranty: Minimum 1 year manufacturer warranty.
+                      </li>
+                      <li>
+                        Support: 24/7 customer support.
+                      </li>
+                    </ul>
                   </CardContent>
                 </Card>
               </TabsContent>
