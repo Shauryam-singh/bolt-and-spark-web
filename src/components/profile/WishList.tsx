@@ -1,13 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, ShoppingCart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart } from 'lucide-react';
 import { useCart } from "@/hooks/useCart";
 import type { Tables } from '@/integrations/supabase/types';
+import { fetchProductsByIds, ProductInfo } from '@/utils/productMap';
 
 type Wishlist = Tables<'wishlists'>;
 
@@ -17,12 +18,21 @@ export default function WishList() {
   const [wishlist, setWishlist] = useState<Wishlist[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const [productMap, setProductMap] = useState<Record<string, ProductInfo>>({});
 
   useEffect(() => {
     if (user) {
       fetchWishlist();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (wishlist.length) {
+      fetchProductsByIds(wishlist.map(w => w.product_id)).then(setProductMap);
+    } else {
+      setProductMap({});
+    }
+  }, [wishlist]);
 
   async function fetchWishlist() {
     try {
@@ -77,40 +87,56 @@ export default function WishList() {
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {wishlist.map((item) => (
-              <Card key={item.id}>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p>Product ID: {item.product_id}</p>
+            {wishlist.map((item) => {
+              const product = productMap[item.product_id];
+              return (
+                <Card key={item.id}>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        {product ? (
+                          <>
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="w-16 h-16 object-cover rounded mb-2"
+                            />
+                            <div className="font-semibold">{product.name}</div>
+                            <div className="text-sm text-muted-foreground">{product.price}</div>
+                          </>
+                        ) : (
+                          <p>Product ID: {item.product_id}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-1 flex-col items-end">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeFromWishlist(item.id)}
+                        >
+                          <Heart className="h-4 w-4 fill-current" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            addToCart(item.product_id, 1);
+                            toast({ description: "Added to cart" });
+                          }}
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-1" />
+                          Add to Cart
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeFromWishlist(item.id)}
-                      >
-                        <Heart className="h-4 w-4 fill-current" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          addToCart(item.product_id, 1);
-                          toast({ description: "Added to cart" });
-                        }}
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-1" />
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
       </CardContent>
     </Card>
   );
 }
+

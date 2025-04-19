@@ -1,34 +1,91 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Trash, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-const PRODUCTS: Record<string, { name: string; image: string; price: string }> = {
-  // If you want, import from data or context.
-};
+import { fetchProductsByIds, ProductInfo } from "@/utils/productMap";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function CartDrawer({
   open,
   setOpen,
-  productMap,
 }: {
   open: boolean;
   setOpen: (o: boolean) => void;
-  productMap: Record<string, { name: string; image: string; price: string }>;
 }) {
   const { user } = useAuth();
   const {
+    cart,
     cartItems,
     removeFromCart,
     updateQuantity,
     loading,
     getTotalAmount,
+    refetch,
   } = useCart();
   const { toast } = useToast();
+  const [productMap, setProductMap] = useState<Record<string, ProductInfo>>({});
+
+  useEffect(() => {
+    if (cartItems.length) {
+      fetchProductsByIds(cartItems.map((c) => c.product_id)).then(setProductMap);
+    } else {
+      setProductMap({});
+    }
+  }, [cartItems]);
+
+  // Place order logic. Adds the order and order_items for all items
+  async function placeOrder() {
+    if (!user || !cart || !cartItems.length) return;
+
+    const totalAmount = cartItems.reduce((sum, i) => {
+      const price = Number(
+        productMap[i.product_id]?.price.replace("$", "") || 0
+      );
+      return sum + price * i.quantity;
+    }, 0);
+
+    // Add order
+    const { data: order, error } = await supabase
+      .from("orders")
+      .insert({
+        user_id: user.id,
+        total_amount: totalAmount,
+        status: "pending",
+      })
+      .select()
+      .maybeSingle();
+
+    if (order) {
+      // Add all items
+      const itemsData = cartItems.map((i) => ({
+        order_id: order.id,
+        product_id: i.product_id,
+        quantity: i.quantity,
+        price_at_time: Number(
+          productMap[i.product_id]?.price.replace("$", "") || 0
+        ),
+      }));
+      await supabase.from("order_items").insert(itemsData);
+      // Remove all cart items for this cart
+      await supabase.from("cart_items").delete().eq("cart_id", cart.id);
+      await refetch();
+      toast({
+        title: "Order placed",
+        description: "Your order has been placed!",
+      });
+      setOpen(false);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not place order. Try again.",
+      });
+    }
+  }
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
@@ -52,12 +109,12 @@ export default function CartDrawer({
                 >
                   <img
                     src={productMap[item.product_id]?.image}
-                    alt="product"
+                    alt={productMap[item.product_id]?.name || "product"}
                     className="w-16 h-16 object-cover rounded"
                   />
                   <div className="flex-1">
                     <div className="font-semibold">
-                      {productMap[item.product_id]?.name}
+                      {productMap[item.product_id]?.name || item.product_id}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Qty: {item.quantity}
@@ -99,9 +156,17 @@ export default function CartDrawer({
               <div className="pt-6 border-t mt-4">
                 <div className="flex justify-between text-lg font-semibold">
                   <div>Total:</div>
-                  <div>${getTotalAmount(productMap).toFixed(2)}</div>
+                  <div>
+                    $
+                    {getTotalAmount(productMap).toFixed(2)}
+                  </div>
                 </div>
-                <Button variant="default" className="w-full mt-6">
+                <Button
+                  variant="default"
+                  className="w-full mt-6"
+                  onClick={placeOrder}
+                  disabled={loading || cartItems.length === 0}
+                >
                   Checkout
                 </Button>
               </div>
