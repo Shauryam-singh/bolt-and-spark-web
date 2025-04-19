@@ -1,9 +1,8 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 // These lists must sync with those in ProductDetails.tsx!
 const productData: Array<ProductInfo> = [
-  // This should include ALL products from all hardcoded categories.
-  // To keep it concise, we simulate a flat product list you can expand.
   {
     id: "socket-screws",
     name: "Socket Screws",
@@ -22,7 +21,6 @@ const productData: Array<ProductInfo> = [
     image: "https://m.media-amazon.com/images/I/61d4W0NjzUL.jpg",
     price: "$8.99",
   },
-  // More products matching those in ProductDetails.tsx
   {
     id: "hex-bolt",
     name: "Hex Bolt",
@@ -86,61 +84,28 @@ export type ProductInfo = {
   price: string;
 };
 
+/**
+ * Return a key-value map from product IDs to product info.
+ * All product data comes from the in-memory static array above.
+ * For missing products, fallback to a default placeholder.
+ */
 export async function fetchProductsByIds(ids: string[]): Promise<Record<string, ProductInfo>> {
   if (!ids.length) return {};
-  
-  // First try to find products in our static data
+
   const map: Record<string, ProductInfo> = {};
   for (const id of ids) {
     const product = productData.find((p) => p.id === id);
     if (product) {
       map[id] = product;
+    } else {
+      map[id] = {
+        id,
+        name: "Unknown Product",
+        image: "/placeholder.svg",
+        price: "$0.00",
+      };
     }
   }
-  
-  // For any products not found in static data, try to fetch from database
-  const missingIds = ids.filter(id => !map[id]);
-  if (missingIds.length > 0) {
-    try {
-      // Try to fetch from fasteners and electrical tables (assumed product structure)
-      const { data: fasteners } = await supabase
-        .from("fasteners")
-        .select("id, name, image, price")
-        .in("id", missingIds);
-      const { data: electrical } = await supabase
-        .from("electrical")
-        .select("id, name, image, price")
-        .in("id", missingIds);
-
-      const data = [
-        ...(fasteners || []),
-        ...(electrical || []),
-      ];
-
-      for (const item of data) {
-        map[item.id] = {
-          id: item.id,
-          name: item.name,
-          image: item.image || "/placeholder.svg",
-          price: typeof item.price === "number" ? "$" + item.price : (item.price || "$0.00"),
-        };
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
-    
-    // Add fallbacks for any still missing products
-    for (const id of missingIds) {
-      if (!map[id]) {
-        map[id] = {
-          id,
-          name: "Unknown Product",
-          image: "/placeholder.svg",
-          price: "$0.00",
-        };
-      }
-    }
-  }
-  
   return map;
 }
+
