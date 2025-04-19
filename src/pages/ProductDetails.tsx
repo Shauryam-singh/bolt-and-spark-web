@@ -662,4 +662,55 @@ const ProductDetails = () => {
                         <Percent className="h-5 w-5 text-secondary mt-1" />
                         <div>
                           <h4 className="font-medium">Bundle Discount</h4>
-                          <p className="
+                          <p>
+                            Bulk order discounts are available.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="about">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Info className="h-5 w-5 text-secondary mt-1" />
+                        <div>
+                          <h4 className="font-medium">About</h4>
+                          <p>
+                            Product supplied by Shayam Venchers.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="additional">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Award className="h-5 w-5 text-secondary mt-1" />
+                        <div>
+                          <h4 className="font-medium">Additional Info</h4>
+                          <p>
+                            Quality tested & certified.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default ProductDetails;
