@@ -201,7 +201,6 @@ const Navbar = () => {
         <CartDrawer
           open={cartDrawerOpen}
           setOpen={setCartDrawerOpen}
-          productMap={{}}
         />
       )}
     </nav>
