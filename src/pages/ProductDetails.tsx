@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShoppingCart, Package, Truck, Shield, Info, Tag, Percent, Award } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Package, Truck, Shield, Info, Tag, Percent, Award, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
