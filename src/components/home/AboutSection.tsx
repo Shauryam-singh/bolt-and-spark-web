@@ -34,7 +34,6 @@ const AboutSection = () => {
           
           <div className="reveal-right">
             <h2 className="text-3xl font-bold text-industry-900 mb-4">About Shayam Venchers</h2>
-            <h2 className="text-3xl font-bold text-industry-900 mb-4">About Shayam Venchers</h2>
             <p className="text-lg text-industry-700 mb-6">
               Shayam Venchers is a newly launched startup with a bold vision to redefine how fasteners and electrical components are sourced and delivered. Built on passion and purpose, we aim to blend cutting-edge technology with quality manufacturing to meet the demands of modern industries.
             </p>

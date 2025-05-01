@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -10,9 +9,9 @@ import { db } from '@/integrations/firebase/firebase';
 
 type Profile = {
   id: string;
-  username?: string;
-  phone?: string;
-  updated_at?: string;
+  username: string;
+  phone: string;
+  updated_at: string;
 };
 
 export default function UserProfile() {
@@ -24,69 +23,90 @@ export default function UserProfile() {
   const [phone, setPhone] = useState('');
 
   useEffect(() => {
-    if (user) {
+    if (user?.uid) {
       fetchProfile();
     }
-  }, [user]);
+  }, [user?.uid]);
 
   async function fetchProfile() {
     try {
-      if (!user) return;
-      
-      const profileRef = doc(db, 'profiles', user.uid);
+      const profileRef = doc(db, 'profiles', user!.uid);
       const profileSnap = await getDoc(profileRef);
-      
+
       if (profileSnap.exists()) {
-        const profileData = profileSnap.data() as Profile;
-        setProfile({
-          id: profileSnap.id,
-          ...profileData
-        });
-        setUsername(profileData.username || '');
-        setPhone(profileData.phone || '');
+        const data = profileSnap.data() as Profile;
+        setProfile({ id: profileSnap.id, ...data });
+        setUsername(data.username || '');
+        setPhone(data.phone || '');
       } else {
-        // Create profile if it doesn't exist
-        const newProfile = {
-          id: user.uid,
+        const newProfile: Profile = {
+          id: user!.uid,
           username: '',
           phone: '',
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         };
         await setDoc(profileRef, newProfile);
         setProfile(newProfile);
+        setUsername('');
+        setPhone('');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to fetch profile',
+      });
     }
   }
 
   async function updateProfile() {
     try {
       setLoading(true);
-      if (!user) throw new Error('No user');
-
+      if (!user) throw new Error('User not logged in');
+  
+      if (phone.length !== 10) {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid Phone Number',
+          description: 'Phone number must be exactly 10 digits.',
+        });
+        return;
+      }
+  
       const profileRef = doc(db, 'profiles', user.uid);
-      
+  
       const updates = {
         username,
         phone,
         updated_at: new Date().toISOString(),
       };
-
+  
       await setDoc(profileRef, updates, { merge: true });
-
+  
+      // Fetch the latest profile again
+      await fetchProfile();
+  
       toast({
         title: 'Success',
         description: 'Profile updated successfully',
       });
     } catch (error) {
+      console.error('Error updating profile:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Error updating profile',
+        description: 'Failed to update profile',
       });
     } finally {
       setLoading(false);
+    }
+  }  
+
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.target.value.replace(/\D/g, ''); // remove non-numeric characters
+    if (input.length <= 10) {
+      setPhone(input);
     }
   }
 
@@ -107,11 +127,16 @@ export default function UserProfile() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Phone</label>
-          <Input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
+          <div className="flex items-center gap-2">
+            <span className="text-sm">+91</span>
+            <Input
+              type="tel"
+              value={phone}
+              onChange={handlePhoneChange}
+              placeholder="Enter 10-digit number"
+              maxLength={10}
+            />
+          </div>
         </div>
         <Button
           onClick={updateProfile}

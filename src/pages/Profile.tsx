@@ -33,8 +33,6 @@ export default function Profile() {
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="mb-4 flex flex-wrap gap-2">
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="addresses">Addresses</TabsTrigger>
             <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
           </TabsList>
 
