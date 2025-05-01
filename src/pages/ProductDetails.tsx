@@ -29,6 +29,7 @@ const ProductDetails = () => {
   const { toast } = useToast();
   const [wishlistLoading, setWishlistLoading] = React.useState(false);
   const [isInWishlist, setIsInWishlist] = React.useState(false);
+  const [wishlistId, setWishlistId] = React.useState<string | null>(null);
 
   // Check if the product is in wishlist when component mounts
   React.useEffect(() => {
@@ -50,6 +51,7 @@ const ProductDetails = () => {
       
       if (error) throw error;
       setIsInWishlist(!!data);
+      setWishlistId(data?.id || null);
     } catch (error) {
       console.error("Error checking wishlist status:", error);
     }
@@ -553,44 +555,39 @@ const ProductDetails = () => {
       });
       return;
     }
+    
     setWishlistLoading(true);
     try {
-      if (isInWishlist) {
-        // Get the wishlist entry ID
-        const { data, error } = await supabase
+      if (isInWishlist && wishlistId) {
+        // Remove from wishlist using the stored wishlist ID
+        const { error: removeErr } = await supabase
           .from("wishlists")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("product_id", product.id)
-          .maybeSingle();
+          .delete()
+          .eq("id", wishlistId);
           
-        if (error) throw error;
+        if (removeErr) throw removeErr;
         
-        if (data?.id) {
-          const { error: removeErr } = await supabase
-            .from("wishlists")
-            .delete()
-            .eq("id", data.id);
-            
-          if (removeErr) throw removeErr;
-          
-          setIsInWishlist(false);
-          toast({ 
-            title: "Wishlist", 
-            description: "Removed from wishlist." 
-          });
-        }
+        setIsInWishlist(false);
+        setWishlistId(null);
+        toast({ 
+          title: "Wishlist", 
+          description: "Removed from wishlist." 
+        });
       } else {
-        const { error: insertErr } = await supabase
+        // Add to wishlist with string product_id
+        const { data, error: insertErr } = await supabase
           .from("wishlists")
           .insert({
             user_id: user.id,
             product_id: product.id,
-          });
+          })
+          .select('id')
+          .single();
           
         if (insertErr) throw insertErr;
         
         setIsInWishlist(true);
+        setWishlistId(data?.id || null);
         toast({ 
           title: "Wishlist", 
           description: "Added to wishlist!" 

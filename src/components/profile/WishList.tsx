@@ -27,7 +27,9 @@ export default function WishList() {
 
   useEffect(() => {
     if (wishlist.length) {
-      fetchProductsByIds(wishlist.map(w => w.product_id)).then(setProductMap);
+      // Convert product_id to string if it's not already
+      const productIds = wishlist.map(w => String(w.product_id));
+      fetchProductsByIds(productIds).then(setProductMap);
     } else {
       setProductMap({});
     }
@@ -97,7 +99,10 @@ export default function WishList() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {wishlist.map((item) => {
-              const product = productMap[item.product_id];
+              // Convert product_id to string if it's not already
+              const productId = String(item.product_id);
+              const product = productMap[productId];
+              
               return (
                 <Card key={item.id} className="overflow-hidden">
                   <CardContent className="p-0">
@@ -139,7 +144,7 @@ export default function WishList() {
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         )}

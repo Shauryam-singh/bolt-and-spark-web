@@ -94,12 +94,14 @@ export async function fetchProductsByIds(ids: string[]): Promise<Record<string, 
 
   const map: Record<string, ProductInfo> = {};
   for (const id of ids) {
-    const product = productData.find((p) => p.id === id);
+    // Convert id to string if it's not already
+    const productId = String(id);
+    const product = productData.find((p) => p.id === productId);
     if (product) {
-      map[id] = product;
+      map[productId] = product;
     } else {
-      map[id] = {
-        id,
+      map[productId] = {
+        id: productId,
         name: "Unknown Product",
         image: "/placeholder.svg",
         price: "$0.00",
