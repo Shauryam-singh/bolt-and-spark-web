@@ -4,9 +4,6 @@ import { Menu, X, ChevronDown, User, LogIn, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
-import CartDrawer from "@/components/cart/CartDrawer";
-import { ShoppingCart } from "lucide-react";
-import { useCart } from "@/hooks/useCart";
 import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
@@ -16,7 +13,6 @@ const Navbar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,7 +63,7 @@ const Navbar = () => {
           <Link to="/" className="text-industry-800 hover:text-primary font-medium transition-colors">
             Home
           </Link>
-          
+
           <div className="relative group">
             <button 
               onClick={() => toggleDropdown('products')}
@@ -86,11 +82,11 @@ const Navbar = () => {
               </div>
             </div>
           </div>
-          
+
           <Link to="/about" className="text-industry-800 hover:text-primary font-medium transition-colors">
             About
           </Link>
-          
+
           <Link to="/contact" className="text-industry-800 hover:text-primary font-medium transition-colors">
             Contact
           </Link>
@@ -99,15 +95,6 @@ const Navbar = () => {
         <div className="hidden lg:block">
           {user ? (
             <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setCartDrawerOpen(true)}
-                className="relative"
-              >
-                <ShoppingCart className="h-6 w-6" />
-                {/* Optionally show cart total */}
-              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -131,6 +118,7 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       <div
         className={`lg:hidden fixed inset-0 bg-white z-40 transition-transform duration-300 ease-in-out transform ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
@@ -140,7 +128,7 @@ const Navbar = () => {
           <Link to="/" className="text-lg font-medium py-2 border-b" onClick={toggleMenu}>
             Home
           </Link>
-          
+
           <div>
             <button 
               onClick={() => toggleDropdown('mobileProducts')}
@@ -148,7 +136,7 @@ const Navbar = () => {
             >
               Products <ChevronDown className={`h-5 w-5 transition-transform ${dropdownOpen === 'mobileProducts' ? 'rotate-180' : ''}`} />
             </button>
-            
+
             {dropdownOpen === 'mobileProducts' && (
               <div className="pl-4 py-2 space-y-2">
                 <Link to="/fasteners" className="block py-1" onClick={toggleMenu}>
@@ -160,15 +148,15 @@ const Navbar = () => {
               </div>
             )}
           </div>
-          
+
           <Link to="/about" className="text-lg font-medium py-2 border-b" onClick={toggleMenu}>
             About
           </Link>
-          
+
           <Link to="/contact" className="text-lg font-medium py-2 border-b" onClick={toggleMenu}>
             Contact
           </Link>
-          
+
           {user ? (
             <Button onClick={handleSignOut} className="w-full">
               <LogOut className="h-4 w-4 mr-2" />
@@ -182,13 +170,6 @@ const Navbar = () => {
           )}
         </div>
       </div>
-
-      {user && (
-        <CartDrawer
-          open={cartDrawerOpen}
-          setOpen={setCartDrawerOpen}
-        />
-      )}
     </nav>
   );
 };

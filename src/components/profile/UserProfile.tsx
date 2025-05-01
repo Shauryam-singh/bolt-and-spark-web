@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '@/integrations/firebase/client';
+import { db } from '@/integrations/firebase/firebase';
 
 type Profile = {
   id: string;

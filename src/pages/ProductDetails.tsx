@@ -43,13 +43,13 @@ const ProductDetails = () => {
     if (!user) return;
     
     try {
-      const { isInWishlist, wishlistId } = await isInWishlist(productId);
-      setIsInWishlistState(isInWishlist);
+      const { isInWishlist: inWishlist, wishlistId } = await isInWishlist(productId);
+      setIsInWishlistState(inWishlist);
       setWishlistId(wishlistId);
     } catch (error) {
       console.error("Error checking wishlist status:", error);
     }
-  }
+  }  
 
   const industrialFasteners = [
     {

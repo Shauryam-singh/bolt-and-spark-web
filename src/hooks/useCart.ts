@@ -11,7 +11,7 @@ import {
   doc,
   getDoc
 } from 'firebase/firestore';
-import { db } from '@/integrations/firebase/client';
+import { db } from '@/integrations/firebase/firebase';
 import { useAuth } from "@/hooks/useAuth";
 
 type CartItem = {

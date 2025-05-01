@@ -186,21 +186,6 @@ const ProductsSection = () => {
           icon={<Bolt size={24} className="text-electric-600" />}
           linkTo="/electrical"
         />
-        <ProductCategorySection
-          title="Fasteners"
-          description="Our fasteners are manufactured to the highest industry standards, providing reliable and durable solutions for all your construction and manufacturing needs."
-          products={fastenerProducts}
-          icon={<Wrench size={24} className="text-electric-600" />}
-          linkTo="/fasteners"
-        />
-
-        <ProductCategorySection
-          title="Electrical Components"
-          description="High-grade electrical components designed for safety, efficiency, and longevity, suitable for both residential and commercial applications."
-          products={electricalProducts}
-          icon={<Bolt size={24} className="text-electric-600" />}
-          linkTo="/electrical"
-        />
       </div>
     </section>
   );
