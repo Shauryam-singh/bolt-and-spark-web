@@ -4,11 +4,16 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import type { Tables } from '@/integrations/supabase/types';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '@/integrations/firebase/client';
 
-type Profile = Tables<'profiles'>;
+type Profile = {
+  id: string;
+  username?: string;
+  phone?: string;
+  updated_at?: string;
+};
 
 export default function UserProfile() {
   const { user } = useAuth();
@@ -26,17 +31,29 @@ export default function UserProfile() {
 
   async function fetchProfile() {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user?.id)
-        .single();
-
-      if (error) throw error;
-      if (data) {
-        setProfile(data);
-        setUsername(data.username || '');
-        setPhone(data.phone || '');
+      if (!user) return;
+      
+      const profileRef = doc(db, 'profiles', user.uid);
+      const profileSnap = await getDoc(profileRef);
+      
+      if (profileSnap.exists()) {
+        const profileData = profileSnap.data() as Profile;
+        setProfile({
+          id: profileSnap.id,
+          ...profileData
+        });
+        setUsername(profileData.username || '');
+        setPhone(profileData.phone || '');
+      } else {
+        // Create profile if it doesn't exist
+        const newProfile = {
+          id: user.uid,
+          username: '',
+          phone: '',
+          updated_at: new Date().toISOString()
+        };
+        await setDoc(profileRef, newProfile);
+        setProfile(newProfile);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -48,19 +65,15 @@ export default function UserProfile() {
       setLoading(true);
       if (!user) throw new Error('No user');
 
+      const profileRef = doc(db, 'profiles', user.uid);
+      
       const updates = {
-        id: user.id,
         username,
         phone,
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id);
-
-      if (error) throw error;
+      await setDoc(profileRef, updates, { merge: true });
 
       toast({
         title: 'Success',

@@ -10,7 +10,7 @@ import {
   doc
 } from 'firebase/firestore';
 import { db } from '@/integrations/firebase/client';
-import { useAuth } from '@/hooks/useFirebaseAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export type WishlistItem = {
   id: string;

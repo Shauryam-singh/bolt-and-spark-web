@@ -1,29 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { Heart, X } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import type { Tables } from '@/integrations/supabase/types';
 import { fetchProductsByIds, ProductInfo } from '@/utils/productMap';
-
-type Wishlist = Tables<'wishlists'>;
+import { useWishlist } from '@/hooks/useWishlist';
 
 export default function WishList() {
-  const { user } = useAuth();
   const { toast } = useToast();
-  const [wishlist, setWishlist] = useState<Wishlist[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { wishlist, loading, removeFromWishlist, removingItems } = useWishlist();
   const [productMap, setProductMap] = useState<Record<string, ProductInfo>>({});
-  const [removingItems, setRemovingItems] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    if (user) {
-      fetchWishlist();
-    }
-  }, [user]);
 
   useEffect(() => {
     if (wishlist.length) {
@@ -35,43 +22,18 @@ export default function WishList() {
     }
   }, [wishlist]);
 
-  async function fetchWishlist() {
+  async function handleRemoveFromWishlist(id: string) {
     try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('wishlists')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-      setWishlist(data || []);
-    } catch (error) {
-      console.error('Error fetching wishlist:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Could not fetch your wishlist. Please try again.'
-      });
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function removeFromWishlist(id: string) {
-    try {
-      setRemovingItems(prev => ({ ...prev, [id]: true }));
-      const { error } = await supabase
-        .from('wishlists')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setWishlist(wishlist.filter(item => item.id !== id));
-      toast({
-        title: 'Success',
-        description: 'Item removed from wishlist',
-      });
+      const success = await removeFromWishlist(id);
+      
+      if (success) {
+        toast({
+          title: 'Success',
+          description: 'Item removed from wishlist',
+        });
+      } else {
+        throw new Error("Failed to remove item");
+      }
     } catch (error) {
       console.error('Error removing from wishlist:', error);
       toast({
@@ -79,8 +41,6 @@ export default function WishList() {
         title: 'Error',
         description: 'Error removing item from wishlist',
       });
-    } finally {
-      setRemovingItems(prev => ({ ...prev, [id]: false }));
     }
   }
 
@@ -122,7 +82,7 @@ export default function WishList() {
                         variant="ghost"
                         size="icon"
                         className="absolute top-2 right-2 bg-white rounded-full hover:bg-gray-100"
-                        onClick={() => removeFromWishlist(item.id)}
+                        onClick={() => handleRemoveFromWishlist(item.id)}
                         disabled={removingItems[item.id]}
                       >
                         {removingItems[item.id] ? (

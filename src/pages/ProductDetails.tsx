@@ -8,8 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface Product {
   id: string;
@@ -27,8 +27,9 @@ const ProductDetails = () => {
   const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const [wishlistLoading, setWishlistLoading] = React.useState(false);
-  const [isInWishlist, setIsInWishlist] = React.useState(false);
+  const [isInWishlistState, setIsInWishlistState] = React.useState(false);
   const [wishlistId, setWishlistId] = React.useState<string | null>(null);
 
   // Check if the product is in wishlist when component mounts
@@ -42,16 +43,9 @@ const ProductDetails = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
-        .from("wishlists")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("product_id", productId)
-        .maybeSingle();
-      
-      if (error) throw error;
-      setIsInWishlist(!!data);
-      setWishlistId(data?.id || null);
+      const { isInWishlist, wishlistId } = await isInWishlist(productId);
+      setIsInWishlistState(isInWishlist);
+      setWishlistId(wishlistId);
     } catch (error) {
       console.error("Error checking wishlist status:", error);
     }
@@ -558,36 +552,25 @@ const ProductDetails = () => {
     
     setWishlistLoading(true);
     try {
-      if (isInWishlist && wishlistId) {
-        // Remove from wishlist using the stored wishlist ID
-        const { error: removeErr } = await supabase
-          .from("wishlists")
-          .delete()
-          .eq("id", wishlistId);
-          
-        if (removeErr) throw removeErr;
+      if (isInWishlistState && wishlistId) {
+        // Remove from wishlist
+        const success = await removeFromWishlist(wishlistId);
+        if (!success) throw new Error("Failed to remove from wishlist");
         
-        setIsInWishlist(false);
+        setIsInWishlistState(false);
         setWishlistId(null);
         toast({ 
           title: "Wishlist", 
           description: "Removed from wishlist." 
         });
       } else {
-        // Add to wishlist with string product_id
-        const { data, error: insertErr } = await supabase
-          .from("wishlists")
-          .insert({
-            user_id: user.id,
-            product_id: product.id,
-          })
-          .select('id')
-          .single();
-          
-        if (insertErr) throw insertErr;
+        // Add to wishlist
+        const newWishlistId = await addToWishlist(product.id);
         
-        setIsInWishlist(true);
-        setWishlistId(data?.id || null);
+        if (!newWishlistId) throw new Error("Failed to add to wishlist");
+        
+        setIsInWishlistState(true);
+        setWishlistId(newWishlistId);
         toast({ 
           title: "Wishlist", 
           description: "Added to wishlist!" 
@@ -654,13 +637,13 @@ const ProductDetails = () => {
             </p>
             <div className="mb-5">
               <Button
-                variant={isInWishlist ? "secondary" : "outline"}
+                variant={isInWishlistState ? "secondary" : "outline"}
                 onClick={handleWishlistToggle}
                 className="w-full md:w-auto"
                 disabled={wishlistLoading}
               >
-                <Heart className={`mr-2 h-4 w-4 ${isInWishlist ? "fill-current" : ""}`} />
-                {wishlistLoading ? "Please wait..." : isInWishlist ? "In Wishlist" : "Add to Wishlist"}
+                <Heart className={`mr-2 h-4 w-4 ${isInWishlistState ? "fill-current" : ""}`} />
+                {wishlistLoading ? "Please wait..." : isInWishlistState ? "In Wishlist" : "Add to Wishlist"}
               </Button>
             </div>
 

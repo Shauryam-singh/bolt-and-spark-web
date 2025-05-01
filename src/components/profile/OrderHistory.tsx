@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -12,6 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { db } from '@/integrations/firebase/client';
 
 type Order = {
   id: string;
@@ -33,14 +34,27 @@ export default function OrderHistory() {
 
   async function fetchOrders() {
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setOrders(data || []);
+      setLoading(true);
+      if (!user) return;
+      
+      const ordersRef = collection(db, 'orders');
+      const q = query(
+        ordersRef,
+        where('user_id', '==', user.uid),
+        orderBy('created_at', 'desc')
+      );
+      
+      const snapshot = await getDocs(q);
+      
+      const ordersList: Order[] = [];
+      snapshot.forEach((doc) => {
+        ordersList.push({
+          id: doc.id,
+          ...doc.data()
+        } as Order);
+      });
+      
+      setOrders(ordersList);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
