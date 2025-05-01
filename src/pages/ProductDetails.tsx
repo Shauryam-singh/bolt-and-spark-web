@@ -7,7 +7,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
-import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,9 +26,34 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { addToCart } = useCart();
   const { toast } = useToast();
   const [wishlistLoading, setWishlistLoading] = React.useState(false);
+  const [isInWishlist, setIsInWishlist] = React.useState(false);
+
+  // Check if the product is in wishlist when component mounts
+  React.useEffect(() => {
+    if (user && id) {
+      checkWishlistStatus(id);
+    }
+  }, [user, id]);
+
+  async function checkWishlistStatus(productId: string) {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("wishlists")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("product_id", productId)
+        .maybeSingle();
+      
+      if (error) throw error;
+      setIsInWishlist(!!data);
+    } catch (error) {
+      console.error("Error checking wishlist status:", error);
+    }
+  }
 
   const industrialFasteners = [
     {
@@ -531,23 +555,30 @@ const ProductDetails = () => {
     }
     setWishlistLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("wishlists")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("product_id", product.id)
-        .maybeSingle();
-      if (error) throw error;
-      if (data?.id) {
-        const { error: removeErr } = await supabase.from("wishlists").delete().eq("id", data.id);
-        if (removeErr) {
-          toast({
-            variant: "destructive",
-            title: "Wishlist",
-            description: "Failed to remove from wishlist.",
+      if (isInWishlist) {
+        // Get the wishlist entry ID
+        const { data, error } = await supabase
+          .from("wishlists")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("product_id", product.id)
+          .maybeSingle();
+          
+        if (error) throw error;
+        
+        if (data?.id) {
+          const { error: removeErr } = await supabase
+            .from("wishlists")
+            .delete()
+            .eq("id", data.id);
+            
+          if (removeErr) throw removeErr;
+          
+          setIsInWishlist(false);
+          toast({ 
+            title: "Wishlist", 
+            description: "Removed from wishlist." 
           });
-        } else {
-          toast({ title: "Wishlist", description: "Removed from wishlist." });
         }
       } else {
         const { error: insertErr } = await supabase
@@ -556,17 +587,17 @@ const ProductDetails = () => {
             user_id: user.id,
             product_id: product.id,
           });
-        if (insertErr) {
-          toast({
-            variant: "destructive",
-            title: "Wishlist",
-            description: "Failed to add to wishlist.",
-          });
-        } else {
-          toast({ title: "Wishlist", description: "Added to wishlist!" });
-        }
+          
+        if (insertErr) throw insertErr;
+        
+        setIsInWishlist(true);
+        toast({ 
+          title: "Wishlist", 
+          description: "Added to wishlist!" 
+        });
       }
     } catch (error) {
+      console.error("Wishlist error:", error);
       toast({
         variant: "destructive",
         title: "Wishlist",
@@ -624,28 +655,15 @@ const ProductDetails = () => {
             <p className="mb-4 text-muted-foreground">
               {product.description}
             </p>
-            <div className="mb-5 flex items-center gap-3">
+            <div className="mb-5">
               <Button
-                className="font-semibold w-full md:w-auto"
-                onClick={() => {
-                  addToCart(product.id, 1);
-                  toast({
-                    title: "Cart",
-                    description: "Added to cart!",
-                  });
-                }}
-              >
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Add to Cart
-              </Button>
-              <Button
-                variant="outline"
+                variant={isInWishlist ? "secondary" : "outline"}
                 onClick={handleWishlistToggle}
                 className="w-full md:w-auto"
                 disabled={wishlistLoading}
               >
-                <Heart className="mr-2 h-4 w-4" />
-                {wishlistLoading ? "Please wait..." : "Wishlist"}
+                <Heart className={`mr-2 h-4 w-4 ${isInWishlist ? "fill-current" : ""}`} />
+                {wishlistLoading ? "Please wait..." : isInWishlist ? "In Wishlist" : "Add to Wishlist"}
               </Button>
             </div>
 

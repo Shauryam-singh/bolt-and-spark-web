@@ -108,4 +108,3 @@ export async function fetchProductsByIds(ids: string[]): Promise<Record<string, 
   }
   return map;
 }
-

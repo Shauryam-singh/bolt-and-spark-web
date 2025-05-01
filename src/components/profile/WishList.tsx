@@ -1,12 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
-import { Heart, ShoppingCart } from 'lucide-react';
+import { Heart, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useCart } from "@/hooks/useCart";
 import type { Tables } from '@/integrations/supabase/types';
 import { fetchProductsByIds, ProductInfo } from '@/utils/productMap';
 
@@ -17,8 +16,8 @@ export default function WishList() {
   const { toast } = useToast();
   const [wishlist, setWishlist] = useState<Wishlist[]>([]);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
   const [productMap, setProductMap] = useState<Record<string, ProductInfo>>({});
+  const [removingItems, setRemovingItems] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (user) {
@@ -36,6 +35,7 @@ export default function WishList() {
 
   async function fetchWishlist() {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('wishlists')
         .select('*')
@@ -45,6 +45,11 @@ export default function WishList() {
       setWishlist(data || []);
     } catch (error) {
       console.error('Error fetching wishlist:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not fetch your wishlist. Please try again.'
+      });
     } finally {
       setLoading(false);
     }
@@ -52,6 +57,7 @@ export default function WishList() {
 
   async function removeFromWishlist(id: string) {
     try {
+      setRemovingItems(prev => ({ ...prev, [id]: true }));
       const { error } = await supabase
         .from('wishlists')
         .delete()
@@ -65,16 +71,19 @@ export default function WishList() {
         description: 'Item removed from wishlist',
       });
     } catch (error) {
+      console.error('Error removing from wishlist:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
         description: 'Error removing item from wishlist',
       });
+    } finally {
+      setRemovingItems(prev => ({ ...prev, [id]: false }));
     }
   }
 
   if (loading) {
-    return <div>Loading wishlist...</div>;
+    return <div className="text-center py-8">Loading wishlist...</div>;
   }
 
   return (
@@ -90,44 +99,43 @@ export default function WishList() {
             {wishlist.map((item) => {
               const product = productMap[item.product_id];
               return (
-                <Card key={item.id}>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        {product ? (
-                          <>
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="w-16 h-16 object-cover rounded mb-2"
-                            />
-                            <div className="font-semibold">{product.name}</div>
-                            <div className="text-sm text-muted-foreground">{product.price}</div>
-                          </>
+                <Card key={item.id} className="overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="relative">
+                      {product ? (
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-40 object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-40 bg-muted flex items-center justify-center">
+                          Product Image Not Available
+                        </div>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-2 right-2 bg-white rounded-full hover:bg-gray-100"
+                        onClick={() => removeFromWishlist(item.id)}
+                        disabled={removingItems[item.id]}
+                      >
+                        {removingItems[item.id] ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                         ) : (
-                          <p>Product ID: {item.product_id}</p>
+                          <X className="h-4 w-4 text-gray-700" />
                         )}
-                      </div>
-                      <div className="flex gap-1 flex-col items-end">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeFromWishlist(item.id)}
-                        >
-                          <Heart className="h-4 w-4 fill-current" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            addToCart(item.product_id, 1);
-                            toast({ description: "Added to cart" });
-                          }}
-                        >
-                          <ShoppingCart className="h-4 w-4 mr-1" />
-                          Add to Cart
-                        </Button>
-                      </div>
+                      </Button>
+                    </div>
+                    <div className="p-4">
+                      {product ? (
+                        <>
+                          <h3 className="font-semibold text-lg mb-1">{product.name}</h3>
+                          <p className="text-muted-foreground">{product.price}</p>
+                        </>
+                      ) : (
+                        <p>Product ID: {item.product_id}</p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -139,4 +147,3 @@ export default function WishList() {
     </Card>
   );
 }
-
