@@ -12,11 +12,10 @@ interface ProductCardProps {
   image: string;
   description: string;
   categories: string[];
-  price: string;
   isNew?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description, categories, price, isNew }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description, categories, isNew }) => {
   const navigate = useNavigate(); // Add this line
 
   return (
@@ -40,7 +39,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description,
         </div>
         <p className="text-industry-600 mb-4">{description}</p>
         <div className="flex items-center justify-between mb-4">
-          <span className="text-lg font-bold text-industry-900">{price}</span>
           <Button 
             variant="outline" 
             className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 group"
@@ -65,7 +63,6 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61VIHcLUrlL.jpg",
       description: "Designed for high-torque applications, available in various head styles and materials.",
       categories: ["Hex", "Allen", "Industrial"],
-      price: "$12.99",
       isNew: true
     },
     {
@@ -96,7 +93,6 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61d4W0NjzUL.jpg",
       description: "Used to distribute load and prevent damage to surfaces, available in flat, lock, and fender styles.",
       categories: ["Flat", "Lock", "Fender"],
-      price: "$8.99",
       isNew: true
     },
     {
@@ -105,7 +101,6 @@ const Fasteners = () => {
       image: "https://www.fas10.in/wp-content/uploads/2022/10/stainless-steel-carriage-bolt.webp",
       description: "Designed for wood and metal connections, features a square neck to prevent rotation.",
       categories: ["Carriage", "Heavy-duty", "Industrial"],
-      price: "$5.99"
     },
     {
       id: "wood-screw",
@@ -113,7 +108,6 @@ const Fasteners = () => {
       image: "https://5.imimg.com/data5/SELLER/Default/2023/1/MT/LZ/EW/24439648/ss-wood-screws.jpg",
       description: "Ideal for woodworking, these screws provide strong holding power in wood-based applications.",
       categories: ["Wood", "Screws", "Industrial"],
-      price: "$10.49"
     },
     {
       id: "lock-nut",
@@ -121,7 +115,6 @@ const Fasteners = () => {
       image: "https://buysupplies.in/cdn/shop/products/LockNut304_ac33f36b-284f-45df-bf25-4257533af177.jpg?v=1633667576",
       description: "A type of nut designed to resist loosening due to vibration or torque.",
       categories: ["Locking", "Industrial", "Self-locking"],
-      price: "$7.99"
     },
     {
       id: "self-drilling-screw",
@@ -129,7 +122,6 @@ const Fasteners = () => {
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk7BEPeYS9fsm342tqHNxTtnn7gcXnJu881g&s",
       description: "Designed for quick installation into metal without the need for pre-drilling.",
       categories: ["Self-drilling", "Steel", "Construction"],
-      price: "$9.99"
     },
     {
       id: "expansion-bolt",
@@ -137,7 +129,6 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61zSRGzp+BL._AC_UF1000,1000_QL80_.jpg",
       description: "Used for heavy-duty anchoring in concrete and masonry, expands upon installation.",
       categories: ["Heavy-duty", "Concrete", "Industrial"],
-      price: "$15.99"
     },
     {
       id: "wing-nut",
@@ -145,7 +136,6 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61HIGWRwMEL.jpg",
       description: "Allows for easy hand-tightening, perfect for applications requiring frequent adjustments.",
       categories: ["Wing", "Industrial", "Fastening"],
-      price: "$3.99"
     }
   ];
 
@@ -157,7 +147,6 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61d4W0NjzUL.jpg",
       description: "Used to distribute load and prevent damage to surfaces, available in flat, lock, and fender styles.",
       categories: ["Flat", "Lock", "Fender"],
-      price: "$8.99",
       isNew: true
     },
     {
@@ -174,15 +163,13 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61CUtIG3O8L.jpg",
       description: "Has a wide flange that distributes the load, often used in automotive and industrial applications.",
       categories: ["Flange", "Nut", "Heavy-duty"],
-      price: "$4.99"
     },
     {
       id: "hex-nut",
       name: "Hex Nut",
       image: "https://m.media-amazon.com/images/I/71SvUQ9jKWL.jpg",
       description: "A standard hexagonal nut used in various industrial applications.",
-      categories: ["Hex", "Industrial", "Nut"],
-      price: "$1.99"
+      categories: ["Hex", "Industrial", "Nut"]
     },
     {
       id: "lifting-eye-bolt",
@@ -190,7 +177,6 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61IPB3DLuUL.jpg",
       description: "Used for lifting heavy objects, these bolts provide a secure attachment point.",
       categories: ["Lifting", "Eye", "Heavy-duty"],
-      price: "$13.99"
     },
     {
       id: "retaining-ring",
@@ -198,7 +184,6 @@ const Fasteners = () => {
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0g4GBbszwoIVn3kUAJNSP1L7EjQ_USqbEeA&s",
       description: "Used in mechanical applications to retain components within a housing or on a shaft.",
       categories: ["Retaining", "Industrial", "Mechanical"],
-      price: "$6.49"
     },
     {
       id: "hollow-bolt",
@@ -206,7 +191,6 @@ const Fasteners = () => {
       image: "https://image.made-in-china.com/2f0j00lWwfsVJywecp/Stainless-Steel-Aluminium-Brass-Nylon-Hollow-Screws.jpg",
       description: "A bolt with a hollow center, used in applications where a shaft or rod needs to pass through.",
       categories: ["Hollow", "Industrial", "Bolts"],
-      price: "$9.49"
     },
     {
       id: "e-clip",
@@ -214,7 +198,6 @@ const Fasteners = () => {
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThfSCmRa2qEJWRwlA25-6AAItRNzl-3zWcwZLmqpknPPlvkwrlvRCGe3ZM5HJ_ofGJmTQ&usqp=CAU",
       description: "A type of retaining ring used to hold parts on shafts or in housings.",
       categories: ["E-Clip", "Retaining", "Mechanical"],
-      price: "$2.79"
     }
   ];
 
@@ -226,7 +209,6 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/61nlYFCSOkL.jpg",
       description: "Corrosion-resistant fasteners suitable for marine and outdoor applications, available in various grades.",
       categories: ["Marine", "Corrosion-resistant", "Outdoor"],
-      price: "$24.99"
     },
     {
       id: "petrochemical-studbolts",
@@ -243,7 +225,6 @@ const Fasteners = () => {
       image: "https://cdn.shopify.com/s/files/1/0269/0246/2519/collections/61v6FXGa3YL._SX342.jpg?v=1638613290",
       description: "Heavy-duty bolts used for securing anchors on ships, boats, and offshore platforms.",
       categories: ["Marine", "Heavy-duty", "Bolts"],
-      price: "$35.99"
     },
     {
       id: "nylon-screws",
@@ -251,7 +232,6 @@ const Fasteners = () => {
       image: "https://m.media-amazon.com/images/I/5135VK3idvL.jpg",
       description: "Corrosion-resistant screws used for marine applications where metal corrosion is a concern.",
       categories: ["Nylon", "Marine", "Corrosion-resistant"],
-      price: "$7.99"
     },
     {
       id: "marine-grade-fasteners",
@@ -259,7 +239,6 @@ const Fasteners = () => {
       image: "https://princefastener.com/wp-content/uploads/2022/04/High-strength-bolt-fastener.jpg",
       description: "Designed specifically to resist corrosion from saltwater, these fasteners are ideal for marine environments.",
       categories: ["Marine", "Corrosion-resistant", "Outdoor"],
-      price: "$19.99"
     },
     {
       id: "stainless-steel-hex-nut",
@@ -267,7 +246,6 @@ const Fasteners = () => {
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRW2C-Pk8h89ESP-wCIgeXD12UX6tWiuG2FJg&s",
       description: "A hex nut made from stainless steel, resistant to rust and corrosion, commonly used in marine environments.",
       categories: ["Marine", "Stainless Steel", "Nut"],
-      price: "$5.49"
     },
     {
       id: "deck-screws",
@@ -275,7 +253,6 @@ const Fasteners = () => {
       image: "https://cdn11.bigcommerce.com/s-hlsk6yq0/images/stencil/1280x1280/products/340676/1345561/item-square-flat-deck-type17-ss__65923.1595960908.jpg?c=2",
       description: "Screws designed for marine decking, resistant to rust and corrosion from saltwater exposure.",
       categories: ["Deck", "Screws", "Marine"],
-      price: "$8.99"
     },
     {
       id: "marine-washers",
@@ -283,7 +260,6 @@ const Fasteners = () => {
       image: "https://image.made-in-china.com/2f0j00OvbcYFuEnBqz/3-8-EPDM-Neoprene-316-Marine-Grade-Rubber-Bonded-Sealing-Washers.webp",
       description: "Marine-grade washers designed to prevent corrosion in high-moisture environments.",
       categories: ["Marine", "Washers", "Corrosion-resistant"],
-      price: "$2.49"
     }
   ];
 
@@ -341,7 +317,6 @@ const Fasteners = () => {
                       image={product.image}
                       description={product.description}
                       categories={product.categories}
-                      price={product.price}
                       isNew={product.isNew}
                     />
                   </div>
@@ -359,7 +334,6 @@ const Fasteners = () => {
                       image={product.image}
                       description={product.description}
                       categories={product.categories}
-                      price={product.price}
                       isNew={product.isNew}
                     />
                   </div>
@@ -377,7 +351,6 @@ const Fasteners = () => {
                       image={product.image}
                       description={product.description}
                       categories={product.categories}
-                      price={product.price}
                       isNew={product.isNew}
                     />
                   </div>

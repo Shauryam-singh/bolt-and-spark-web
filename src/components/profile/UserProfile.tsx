@@ -6,6 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/integrations/firebase/firebase';
+import { auth } from '@/integrations/firebase/firebase'; // 👈 Import auth
+import { signOut } from 'firebase/auth'; // 👈 Import signOut
+import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
 
 type Profile = {
   id: string;
@@ -17,6 +20,7 @@ type Profile = {
 export default function UserProfile() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate(); // 👈 Initialize navigate
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
@@ -64,7 +68,7 @@ export default function UserProfile() {
     try {
       setLoading(true);
       if (!user) throw new Error('User not logged in');
-  
+
       if (phone.length !== 10) {
         toast({
           variant: 'destructive',
@@ -73,20 +77,20 @@ export default function UserProfile() {
         });
         return;
       }
-  
+
       const profileRef = doc(db, 'profiles', user.uid);
-  
+
       const updates = {
         username,
         phone,
         updated_at: new Date().toISOString(),
       };
-  
+
       await setDoc(profileRef, updates, { merge: true });
-  
+
       // Fetch the latest profile again
       await fetchProfile();
-  
+
       toast({
         title: 'Success',
         description: 'Profile updated successfully',
@@ -101,12 +105,30 @@ export default function UserProfile() {
     } finally {
       setLoading(false);
     }
-  }  
+  }
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
     const input = e.target.value.replace(/\D/g, ''); // remove non-numeric characters
     if (input.length <= 10) {
       setPhone(input);
+    }
+  }
+
+  async function handleLogout() {
+    try {
+      await signOut(auth);
+      toast({
+        title: 'Logged out',
+        description: 'You have been logged out successfully',
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to logout',
+      });
     }
   }
 
@@ -144,6 +166,15 @@ export default function UserProfile() {
           className="w-full"
         >
           {loading ? 'Saving...' : 'Save Changes'}
+        </Button>
+
+        {/* 🚀 Logout Button */}
+        <Button
+          variant="destructive"
+          onClick={handleLogout}
+          className="w-full"
+        >
+          Logout
         </Button>
       </CardContent>
     </Card>
