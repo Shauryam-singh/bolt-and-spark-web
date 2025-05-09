@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '@/integrations/firebase/firebase';
-import { auth } from '@/integrations/firebase/firebase'; // 👈 Import auth
+import { db } from '@/integrations/firebase';
+import { auth } from '@/integrations/firebase'; // 👈 Import auth
 import { signOut } from 'firebase/auth'; // 👈 Import signOut
 import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
 

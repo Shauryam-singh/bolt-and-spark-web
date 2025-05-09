@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { signIn, signUp, signInWithGoogle } from "@/lib/auth";
-import { auth } from "@/integrations/firebase/firebase"; // Make sure you import your Firebase auth instance
+import { auth } from "@/integrations/firebase"; // Make sure you import your Firebase auth instance
 import { onAuthStateChanged } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -141,7 +141,7 @@ const ProductsSection = () => {
       linkTo: "/electrical/electrical-pvc-insulated-cable",
     },
     {
-      image: "https://www.generatorsource.com/getattachment/Articles/Generator-Info/How-to-Choose-a-Circuit-Breaker/Circuit-Breakers.jpg.aspx?lang=en-US", // Replace with actual image link
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQMSxH2H4uMNQlhL6B5brt_RJj8PMj0667VPI4rSVtEYf2XONBcI0h8wmsNOOiQBQjMaA&usqp=CAU", // Replace with actual image link
       title: "Circuit Breakers",
       description: "Protect your electrical circuits with our high-quality circuit breakers designed for safety.",
       linkTo: "/electrical",

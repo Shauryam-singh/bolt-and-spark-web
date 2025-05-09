@@ -1,4 +1,4 @@
-import { auth } from "@/integrations/firebase/firebase";
+import { auth } from "@/integrations/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,

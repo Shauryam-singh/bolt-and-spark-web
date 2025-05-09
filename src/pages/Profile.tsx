@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Layout from '@/components/layout/Layout';
 import UserProfile from '@/components/profile/UserProfile';
-import WishList from '@/components/profile/WishList';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function Profile() {
@@ -33,14 +32,10 @@ export default function Profile() {
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="mb-4 flex flex-wrap gap-2">
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
             <UserProfile />
-          </TabsContent>
-          <TabsContent value="wishlist">
-            <WishList />
           </TabsContent>
         </Tabs>
       </div>
