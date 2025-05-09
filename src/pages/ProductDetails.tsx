@@ -9,7 +9,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { useWishlist } from '@/hooks/useWishlist';
 
 interface Product {
   id: string;
@@ -27,29 +26,6 @@ const ProductDetails = () => {
   const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const [wishlistLoading, setWishlistLoading] = React.useState(false);
-  const [isInWishlistState, setIsInWishlistState] = React.useState(false);
-  const [wishlistId, setWishlistId] = React.useState<string | null>(null);
-
-  // Check if the product is in wishlist when component mounts
-  React.useEffect(() => {
-    if (user && id) {
-      checkWishlistStatus(id);
-    }
-  }, [user, id]);
-
-  async function checkWishlistStatus(productId: string) {
-    if (!user) return;
-    
-    try {
-      const { isInWishlist: inWishlist, wishlistId } = await isInWishlist(productId);
-      setIsInWishlistState(inWishlist);
-      setWishlistId(wishlistId);
-    } catch (error) {
-      console.error("Error checking wishlist status:", error);
-    }
-  }  
 
   const industrialFasteners = [
     {
@@ -539,68 +515,22 @@ const ProductDetails = () => {
     map[prod.id] = prod;
     return map;
   }, {} as Record<string, Product>);
-
-  async function handleWishlistToggle() {
-    if (!user || !product) {
-      toast({
-        variant: "destructive",
-        title: "Authentication required",
-        description: "You need to log in to manage your wishlist.",
-      });
-      return;
-    }
-    
-    setWishlistLoading(true);
-    try {
-      if (isInWishlistState && wishlistId) {
-        // Remove from wishlist
-        const success = await removeFromWishlist(wishlistId);
-        if (!success) throw new Error("Failed to remove from wishlist");
-        
-        setIsInWishlistState(false);
-        setWishlistId(null);
-        toast({ 
-          title: "Wishlist", 
-          description: "Removed from wishlist." 
-        });
-      } else {
-        // Add to wishlist
-        const newWishlistId = await addToWishlist(product.id);
-        
-        if (!newWishlistId) throw new Error("Failed to add to wishlist");
-        
-        setIsInWishlistState(true);
-        setWishlistId(newWishlistId);
-        toast({ 
-          title: "Wishlist", 
-          description: "Added to wishlist!" 
-        });
-      }
-    } catch (error) {
-      console.error("Wishlist error:", error);
-      toast({
-        variant: "destructive",
-        title: "Wishlist",
-        description: "There was a problem updating your wishlist.",
-      });
-    }
-    setWishlistLoading(false);
-  }
-
+ 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-24">
+      <div className="container mx-auto px-4 py-16 md:py-24">
         <Button
           variant="outline"
           onClick={() => navigate(-1)}
-          className="mb-8"
+          className="mb-8 flex items-center gap-2"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          <ArrowLeft className="h-5 w-5" /> Back
         </Button>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <div className="relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Product Image Section */}
+          <div className="relative overflow-hidden rounded-lg shadow-lg bg-gray-50">
             {product.isNew && (
-              <div className="absolute top-4 right-4 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+              <div className="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10">
                 New
               </div>
             )}
@@ -609,53 +539,40 @@ const ProductDetails = () => {
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-[400px] object-cover rounded-t-lg"
+                  className="w-full h-[500px] object-cover transition-transform duration-300 ease-in-out transform hover:scale-105"
                 />
               </CardContent>
             </Card>
           </div>
 
+          {/* Product Details Section */}
           <div>
-            <h1 className="text-3xl font-bold text-industry-900 mb-2">
-              {product.name}
-            </h1>
-            <div className="flex flex-wrap gap-2 mb-2">
+            <h1 className="text-4xl font-semibold text-gray-900 mb-4">{product.name}</h1>
+            <div className="flex flex-wrap gap-2 mb-4">
               {product.categories.map((category, index) => (
                 <span
                   key={index}
-                  className="bg-industry-100 text-industry-700 px-3 py-1 rounded-full text-sm"
+                  className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium"
                 >
                   {category}
                 </span>
               ))}
             </div>
-            <p className="text-2xl font-bold text-industry-900 mb-3">
-              {product.price ?? "-"}
-            </p>
-            <p className="mb-4 text-muted-foreground">
-              {product.description}
-            </p>
-            <div className="mb-5">
-              <Button
-                variant={isInWishlistState ? "secondary" : "outline"}
-                onClick={handleWishlistToggle}
-                className="w-full md:w-auto"
-                disabled={wishlistLoading}
-              >
-                <Heart className={`mr-2 h-4 w-4 ${isInWishlistState ? "fill-current" : ""}`} />
-                {wishlistLoading ? "Please wait..." : isInWishlistState ? "In Wishlist" : "Add to Wishlist"}
-              </Button>
-            </div>
+            <p className="text-3xl font-semibold text-gray-900 mb-4">{product.price ?? "Price Unavailable"}</p>
+            <p className="text-gray-600 mb-6">{product.description}</p>
 
             <Separator className="my-6" />
 
+            {/* Tabs for Additional Info */}
             <Tabs defaultValue="specifications" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-4 mb-4">
                 <TabsTrigger value="specifications">Specifications</TabsTrigger>
                 <TabsTrigger value="offers">Offers</TabsTrigger>
                 <TabsTrigger value="about">About</TabsTrigger>
                 <TabsTrigger value="additional">Additional Info</TabsTrigger>
               </TabsList>
+
+              {/* Tab Contents */}
               <TabsContent value="specifications">
                 <Card>
                   <CardContent className="pt-6">
@@ -663,21 +580,16 @@ const ProductDetails = () => {
                       <AccordionItem value="specs">
                         <AccordionTrigger>
                           <div className="flex items-center gap-2">
-                            <Package className="h-4 w-4" />
+                            <Package className="h-4 w-4 text-gray-600" />
                             Product Specifications
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
                           <div className="space-y-2">
                             {product.categories.map((cat, index) => (
-                              <div
-                                key={index}
-                                className="flex justify-between py-2 border-b"
-                              >
-                                <span className="text-muted-foreground">
-                                  {cat}
-                                </span>
-                                <span className="font-medium">✓</span>
+                              <div key={index} className="flex justify-between py-2 border-b">
+                                <span className="text-gray-600">{cat}</span>
+                                <span className="font-medium text-green-600">✓</span>
                               </div>
                             ))}
                           </div>
@@ -687,51 +599,48 @@ const ProductDetails = () => {
                   </CardContent>
                 </Card>
               </TabsContent>
+
               <TabsContent value="offers">
                 <Card>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
                       <div className="flex items-start gap-3">
-                        <Percent className="h-5 w-5 text-secondary mt-1" />
+                        <Percent className="h-5 w-5 text-green-500" />
                         <div>
                           <h4 className="font-medium">Bundle Discount</h4>
-                          <p>
-                            Bulk order discounts are available.
-                          </p>
+                          <p className="text-gray-700">Bulk order discounts are available.</p>
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
+
               <TabsContent value="about">
                 <Card>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
                       <div className="flex items-start gap-3">
-                        <Info className="h-5 w-5 text-secondary mt-1" />
+                        <Info className="h-5 w-5 text-blue-500" />
                         <div>
                           <h4 className="font-medium">About</h4>
-                          <p>
-                            Product supplied by Shayam Venchers.
-                          </p>
+                          <p className="text-gray-700">Product supplied by Shayam Venchers.</p>
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
+
               <TabsContent value="additional">
                 <Card>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
                       <div className="flex items-start gap-3">
-                        <Award className="h-5 w-5 text-secondary mt-1" />
+                        <Award className="h-5 w-5 text-yellow-500" />
                         <div>
                           <h4 className="font-medium">Additional Info</h4>
-                          <p>
-                            Quality tested & certified.
-                          </p>
+                          <p className="text-gray-700">Quality tested & certified.</p>
                         </div>
                       </div>
                     </div>
