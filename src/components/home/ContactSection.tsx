@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import useWeb3Forms from '@web3forms/react'; // Import Web3Forms
+import HCaptcha from '@hcaptcha/react-hcaptcha'; // Import HCaptcha
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
@@ -13,41 +15,60 @@ const ContactSection = () => {
     message: '',
   });
 
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null); // State to hold the captcha token
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;  // Access key for Web3Forms
+
+  const { submit: onSubmit } = useWeb3Forms({
+    access_key: accessKey,
+    settings: {
+      from_name: 'Shayam-Venchers',
+      subject: 'New Contact Message from Website',
+    },
+    onSuccess: (msg, data) => {
+      setSubmitted(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        subject: '',
+        message: '',
+      });
+      setCaptchaToken(null); // Reset captcha token
+      alert('Message sent successfully!');
+    },
+    onError: (msg, data) => {
+      alert('Failed to send message.');
+    },
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const handleCaptcha = (token: string) => {
+    setCaptchaToken(token); // Store the captcha token when resolved
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        setSubmitted(true);
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          company: '',
-          subject: '',
-          message: '',
-        });
-        alert('Message sent successfully!');
-      } else {
-        alert('Failed to send message.');
-      }
-    } catch (err) {
-      console.error('Error submitting contact form:', err);
-      alert('An error occurred.');
+    if (!captchaToken) {
+      alert('Please complete the captcha verification.');
+      return;
     }
+
+    setIsSubmitting(true);
+
+    // Include the captcha token in the form data and submit it
+    onSubmit({
+      ...formData,
+      captcha_token: captchaToken,
+    });
   };
 
   return (
@@ -152,8 +173,16 @@ const ContactSection = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-electric-500 hover:bg-electric-600 text-white">
-                Send Message
+              {/* hCaptcha Widget */}
+              <div className="mb-4">
+                <HCaptcha
+                  sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY} // Site key for hCaptcha
+                  onVerify={handleCaptcha}
+                />
+              </div>
+
+              <Button type="submit" className="w-full bg-electric-500 hover:bg-electric-600 text-white" disabled={isSubmitting}>
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </Button>
             </div>
           </form>
