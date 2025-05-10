@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, User, LogIn, LogOut } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogIn, LogOut, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,10 @@ const Navbar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Admin email for access control
+  const ADMIN_EMAIL = "admin@shayamvenchers.com";
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -90,6 +94,13 @@ const Navbar = () => {
           <Link to="/contact" className="text-industry-800 hover:text-primary font-medium transition-colors">
             Contact
           </Link>
+
+          {isAdmin && (
+            <Link to="/admin" className="text-industry-800 hover:text-primary font-medium transition-colors flex items-center">
+              <Settings className="mr-1 h-4 w-4" />
+              Admin
+            </Link>
+          )}
         </div>
 
         <div className="hidden lg:block">
@@ -156,6 +167,13 @@ const Navbar = () => {
           <Link to="/contact" className="text-lg font-medium py-2 border-b" onClick={toggleMenu}>
             Contact
           </Link>
+
+          {isAdmin && (
+            <Link to="/admin" className="text-lg font-medium py-2 border-b flex items-center" onClick={toggleMenu}>
+              <Settings className="mr-2 h-5 w-5" />
+              Admin Panel
+            </Link>
+          )}
 
           {user ? (
             <Button onClick={handleSignOut} className="w-full">
