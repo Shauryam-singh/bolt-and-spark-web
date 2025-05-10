@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Search, Wrench } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link, useNavigate } from 'react-router-dom';
+import { getProductsByType } from '@/services/productService';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
   id: string; // Add this line
@@ -17,6 +19,11 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description, categories, isNew }) => {
   const navigate = useNavigate(); // Add this line
+
+  const handleViewDetails = () => {
+    console.log("Navigating to product details with ID:", id);
+    navigate(`/fasteners/${id}`);
+  };
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
@@ -42,7 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description,
           <Button 
             variant="outline" 
             className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 group"
-            onClick={() => navigate(`/fasteners/${id}`)}
+            onClick={handleViewDetails}
           >
             View Details <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Button>
@@ -54,9 +61,40 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description,
 
 const Fasteners = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  // Fetch products from Firebase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const productsData = await getProductsByType('fasteners');
+        if (productsData.length > 0) {
+          setProducts(productsData);
+        } else {
+          // Fall back to hard-coded data if no products in Firebase
+          setProducts(industrialFasteners.concat(specialtyFasteners, marineFasteners));
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load products. Using backup data.",
+        });
+        setProducts(industrialFasteners.concat(specialtyFasteners, marineFasteners));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [toast]);
 
   const industrialFasteners = [
-    // Existing items here ...
+    // Add this line
     {
       id: "socket-screws",
       name: "Socket Screws",
@@ -105,7 +143,7 @@ const Fasteners = () => {
     {
       id: "wood-screw",
       name: "Wood Screw",
-      image: "https://5.imimg.com/data5/SELLER/Default/2023/1/MT/LZ/EW/24439648/ss-wood-screws.jpg",
+      image: "https://5.imimg.co.in/data5/SELLER/Default/2023/1/MT/LZ/EW/24439648/ss-wood-screws.jpg",
       description: "Ideal for woodworking, these screws provide strong holding power in wood-based applications.",
       categories: ["Wood", "Screws", "Industrial"],
     },
@@ -140,7 +178,7 @@ const Fasteners = () => {
   ];
 
   const specialtyFasteners = [
-    // Existing items here ...
+    // Add this line
     {
       id: "washers",
       name: "Washers",
@@ -202,7 +240,7 @@ const Fasteners = () => {
   ];
 
   const marineFasteners = [
-    // Existing items here ...
+    // Add this line
     {
       id: "stainless-steel",
       name: "Stainless Steel",
@@ -263,13 +301,33 @@ const Fasteners = () => {
     }
   ];
 
-  const filterProducts = (products) => {
-    return products.filter(product => 
+  const filterProducts = (productsToFilter) => {
+    return productsToFilter.filter(product => 
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.categories.some(category => category.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   };
+
+  // Group products by category for the tabs
+  const groupProductsByCategory = () => {
+    const industrial = products.filter(p => p.subCategory === 'industrial' || !p.subCategory);
+    const specialty = products.filter(p => p.subCategory === 'specialty');
+    const marine = products.filter(p => p.subCategory === 'marine');
+    
+    // If no categorization in Firebase data, use the hardcoded grouping
+    if (industrial.length === 0 && specialty.length === 0 && marine.length === 0) {
+      return {
+        industrial: industrialFasteners,
+        specialty: specialtyFasteners,
+        marine: marineFasteners
+      };
+    }
+    
+    return { industrial, specialty, marine };
+  };
+
+  const { industrial, specialty, marine } = groupProductsByCategory();
 
   return (
     <Layout>
@@ -300,64 +358,70 @@ const Fasteners = () => {
             </div>
           </div>
 
-          <Tabs defaultValue="industrial" className="w-full mb-8">
-            <TabsList className="w-full flex justify-center mb-8">
-              <TabsTrigger value="industrial" className="text-base px-5 py-2.5">Industrial Fasteners</TabsTrigger>
-              <TabsTrigger value="specialty" className="text-base px-5 py-2.5">Specialty Fasteners</TabsTrigger>
-              <TabsTrigger value="marine" className="text-base px-5 py-2.5">Marine & Chemical</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="industrial">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filterProducts(industrialFasteners).map((product, index) => (
-                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
-                    <ProductCard 
-                      id={product.id}
-                      name={product.name}
-                      image={product.image}
-                      description={product.description}
-                      categories={product.categories}
-                      isNew={product.isNew}
-                    />
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="specialty">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filterProducts(specialtyFasteners).map((product, index) => (
-                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
-                    <ProductCard 
-                      id={product.id}
-                      name={product.name}
-                      image={product.image}
-                      description={product.description}
-                      categories={product.categories}
-                      isNew={product.isNew}
-                    />
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="marine">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filterProducts(marineFasteners).map((product, index) => (
-                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
-                    <ProductCard 
-                      id={product.id}
-                      name={product.name}
-                      image={product.image}
-                      description={product.description}
-                      categories={product.categories}
-                      isNew={product.isNew}
-                    />
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-industry-700"></div>
+            </div>
+          ) : (
+            <Tabs defaultValue="industrial" className="w-full mb-8">
+              <TabsList className="w-full flex justify-center mb-8">
+                <TabsTrigger value="industrial" className="text-base px-5 py-2.5">Industrial Fasteners</TabsTrigger>
+                <TabsTrigger value="specialty" className="text-base px-5 py-2.5">Specialty Fasteners</TabsTrigger>
+                <TabsTrigger value="marine" className="text-base px-5 py-2.5">Marine & Chemical</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="industrial">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filterProducts(industrial).map((product, index) => (
+                    <div key={product.id} data-aos="fade-up" data-aos-delay={index * 50}>
+                      <ProductCard 
+                        id={product.id}
+                        name={product.name}
+                        image={product.image}
+                        description={product.description}
+                        categories={product.categories || []}
+                        isNew={product.isNew}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="specialty">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filterProducts(specialty).map((product, index) => (
+                    <div key={product.id} data-aos="fade-up" data-aos-delay={index * 50}>
+                      <ProductCard 
+                        id={product.id}
+                        name={product.name}
+                        image={product.image}
+                        description={product.description}
+                        categories={product.categories || []}
+                        isNew={product.isNew}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="marine">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filterProducts(marine).map((product, index) => (
+                    <div key={product.id} data-aos="fade-up" data-aos-delay={index * 50}>
+                      <ProductCard 
+                        id={product.id}
+                        name={product.name}
+                        image={product.image}
+                        description={product.description}
+                        categories={product.categories || []}
+                        isNew={product.isNew}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
 
           <div className="mt-12 bg-white p-8 rounded-lg shadow-md border border-electric-100" data-aos="fade-up">
             <h2 className="text-2xl font-bold text-industry-900 mb-4">Custom Fastener Solutions</h2>

@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart, Heart, ArrowLeft, CheckCheck, Share2, Award, Truck, Package, RefreshCw } from 'lucide-react';
+import { ShoppingCart, Heart, ArrowLeft, CheckCheck, Share2, Award, Truck, Box, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { collection, query, where, getDocs, addDoc, deleteDoc, serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/integrations/firebase';
@@ -29,6 +29,8 @@ const ProductDetails = () => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistItemId, setWishlistItemId] = useState<string | null>(null);
 
+  console.log("Product ID from params:", id);
+
   // Fetch product details using the productService
   useEffect(() => {
     const fetchProduct = async () => {
@@ -36,8 +38,11 @@ const ProductDetails = () => {
 
       try {
         setLoading(true);
-        // Use the getProductById service function
+        console.log("Fetching product with ID:", id);
+        // Use the getProductById service function - the ID is actually the document ID in Firestore
         const productData = await getProductById(id);
+        
+        console.log("Fetched product data:", productData);
         
         if (productData) {
           setProduct(productData);

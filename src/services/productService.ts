@@ -10,6 +10,10 @@ export interface Product {
   categories: string[];
   categoryType: string;
   isNew?: boolean;
+  price?: number;
+  discountPrice?: number;
+  stock?: number;
+  specifications?: Record<string, string>;
 }
 
 // Get all products from Firebase
@@ -46,16 +50,36 @@ export const getProductsByType = async (type: string): Promise<Product[]> => {
 // Get a single product by ID
 export const getProductById = async (id: string): Promise<Product | null> => {
   try {
+    console.log(`Attempting to fetch product with ID: ${id}`);
+    
+    // First, try to get the product by document ID
     const productRef = doc(db, 'products', id);
     const snapshot = await getDoc(productRef);
     
     if (snapshot.exists()) {
+      console.log("Found product by document ID");
       return {
         id: snapshot.id,
         ...snapshot.data()
       } as Product;
     }
     
+    // If not found by document ID, try to find by custom ID field
+    console.log("Trying to find product by custom id field");
+    const productsRef = collection(db, 'products');
+    const q = query(productsRef, where('id', '==', id));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      console.log("Found product by custom ID field");
+      const doc = querySnapshot.docs[0];
+      return {
+        id: doc.id, // Use Firestore document ID
+        ...doc.data(),
+      } as Product;
+    }
+    
+    console.log("Product not found with ID:", id);
     return null;
   } catch (error) {
     console.error('Error fetching product:', error);
@@ -112,20 +136,26 @@ export const migrateProductsToFirebase = async (
     
     // Upload fasteners data
     for (const fastener of fastenersData) {
-      await addDoc(productsRef, {
+      // Ensure each product has an ID field that matches what's used in the URL
+      const productData = {
         ...fastener,
         categoryType: 'fasteners',
         createdAt: serverTimestamp()
-      });
+      };
+      
+      await addDoc(productsRef, productData);
     }
     
     // Upload electrical data
     for (const electrical of electricalData) {
-      await addDoc(productsRef, {
+      // Ensure each product has an ID field that matches what's used in the URL
+      const productData = {
         ...electrical,
         categoryType: 'electrical',
         createdAt: serverTimestamp()
-      });
+      };
+      
+      await addDoc(productsRef, productData);
     }
     
     return true;
