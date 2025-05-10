@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart, Heart, ArrowLeft, CheckCheck, Share2, Award, Truck, Box, RefreshCw } from 'lucide-react';
+import { ShoppingCart, Heart, ArrowLeft, CheckCheck, Share2, Award, Truck, Package2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { collection, query, where, getDocs, addDoc, deleteDoc, serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/integrations/firebase';
@@ -444,7 +444,7 @@ const ProductDetails = () => {
                     Free shipping
                   </span>
                   <span className="flex items-center">
-                    <Package className="mr-1 h-4 w-4 text-blue-600" />
+                    <Package2 className="mr-1 h-4 w-4 text-blue-600" />
                     Genuine product
                   </span>
                 </div>
@@ -556,7 +556,7 @@ const ProductDetails = () => {
                 </div>
                 <div className="flex items-start">
                   <div className="flex-shrink-0 p-1.5 bg-industry-100 rounded-full">
-                    <Package className="h-5 w-5 text-industry-600" />
+                    <Package2 className="h-5 w-5 text-industry-600" />
                   </div>
                   <div className="ml-3">
                     <h3 className="text-sm font-semibold">Secure Packaging</h3>
