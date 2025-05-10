@@ -216,7 +216,6 @@ const ProductDetails = () => {
           userId: user.uid,
           productId: product.id,
           name: product.name,
-          price: 199.99, // Sample price, replace with actual price from your database
           quantity: quantity,
           image: product.image,
           createdAt: serverTimestamp()
@@ -429,15 +428,8 @@ const ProductDetails = () => {
                 </div>
               </div>
               
-              {/* Price Section */}
+              {/* Price Section - Removed as requested */}
               <div className="mt-6 border-t border-b py-4">
-                <div className="flex items-end">
-                  <span className="text-3xl font-bold text-industry-900">₹199.99</span>
-                  <span className="ml-2 text-sm text-gray-500 line-through">₹249.99</span>
-                  <Badge className="ml-3 bg-red-100 text-red-800 border-red-200">20% OFF</Badge>
-                </div>
-                <p className="text-sm text-gray-500 mt-1">Price includes all taxes</p>
-                
                 <div className="flex items-center mt-4 text-sm text-gray-600">
                   <span className="flex items-center mr-4">
                     <Truck className="mr-1 h-4 w-4 text-green-600" />
@@ -643,10 +635,6 @@ const ProductDetails = () => {
                     </div>
                     <CardContent className="p-4">
                       <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
-                      <div className="flex items-baseline mt-1">
-                        <span className="text-industry-800 font-semibold">₹199.99</span>
-                        <span className="ml-2 text-xs text-gray-500 line-through">₹249.99</span>
-                      </div>
                     </CardContent>
                   </Card>
                 </Link>

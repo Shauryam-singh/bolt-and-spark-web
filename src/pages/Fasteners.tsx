@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { getProductsByType } from '@/services/productService';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
-  id: string; // Add this line
+  id: string;
   name: string;
   image: string;
   description: string;
@@ -18,7 +19,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description, categories, isNew }) => {
-  const navigate = useNavigate(); // Add this line
+  const navigate = useNavigate();
 
   const handleViewDetails = () => {
     console.log("Navigating to product details with ID:", id);
@@ -94,7 +95,6 @@ const Fasteners = () => {
   }, [toast]);
 
   const industrialFasteners = [
-    // Add this line
     {
       id: "socket-screws",
       name: "Socket Screws",
@@ -178,7 +178,6 @@ const Fasteners = () => {
   ];
 
   const specialtyFasteners = [
-    // Add this line
     {
       id: "washers",
       name: "Washers",
@@ -240,7 +239,6 @@ const Fasteners = () => {
   ];
 
   const marineFasteners = [
-    // Add this line
     {
       id: "stainless-steel",
       name: "Stainless Steel",
