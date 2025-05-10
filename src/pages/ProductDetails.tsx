@@ -1,52 +1,53 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart, Heart, ArrowLeft, CheckCheck } from 'lucide-react';
+import { ShoppingCart, Heart, ArrowLeft, CheckCheck, Share2, Award, Truck, Package, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { collection, query, where, getDocs, addDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, deleteDoc, serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/integrations/firebase';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getProductById } from '@/services/productService';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<any>(null);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addingToWishlist, setAddingToWishlist] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const { toast } = useToast();
   const { user } = useAuth();
+  const [activeImage, setActiveImage] = useState<string | null>(null);
 
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistItemId, setWishlistItemId] = useState<string | null>(null);
 
-  // Fetch product details
+  // Fetch product details using the productService
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
 
       try {
         setLoading(true);
-        const productsRef = collection(db, 'products');
-        const q = query(productsRef, where('id', '==', id));
-        const snapshot = await getDocs(q);
+        // Use the getProductById service function
+        const productData = await getProductById(id);
         
-        if (!snapshot.empty) {
-          const productData = snapshot.docs[0].data();
-          setProduct({ id: snapshot.docs[0].id, ...productData });
+        if (productData) {
+          setProduct(productData);
+          setActiveImage(productData.image);
         } else {
-          // If not found by id field, try looking up by document ID
-          const productDoc = await getDoc(doc(db, 'products', id));
-          if (productDoc.exists()) {
-            setProduct({ id: productDoc.id, ...productDoc.data() });
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Product Not Found",
-              description: "The requested product could not be found.",
-            });
-          }
+          toast({
+            variant: "destructive",
+            title: "Product Not Found",
+            description: "The requested product could not be found.",
+          });
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -62,6 +63,37 @@ const ProductDetails = () => {
 
     fetchProduct();
   }, [id, toast]);
+
+  // Fetch related products based on categories
+  useEffect(() => {
+    const fetchRelatedProducts = async () => {
+      if (!product || !product.categories || product.categories.length === 0) return;
+
+      try {
+        const productsRef = collection(db, 'products');
+        // Find products with at least one matching category but exclude current product
+        const q = query(
+          productsRef, 
+          where('categoryType', '==', product.categoryType),
+          where('id', '!=', product.id)
+        );
+        const snapshot = await getDocs(q);
+        
+        if (!snapshot.empty) {
+          const related = snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .slice(0, 4); // Limit to 4 related products
+          setRelatedProducts(related);
+        }
+      } catch (error) {
+        console.error("Error fetching related products:", error);
+      }
+    };
+
+    if (product) {
+      fetchRelatedProducts();
+    }
+  }, [product]);
 
   // Check if product is in wishlist
   useEffect(() => {
@@ -170,7 +202,7 @@ const ProductDetails = () => {
         const cartItem = snapshot.docs[0];
         const cartItemRef = doc(db, 'cart', cartItem.id);
         await updateDoc(cartItemRef, {
-          quantity: cartItem.data().quantity + 1,
+          quantity: cartItem.data().quantity + quantity,
           updatedAt: serverTimestamp()
         });
       } else {
@@ -180,7 +212,7 @@ const ProductDetails = () => {
           productId: product.id,
           name: product.name,
           price: 199.99, // Sample price, replace with actual price from your database
-          quantity: 1,
+          quantity: quantity,
           image: product.image,
           createdAt: serverTimestamp()
         });
@@ -188,7 +220,7 @@ const ProductDetails = () => {
       
       toast({
         title: "Added to Cart",
-        description: "Product has been added to your cart.",
+        description: `${quantity} item(s) added to your cart.`,
       });
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -202,21 +234,37 @@ const ProductDetails = () => {
     }
   };
 
-  const productType = useMemo(() => {
-    if (!id) return null;
-    if (id.includes("fasteners")) return "fasteners";
-    return "electrical";
-  }, [id]);
+  const handleQuantityChange = (action: 'increase' | 'decrease') => {
+    if (action === 'increase') {
+      setQuantity(prev => prev + 1);
+    } else if (action === 'decrease' && quantity > 1) {
+      setQuantity(prev => prev - 1);
+    }
+  };
 
-  const breadcrumbs = useMemo(() => {
-    if (!product || !productType) return [];
-    
-    return [
-      { name: "Home", path: "/" },
-      { name: productType === "fasteners" ? "Fasteners" : "Electrical Components", path: `/${productType}` },
-      { name: product.name, path: `/${productType}/${id}` }
-    ];
-  }, [product, productType, id]);
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: product?.name || 'Check out this product',
+        text: product?.description || 'I found this amazing product',
+        url: window.location.href,
+      }).then(() => {
+        toast({
+          title: "Shared Successfully",
+          description: "The product has been shared.",
+        });
+      }).catch((error) => {
+        console.error("Error sharing:", error);
+      });
+    } else {
+      // Fallback for browsers that don't support the Web Share API
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link Copied",
+        description: "Product link copied to clipboard.",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -248,6 +296,24 @@ const ProductDetails = () => {
     );
   }
 
+  const productType = product.categoryType || (id?.includes("fasteners") ? "fasteners" : "electrical");
+
+  const breadcrumbs = [
+    { name: "Home", path: "/" },
+    { name: productType === "fasteners" ? "Fasteners" : "Electrical Components", path: `/${productType}` },
+    { name: product.name, path: `/${productType}/${id}` }
+  ];
+
+  // Mock data for product display
+  const productImages = [product.image];
+  const specifications = [
+    { name: "Material", value: "High-grade Steel" },
+    { name: "Dimensions", value: "5 x 3 x 2 cm" },
+    { name: "Weight", value: "350g" },
+    { name: "Country of Origin", value: "India" },
+    { name: "Warranty", value: "1 Year" },
+  ];
+
   return (
     <Layout>
       <div className="container mx-auto px-4 pt-24 pb-12">
@@ -276,60 +342,151 @@ const ProductDetails = () => {
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Product Image */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="aspect-square overflow-hidden rounded-md">
-              <img 
-                src={product.image} 
-                alt={product.name} 
-                className="w-full h-full object-contain"
-              />
+          {/* Product Image Gallery */}
+          <div className="space-y-4">
+            {/* Main Image */}
+            <Card className="bg-white overflow-hidden rounded-lg shadow-md">
+              <div className="aspect-square p-8 flex items-center justify-center bg-white">
+                <img 
+                  src={activeImage || product.image} 
+                  alt={product.name} 
+                  className="w-full h-full object-contain transition-all duration-300 hover:scale-105"
+                />
+              </div>
+            </Card>
+            
+            {/* Image Thumbnails */}
+            {productImages.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {productImages.map((img, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`cursor-pointer border-2 rounded-md overflow-hidden ${img === activeImage ? 'border-industry-600' : 'border-gray-200'}`}
+                    onClick={() => setActiveImage(img)}
+                  >
+                    <img src={img} alt={`${product.name} thumbnail ${idx + 1}`} className="w-full h-full object-cover aspect-square" />
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Social Share */}
+            <div className="flex items-center justify-between pt-4 border-t">
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleShare}
+                  className="flex items-center"
+                >
+                  <Share2 className="mr-1 h-4 w-4" />
+                  Share
+                </Button>
+              </div>
+              
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                In Stock
+              </Badge>
             </div>
           </div>
 
           {/* Product Info */}
           <div>
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-industry-900">{product.name}</h1>
+              <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold text-industry-900">{product.name}</h1>
+                
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={addToWishlist}
+                  disabled={addingToWishlist}
+                  className={`rounded-full ${isInWishlist ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' : ''}`}
+                >
+                  {isInWishlist ? <Heart className="h-5 w-5 fill-current" /> : <Heart className="h-5 w-5" />}
+                </Button>
+              </div>
               
               <div className="flex items-center mt-2">
                 {product.isNew && (
-                  <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded mr-2">
-                    NEW
-                  </span>
+                  <Badge className="bg-green-100 text-green-800 border-green-200 mr-2">NEW</Badge>
                 )}
                 <div className="flex items-center space-x-2">
                   {product.categories && product.categories.map((category: string, index: number) => (
-                    <span 
+                    <Badge 
                       key={index} 
-                      className="bg-industry-100 text-industry-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                      variant="outline"
+                      className="bg-industry-100 text-industry-800 border-industry-200"
                     >
                       {category}
-                    </span>
+                    </Badge>
                   ))}
                 </div>
               </div>
               
+              {/* Price Section */}
+              <div className="mt-6 border-t border-b py-4">
+                <div className="flex items-end">
+                  <span className="text-3xl font-bold text-industry-900">₹199.99</span>
+                  <span className="ml-2 text-sm text-gray-500 line-through">₹249.99</span>
+                  <Badge className="ml-3 bg-red-100 text-red-800 border-red-200">20% OFF</Badge>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">Price includes all taxes</p>
+                
+                <div className="flex items-center mt-4 text-sm text-gray-600">
+                  <span className="flex items-center mr-4">
+                    <Truck className="mr-1 h-4 w-4 text-green-600" />
+                    Free shipping
+                  </span>
+                  <span className="flex items-center">
+                    <Package className="mr-1 h-4 w-4 text-blue-600" />
+                    Genuine product
+                  </span>
+                </div>
+              </div>
+              
+              {/* Description */}
               <div className="mt-6">
                 <h2 className="text-xl font-semibold mb-2">Description</h2>
                 <p className="text-gray-700">{product.description}</p>
               </div>
               
-              <div className="mt-8 space-y-4">
-                <p className="text-xl font-bold text-industry-900">₹199.99</p>
-                <p className="text-sm text-gray-500">Price is indicative. Contact us for bulk pricing.</p>
+              {/* Quantity and Add to Cart */}
+              <div className="mt-8 space-y-6">
+                <div className="flex items-center">
+                  <span className="mr-3 text-gray-700 font-medium">Quantity:</span>
+                  <div className="flex items-center border rounded-md">
+                    <button 
+                      onClick={() => handleQuantityChange('decrease')}
+                      className="px-3 py-1 text-lg font-medium border-r"
+                      disabled={quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <span className="px-4 py-1">{quantity}</span>
+                    <button 
+                      onClick={() => handleQuantityChange('increase')}
+                      className="px-3 py-1 text-lg font-medium border-l"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
                 
-                <div className="flex space-x-4 mt-6">
+                <div className="flex space-x-4">
                   <Button 
                     onClick={addToCart}
-                    className="flex-1"
+                    className="flex-1 h-12 text-base"
                     disabled={addingToCart}
                   >
                     {addingToCart ? (
-                      "Adding..."
+                      <span className="flex items-center">
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Adding...
+                      </span>
                     ) : (
                       <>
-                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        <ShoppingCart className="mr-2 h-5 w-5" />
                         Add to Cart
                       </>
                     )}
@@ -339,19 +496,22 @@ const ProductDetails = () => {
                     variant="outline" 
                     onClick={addToWishlist}
                     disabled={addingToWishlist}
-                    className={`${isInWishlist ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' : ''}`}
+                    className={`${isInWishlist ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' : ''} h-12 text-base`}
                   >
                     {addingToWishlist ? (
-                      "Updating..."
+                      <span className="flex items-center">
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Updating...
+                      </span>
                     ) : isInWishlist ? (
                       <>
-                        <CheckCheck className="mr-2 h-4 w-4" />
+                        <CheckCheck className="mr-2 h-5 w-5" />
                         In Wishlist
                       </>
                     ) : (
                       <>
-                        <Heart className="mr-2 h-4 w-4" />
-                        Wishlist
+                        <Heart className="mr-2 h-5 w-5" />
+                        Add to Wishlist
                       </>
                     )}
                   </Button>
@@ -359,39 +519,139 @@ const ProductDetails = () => {
               </div>
             </div>
 
+            {/* Product Features */}
             <div className="border-t pt-6 mt-6">
-              <h3 className="font-semibold mb-2">Product Details</h3>
-              <ul className="space-y-2 text-sm">
-                <li className="flex">
-                  <span className="font-medium w-32">Product ID:</span>
-                  <span className="text-gray-600">{product.id}</span>
-                </li>
-                <li className="flex">
-                  <span className="font-medium w-32">Category:</span>
-                  <span className="text-gray-600">{productType}</span>
-                </li>
-                {/* Additional product details can be added here */}
-              </ul>
-            </div>
-            
-            <div className="border-t pt-6 mt-6">
-              <h3 className="font-semibold mb-2">Need Help?</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Contact our sales team for bulk inquiries or custom requirements.
-              </p>
-              <Link to="/contact">
-                <Button variant="outline">
-                  Contact Sales
-                </Button>
-              </Link>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 p-1.5 bg-industry-100 rounded-full">
+                    <Award className="h-5 w-5 text-industry-600" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-semibold">Genuine Quality</h3>
+                    <p className="text-xs text-gray-600">100% authentic product with warranty</p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 p-1.5 bg-industry-100 rounded-full">
+                    <RefreshCw className="h-5 w-5 text-industry-600" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-semibold">Easy Returns</h3>
+                    <p className="text-xs text-gray-600">10-day return policy for your peace of mind</p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 p-1.5 bg-industry-100 rounded-full">
+                    <Truck className="h-5 w-5 text-industry-600" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-semibold">Fast Delivery</h3>
+                    <p className="text-xs text-gray-600">Delivery in 3-5 business days</p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 p-1.5 bg-industry-100 rounded-full">
+                    <Package className="h-5 w-5 text-industry-600" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-semibold">Secure Packaging</h3>
+                    <p className="text-xs text-gray-600">Products are securely packed for safe delivery</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        
+        {/* Product Details Tabs */}
+        <div className="mt-12">
+          <Tabs defaultValue="specifications" className="w-full">
+            <TabsList className="grid grid-cols-3 mb-8">
+              <TabsTrigger value="specifications">Specifications</TabsTrigger>
+              <TabsTrigger value="shipping">Shipping & Returns</TabsTrigger>
+              <TabsTrigger value="reviews">Customer Reviews</TabsTrigger>
+            </TabsList>
+            <TabsContent value="specifications" className="border rounded-lg p-6">
+              <h3 className="text-xl font-semibold mb-4">Product Specifications</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                {specifications.map((spec, index) => (
+                  <div key={index} className="flex items-center justify-between border-b pb-2">
+                    <span className="text-gray-700 font-medium">{spec.name}</span>
+                    <span className="text-gray-600">{spec.value}</span>
+                  </div>
+                ))}
+                
+                {/* Product attributes from database */}
+                <div className="flex items-center justify-between border-b pb-2">
+                  <span className="text-gray-700 font-medium">Product ID</span>
+                  <span className="text-gray-600">{product.id}</span>
+                </div>
+                <div className="flex items-center justify-between border-b pb-2">
+                  <span className="text-gray-700 font-medium">Category</span>
+                  <span className="text-gray-600 capitalize">{productType}</span>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="shipping" className="border rounded-lg p-6">
+              <h3 className="text-xl font-semibold mb-4">Shipping Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-industry-800 mb-1">Delivery Time</h4>
+                  <p className="text-gray-600 text-sm">Orders are typically processed within 1-2 business days. Shipping takes 3-5 business days for standard delivery.</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-industry-800 mb-1">Shipping Cost</h4>
+                  <p className="text-gray-600 text-sm">Free shipping on all orders above ₹500. For orders below ₹500, a shipping fee of ₹50 will be applied.</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-industry-800 mb-1">Returns & Refunds</h4>
+                  <p className="text-gray-600 text-sm">We offer a 10-day return policy from the date of delivery. Items must be unused and in the original packaging with all tags attached.</p>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="reviews" className="border rounded-lg p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold">Customer Reviews</h3>
+                <Button size="sm">Write a Review</Button>
+              </div>
+              <div className="space-y-4">
+                <p className="text-gray-600 text-center py-8">No reviews yet. Be the first to review this product!</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+        
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-bold mb-6">Related Products</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {relatedProducts.map((item, index) => (
+                <Link key={index} to={`/${item.categoryType}/${item.id}`}>
+                  <Card className="h-full hover:shadow-md transition-shadow overflow-hidden">
+                    <div className="aspect-square p-4 bg-white">
+                      <img 
+                        src={item.image} 
+                        alt={item.name} 
+                        className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
+                      <div className="flex items-baseline mt-1">
+                        <span className="text-industry-800 font-semibold">₹199.99</span>
+                        <span className="ml-2 text-xs text-gray-500 line-through">₹249.99</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );
 };
-
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default ProductDetails;
