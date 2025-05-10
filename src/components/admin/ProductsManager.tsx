@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Edit, Trash, Search, Plus, MoreVertical } from 'lucide-react';
+import { Edit, Trash, Search, Plus, MoreVertical, Box } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -165,7 +165,7 @@ const ProductsManager = () => {
                           />
                         ) : (
                           <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                            <Package size={20} className="text-gray-500" />
+                            <Box size={20} className="text-gray-500" />
                           </div>
                         )}
                       </TableCell>
