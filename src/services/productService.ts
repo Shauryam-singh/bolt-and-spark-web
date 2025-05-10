@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, where, doc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, addDoc, serverTimestamp, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/integrations/firebase';
 
 export interface Product {
@@ -39,6 +39,65 @@ export const getProductsByType = async (type: string): Promise<Product[]> => {
     } as Product));
   } catch (error) {
     console.error(`Error fetching ${type} products:`, error);
+    throw error;
+  }
+};
+
+// Get a single product by ID
+export const getProductById = async (id: string): Promise<Product | null> => {
+  try {
+    const productRef = doc(db, 'products', id);
+    const snapshot = await getDoc(productRef);
+    
+    if (snapshot.exists()) {
+      return {
+        id: snapshot.id,
+        ...snapshot.data()
+      } as Product;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    throw error;
+  }
+};
+
+// Add a new product
+export const addProduct = async (product: Omit<Product, 'id'>): Promise<string> => {
+  try {
+    const productsRef = collection(db, 'products');
+    const docRef = await addDoc(productsRef, {
+      ...product,
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding product:', error);
+    throw error;
+  }
+};
+
+// Update an existing product
+export const updateProduct = async (id: string, product: Partial<Product>): Promise<void> => {
+  try {
+    const productRef = doc(db, 'products', id);
+    await updateDoc(productRef, {
+      ...product,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    throw error;
+  }
+};
+
+// Delete a product
+export const deleteProduct = async (id: string): Promise<void> => {
+  try {
+    await deleteDoc(doc(db, 'products', id));
+  } catch (error) {
+    console.error('Error deleting product:', error);
     throw error;
   }
 };

@@ -67,6 +67,34 @@ const DataMigration = () => {
         image: "https://5.imimg.com/data5/SELLER/Default/2023/1/MT/LZ/EW/24439648/ss-wood-screws.jpg",
         description: "Ideal for woodworking, these screws provide strong holding power in wood-based applications.",
         categories: ["Wood", "Screws", "Industrial"],
+      },
+      {
+        id: "lock-nut",
+        name: "Lock Nut",
+        image: "https://buysupplies.in/cdn/shop/products/LockNut304_ac33f36b-284f-45df-bf25-4257533af177.jpg?v=1633667576",
+        description: "A type of nut designed to resist loosening due to vibration or torque.",
+        categories: ["Locking", "Industrial", "Self-locking"],
+      },
+      {
+        id: "self-drilling-screw",
+        name: "Self-Drilling Screw",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk7BEPeYS9fsm342tqHNxTtnn7gcXnJu881g&s",
+        description: "Designed for quick installation into metal without the need for pre-drilling.",
+        categories: ["Self-drilling", "Steel", "Construction"],
+      },
+      {
+        id: "expansion-bolt",
+        name: "Expansion Bolt",
+        image: "https://m.media-amazon.com/images/I/61zSRGzp+BL._AC_UF1000,1000_QL80_.jpg",
+        description: "Used for heavy-duty anchoring in concrete and masonry, expands upon installation.",
+        categories: ["Heavy-duty", "Concrete", "Industrial"],
+      },
+      {
+        id: "wing-nut",
+        name: "Wing Nut",
+        image: "https://m.media-amazon.com/images/I/61HIGWRwMEL.jpg",
+        description: "Allows for easy hand-tightening, perfect for applications requiring frequent adjustments.",
+        categories: ["Wing", "Industrial", "Fastening"],
       }
     ];
     
@@ -93,6 +121,34 @@ const DataMigration = () => {
         image: "https://m.media-amazon.com/images/I/61CUtIG3O8L.jpg",
         description: "Has a wide flange that distributes the load, often used in automotive and industrial applications.",
         categories: ["Flange", "Nut", "Heavy-duty"],
+      },
+      {
+        id: "lifting-eye-bolt",
+        name: "Lifting Eye Bolt",
+        image: "https://m.media-amazon.com/images/I/61IPB3DLuUL.jpg",
+        description: "Used for lifting heavy objects, these bolts provide a secure attachment point.",
+        categories: ["Lifting", "Eye", "Heavy-duty"],
+      },
+      {
+        id: "retaining-ring",
+        name: "Retaining Ring",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0g4GBbszwoIVn3kUAJNSP1L7EjQ_USqbEeA&s",
+        description: "Used in mechanical applications to retain components within a housing or on a shaft.",
+        categories: ["Retaining", "Industrial", "Mechanical"],
+      },
+      {
+        id: "hollow-bolt",
+        name: "Hollow Bolt",
+        image: "https://image.made-in-china.com/2f0j00lWwfsVJywecp/Stainless-Steel-Aluminium-Brass-Nylon-Hollow-Screws.jpg",
+        description: "A bolt with a hollow center, used in applications where a shaft or rod needs to pass through.",
+        categories: ["Hollow", "Industrial", "Bolts"],
+      },
+      {
+        id: "e-clip",
+        name: "E-Clip",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThfSCmRa2qEJWRwlA25-6AAItRNzl-3zWcwZLmqpknPPlvkwrlvRCGe3ZM5HJ_ofGJmTQ&usqp=CAU",
+        description: "A type of retaining ring used to hold parts on shafts or in housings.",
+        categories: ["E-Clip", "Retaining", "Mechanical"],
       }
     ];
     
@@ -119,6 +175,41 @@ const DataMigration = () => {
         image: "https://cdn.shopify.com/s/files/1/0269/0246/2519/collections/61v6FXGa3YL._SX342.jpg?v=1638613290",
         description: "Heavy-duty bolts used for securing anchors on ships, boats, and offshore platforms.",
         categories: ["Marine", "Heavy-duty", "Bolts"],
+      },
+      {
+        id: "nylon-screws",
+        name: "Nylon Screws",
+        image: "https://m.media-amazon.com/images/I/5135VK3idvL.jpg",
+        description: "Corrosion-resistant screws used for marine applications where metal corrosion is a concern.",
+        categories: ["Nylon", "Marine", "Corrosion-resistant"],
+      },
+      {
+        id: "marine-grade-fasteners",
+        name: "Marine-Grade Fasteners",
+        image: "https://princefastener.com/wp-content/uploads/2022/04/High-strength-bolt-fastener.jpg",
+        description: "Designed specifically to resist corrosion from saltwater, these fasteners are ideal for marine environments.",
+        categories: ["Marine", "Corrosion-resistant", "Outdoor"],
+      },
+      {
+        id: "stainless-steel-hex-nut",
+        name: "Stainless Steel Hex Nut",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRW2C-Pk8h89ESP-wCIgeXD12UX6tWiuG2FJg&s",
+        description: "A hex nut made from stainless steel, resistant to rust and corrosion, commonly used in marine environments.",
+        categories: ["Marine", "Stainless Steel", "Nut"],
+      },
+      {
+        id: "deck-screws",
+        name: "Deck Screws",
+        image: "https://cdn11.bigcommerce.com/s-hlsk6yq0/images/stencil/1280x1280/products/340676/1345561/item-square-flat-deck-type17-ss__65923.1595960908.jpg?c=2",
+        description: "Screws designed for marine decking, resistant to rust and corrosion from saltwater exposure.",
+        categories: ["Deck", "Screws", "Marine"],
+      },
+      {
+        id: "marine-washers",
+        name: "Marine Washers",
+        image: "https://image.made-in-china.com/2f0j00OvbcYFuEnBqz/3-8-EPDM-Neoprene-316-Marine-Grade-Rubber-Bonded-Sealing-Washers.webp",
+        description: "Marine-grade washers designed to prevent corrosion in high-moisture environments.",
+        categories: ["Marine", "Washers", "Corrosion-resistant"],
       }
     ];
     
@@ -159,6 +250,38 @@ const DataMigration = () => {
         description: "Weather-resistant cabinet.",
         categories: ["Outdoor", "Waterproof", "Protection"],
         isNew: false
+      },
+      {
+        id: "load-center-8-way",
+        name: "Load Center 8-Way",
+        image: "https://s.alicdn.com/@sc04/kf/HTB1rha7KkSWBuNjSszdq6zeSpXaT.jpg_720x720q50.jpg",
+        description: "8-way load center for residential and commercial use.",
+        categories: ["Residential", "Commercial", "Power"],
+        isNew: true
+      },
+      {
+        id: "heavy-duty-power-switchboard",
+        name: "Heavy Duty Power Switchboard",
+        image: "https://tiimg.tistatic.com/fp/1/007/875/rectangular-shape-plastic-electrical-switch-board-for-home-and-office--449.jpg",
+        description: "For heavy industrial applications.",
+        categories: ["Industrial", "Heavy-duty", "Power"],
+        isNew: false
+      },
+      {
+        id: "panelboard-24-way",
+        name: "Panelboard 24-Way",
+        image: "https://5.imimg.com/data5/SX/TN/FJ/SELLER-4015706/electric-distribution-board-500x500.jpg",
+        description: "24-way panelboard for large-scale systems.",
+        categories: ["Industrial", "Power", "Commercial"],
+        isNew: true
+      },
+      {
+        id: "compact-distribution-board",
+        name: "Compact Distribution Board",
+        image: "https://3.imimg.com/data3/EW/OH/MY-2693575/compact-distribution-board-500x500.jpg",
+        description: "Compact distribution board for smaller installations.",
+        categories: ["Residential", "Compact", "Energy"],
+        isNew: false
       }
     ];
   
@@ -194,6 +317,30 @@ const DataMigration = () => {
         description: "PVC insulated cable for general wiring.",
         categories: ["PVC", "Insulated", "Building"],
         isNew: false
+      },
+      {
+        id: "flexible-extension-cable-10m",
+        name: "Flexible Extension Cable (10m)",
+        image: "https://m.media-amazon.com/images/I/61+neQ3vAzL._AC_UF1000,1000_QL80_.jpg",
+        description: "Flexible and durable extension cable.",
+        categories: ["Flexible", "Extension", "Power"],
+        isNew: false
+      },
+      {
+        id: "multi-core-cable-100m",
+        name: "Multi-Core Cable (100m)",
+        image: "https://5.imimg.com/data5/CU/IK/JC/SELLER-3059229/electrical-wires-1-mm-4-core-500x500.jpg",
+        description: "Multi-core cable for various applications.",
+        categories: ["Multi-Core", "Industrial", "Power"],
+        isNew: true
+      },
+      {
+        id: "low-voltage-power-cable",
+        name: "Low Voltage Power Cable",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTZTxgCL5Sq9nLsAaRxMK7vL356yLKswISNg&s",
+        description: "Low voltage cable for power distribution.",
+        categories: ["Low Voltage", "Power", "Building"],
+        isNew: false
       }
     ];
   
@@ -228,6 +375,30 @@ const DataMigration = () => {
         image: "https://havells.com/media/catalog/product/cache/844a913d283fe95e56e39582c5f2767b/import/REO-Switches/AHERFXW001.jpg",
         description: "Regulate ceiling fan speed.",
         categories: ["Fan", "Regulator", "Residential"],
+        isNew: false
+      },
+      {
+        id: "power-strip-with-usb",
+        name: "Power Strip with USB",
+        image: "https://m.media-amazon.com/images/I/71FtSiqsK3L.jpg",
+        description: "Power strip with multiple outlets and USB ports.",
+        categories: ["Power", "USB", "Accessories"],
+        isNew: true
+      },
+      {
+        id: "smart-led-light-switch",
+        name: "Smart LED Light Switch",
+        image: "https://img.joomcdn.net/ddb08b986aa428e819f3e5f70791d46e5c0e9794_original.jpeg",
+        description: "Smart LED light switch for modern homes.",
+        categories: ["Smart", "LED", "Switches"],
+        isNew: false
+      },
+      {
+        id: "surge-protector-power-strip",
+        name: "Surge Protector Power Strip",
+        image: "https://honeywellconnection.com/in/wp-content/uploads/2024/08/1-2.jpg",
+        description: "Surge protector power strip with 6 outlets.",
+        categories: ["Surge Protector", "Power", "Safety"],
         isNew: false
       }
     ];

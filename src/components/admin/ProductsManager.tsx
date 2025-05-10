@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/integrations/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,16 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Edit, Trash, Search, Plus, MoreVertical, Box } from 'lucide-react';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-  categories: string[];
-  categoryType: string;
-  isNew?: boolean;
-}
+import { getAllProducts, Product } from '@/services/productService';
 
 const ProductsManager = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -65,12 +56,7 @@ const ProductsManager = () => {
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
-      const productsCollection = collection(db, 'products');
-      const productsSnapshot = await getDocs(productsCollection);
-      const productsList = productsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Product[];
+      const productsList = await getAllProducts();
       setProducts(productsList);
       setFilteredProducts(productsList);
     } catch (error) {
