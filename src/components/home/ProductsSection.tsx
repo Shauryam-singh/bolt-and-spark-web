@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Bolt, Wrench } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useWishlist } from '@/hooks/useWishlist';
 
 interface ProductCardProps {
   image: string;
@@ -12,37 +11,15 @@ interface ProductCardProps {
   description: string;
   linkTo: string;
   delay: number;
-  id: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ image, title, description, linkTo, delay, id }) => {
-  const { isInWishlist, toggleWishlist } = useWishlist();
-  const isWishlisted = isInWishlist(id);
-
+const ProductCard: React.FC<ProductCardProps> = ({ image, title, description, linkTo, delay }) => {
   return (
     <Card 
-      className="overflow-hidden group hover:shadow-xl transition-all duration-300 border-electric-100 relative"
+      className="overflow-hidden group hover:shadow-xl transition-all duration-300 border-electric-100"
       data-aos="fade-up"
       data-aos-delay={delay}
     >
-      <button 
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          toggleWishlist(id, { id, name: title, image, description });
-        }}
-        className="absolute top-2 left-2 bg-white rounded-full p-1 shadow-sm z-10"
-      >
-        {isWishlisted ? (
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ff4545" stroke="#ff4545" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-        )}
-      </button>
       <div className="h-48 overflow-hidden">
         <img 
           src={image} 
@@ -69,7 +46,6 @@ const ProductCategorySection: React.FC<{
   title: string;
   description: string;
   products: Array<{
-    id: string;
     image: string;
     title: string;
     description: string;
@@ -94,7 +70,6 @@ const ProductCategorySection: React.FC<{
         {products.map((product, index) => (
           <ProductCard
             key={index}
-            id={product.id}
             image={product.image}
             title={product.title}
             description={product.description}
@@ -121,77 +96,67 @@ const ProductCategorySection: React.FC<{
 const ProductsSection = () => {
   const fastenerProducts = [
     {
-      id: "socket-screws",
       image: "https://m.media-amazon.com/images/I/61VIHcLUrlL.jpg",
       title: "Socket Screws",
       description: "The socket head cap screws are 100% stainless steel 304 (A2-70), which is corrosion resistant and durable.",
-      linkTo: "/fasteners/socket-screws",
+      linkTo: "/fasteners/socket-screws", // Ensure the ID matches what's in Firestore
     },
     {
-      id: "durlok",
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBPhNDhgro-YrCPzmUlvrS-xsLHkKzyl5Q5w&s",
       title: "Durlok",
       description: "Self locking, Anti Vibration Fasteners, Durlok Fasteners are used in various applications.",
-      linkTo: "/fasteners/durlok",
+      linkTo: "/fasteners/durlok", // Ensure the ID matches what's in Firestore
     },
     {
-      id: "hex-bolt",
       image: "https://www.fastdep.in/images/product/ss-hex-bolt-inch_hu1f6ff40bf773d9b8df443a823106ec08_400315_750x750_resize_q85_box.jpg",
       title: "Hex Bolts",
       description: "Hex bolts are used in a variety of applications, including construction, automotive, and machinery.",
-      linkTo: "/fasteners/hex-bolt",
+      linkTo: "/fasteners/hex-bolt", // Ensure the ID matches what's in Firestore
     },
     {
-      id: "hex-nut",
       image: "https://images-cdn.ubuy.co.in/667e6bc2bd456f54a4352a6b-5-16-18-50pcs-stainless-steel-hex-nuts.jpg",
       title: "Hex Nut",
       description: "Hex nuts are used in conjunction with hex bolts to fasten two or more parts together.",
-      linkTo: "/fasteners/hex-nut",
+      linkTo: "/fasteners/hex-nut", // Ensure the ID matches what's in Firestore
     },
     {
-      id: "flat-washer",
       image: "https://m.media-amazon.com/images/I/61d4W0NjzUL.jpg",
       title: "Washers",
       description: "Washers are used to distribute the load of a threaded fastener, such as a screw or nut.",
-      linkTo: "/fasteners/flat-washer",
+      linkTo: "/fasteners/flat-washer", // Ensure the ID matches what's in Firestore
     },
   ];
 
   const electricalProducts = [
     {
-      id: "distribution-board-12-way",
-      image: "https://5.imimg.com/data5/SELLER/Default/2024/5/417420416/QK/GN/TQ/114588085/power-distribution-board.png",
+      image: "https://5.imimg.com/data5/SELLER/Default/2024/5/417420416/QS/BR/BX/114588085/power-distribution-board.png",
       title: "Power Distribution Boards",
       description: "Reliable and safe electrical distribution systems for residential and commercial use.",
-      linkTo: "/electrical/distribution-board-12-way",
+      linkTo: "/electrical/distribution-board-12-way", // Ensure the ID matches what's in Firestore
     },
     {
-      id: "electrical-pvc-insulated-cable",
       image: "https://img500.exportersindia.com/product_images/bc-500/2020/7/2154824/electric-cables-1594103183-4557025.jpeg",
       title: "Premium Cables",
       description: "High-quality electrical wires and cables designed for efficiency and long-lasting performance.",
-      linkTo: "/electrical/electrical-pvc-insulated-cable", 
+      linkTo: "/electrical/electrical-pvc-insulated-cable", // Ensure the ID matches what's in Firestore
     },
     {
-      id: "circuit-breaker",
       image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQMSxH2H4uMNQlhL6B5brt_RJj8PMj0667VPI4rSVtEYf2XONBcI0h8wmsNOOiQBQjMaA&usqp=CAU",
       title: "Circuit Breakers",
       description: "Protect your electrical circuits with our high-quality circuit breakers designed for safety.",
-      linkTo: "/electrical/circuit-breaker", 
+      linkTo: "/electrical/circuit-breaker", // Ensure the ID matches what's in Firestore
     },
     {
-      id: "modular-wall-switches",
       image: "https://5.imimg.com/data5/WZ/MT/OX/SELLER-38763336/hosper-roma-modular-switch-500x500.jpg",
       title: "Electrical Switches",
       description: "Durable and easy-to-use electrical switches for both residential and commercial use.",
-      linkTo: "/electrical/modular-wall-switches", 
+      linkTo: "/electrical/modular-wall-switches", // Ensure the ID matches what's in Firestore
     },
     {
-      id: "voltage-regulator",
       image: "https://www.crestonhardware.com/cdn/shop/products/4_FW8420.png?v=1740970055",
       title: "Voltage Regulators",
       description: "Maintain steady voltage levels with our reliable voltage regulators for all applications.",
-      linkTo: "/electrical/voltage-regulator", 
+      linkTo: "/electrical/voltage-regulator", // Ensure the ID matches what's in Firestore
     },
   ];
   

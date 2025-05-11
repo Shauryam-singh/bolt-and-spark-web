@@ -1,306 +1,195 @@
-
-import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, ChevronDown, User, LogIn, LogOut, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { User, Menu, Heart } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { CartDrawer } from "@/components/cart/CartDrawer";
-import { useMobile } from "@/hooks/use-mobile";
-import { useWishlist } from "@/hooks/useWishlist";
+import { signOut } from "@/lib/auth";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
-  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { isMobile } = useMobile();
-  const { user, logout } = useAuth();
-  const { wishlistItems } = useWishlist();
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Handle scroll event for changing navbar background
+  // Admin email for access control
+  const ADMIN_EMAIL = "admin@shayamvenchers.com";
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
-  // Content for desktop navbar
-  const DesktopNav = () => (
-    <div
-      className={`fixed top-0 left-0 right-0 transition-all duration-300 z-50 ${
-        scrolled
-          ? "bg-white shadow-md py-2"
-          : "bg-transparent py-4 absolute"
-      }`}
-    >
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-industry-900">
-          Shayam Venchers
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+      });
+    }
+  };
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const toggleDropdown = (name: string) => {
+    setDropdownOpen(dropdownOpen === name ? null : name);
+  };
+
+  return (
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
+      scrolled ? 'bg-white/90 backdrop-blur-md shadow-md py-2' : 'bg-transparent py-4'
+    }`}>
+      <div className="container mx-auto flex items-center justify-between px-4">
+        <Link to="/" className="flex items-center">
+          <span className="text-2xl font-bold text-industry-900">Shayam Venchers</span>
         </Link>
 
-        <NavigationMenu className="hidden md:block">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Link to="/">
-                <Button
-                  variant={location.pathname === "/" ? "default" : "ghost"}
-                  className="font-medium"
-                >
-                  Home
-                </Button>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger
-                className={
-                  location.pathname.includes("/fasteners")
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                    : ""
-                }
-              >
-                Fasteners
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="grid grid-cols-2 gap-3 p-4 w-[400px]">
-                  <Link
-                    to="/fasteners?category=industrial"
-                    className="block p-3 hover:bg-muted rounded-md"
-                  >
-                    <div className="font-medium">Industrial Fasteners</div>
-                    <div className="text-sm text-muted-foreground">
-                      High-quality fasteners for industrial applications
-                    </div>
-                  </Link>
-                  <Link
-                    to="/fasteners?category=specialty"
-                    className="block p-3 hover:bg-muted rounded-md"
-                  >
-                    <div className="font-medium">Specialty Fasteners</div>
-                    <div className="text-sm text-muted-foreground">
-                      Custom and specialized fastening solutions
-                    </div>
-                  </Link>
-                  <Link
-                    to="/fasteners?category=marine"
-                    className="block p-3 hover:bg-muted rounded-md"
-                  >
-                    <div className="font-medium">Marine & Chemical</div>
-                    <div className="text-sm text-muted-foreground">
-                      Corrosion-resistant and chemical-grade fasteners
-                    </div>
-                  </Link>
-                  <Link
-                    to="/fasteners"
-                    className="block p-3 hover:bg-muted rounded-md"
-                  >
-                    <div className="font-medium">View All Categories</div>
-                    <div className="text-sm text-muted-foreground">
-                      Browse our complete fastener catalog
-                    </div>
-                  </Link>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger
-                className={
-                  location.pathname.includes("/electrical")
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                    : ""
-                }
-              >
-                Electrical
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="grid grid-cols-2 gap-3 p-4 w-[400px]">
-                  <Link
-                    to="/electrical?category=switches"
-                    className="block p-3 hover:bg-muted rounded-md"
-                  >
-                    <div className="font-medium">Switches & Controls</div>
-                    <div className="text-sm text-muted-foreground">
-                      High-quality electrical control components
-                    </div>
-                  </Link>
-                  <Link
-                    to="/electrical?category=wires"
-                    className="block p-3 hover:bg-muted rounded-md"
-                  >
-                    <div className="font-medium">Wires & Cables</div>
-                    <div className="text-sm text-muted-foreground">
-                      Premium wiring solutions for all applications
-                    </div>
-                  </Link>
-                  <Link
-                    to="/electrical?category=lighting"
-                    className="block p-3 hover:bg-muted rounded-md"
-                  >
-                    <div className="font-medium">Lighting Solutions</div>
-                    <div className="text-sm text-muted-foreground">
-                      Efficient and reliable lighting products
-                    </div>
-                  </Link>
-                  <Link
-                    to="/electrical"
-                    className="block p-3 hover:bg-muted rounded-md"
-                  >
-                    <div className="font-medium">View All Categories</div>
-                    <div className="text-sm text-muted-foreground">
-                      Browse our complete electrical catalog
-                    </div>
-                  </Link>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/about">
-                <Button
-                  variant={location.pathname === "/about" ? "default" : "ghost"}
-                  className="font-medium"
-                >
-                  About Us
-                </Button>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link to="/contact">
-                <Button
-                  variant={
-                    location.pathname === "/contact" ? "default" : "ghost"
-                  }
-                  className="font-medium"
-                >
-                  Contact
-                </Button>
-              </Link>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-
-        <div className="flex items-center gap-2">
-          <Link to="/wishlist" className="relative">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Heart className={wishlistItems.length > 0 ? "text-red-500" : ""} />
-              {wishlistItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {wishlistItems.length}
-                </span>
-              )}
-            </Button>
+        <div className="hidden lg:flex items-center space-x-8">
+          <Link to="/" className="text-industry-800 hover:text-primary font-medium transition-colors">
+            Home
           </Link>
-          
-          <CartDrawer />
-          
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full ml-2"
-                >
-                  <User />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <Link to="/profile">
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
+
+          <div className="relative group">
+            <button 
+              onClick={() => toggleDropdown('products')}
+              className="flex items-center text-industry-800 hover:text-primary font-medium transition-colors"
+            >
+              Products <ChevronDown className="ml-1 h-4 w-4" />
+            </button>
+            <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <div className="py-1">
+                <Link to="/fasteners" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Fasteners
                 </Link>
-                {user.email === "admin@example.com" && (
-                  <Link to="/admin">
-                    <DropdownMenuItem>Admin Panel</DropdownMenuItem>
-                  </Link>
-                )}
-                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Link to="/auth">
+                <Link to="/electrical" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Electrical Components
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <Link to="/about" className="text-industry-800 hover:text-primary font-medium transition-colors">
+            About
+          </Link>
+
+          <Link to="/contact" className="text-industry-800 hover:text-primary font-medium transition-colors">
+            Contact
+          </Link>
+
+          {isAdmin && (
+            <Link to="/admin" className="text-industry-800 hover:text-primary font-medium transition-colors flex items-center">
+              <Settings className="mr-1 h-4 w-4" />
+              Admin
+            </Link>
+          )}
+        </div>
+
+        <div className="hidden lg:block">
+          {user ? (
+            <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full ml-2"
+                onClick={() => navigate("/profile")}
               >
-                <User />
+                <User className="h-6 w-6" />
               </Button>
+            </div>
+          ) : (
+            <Button onClick={() => navigate("/auth")}>
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
+            </Button>
+          )}
+        </div>
+
+        <div className="lg:hidden">
+          <button onClick={toggleMenu} className="text-industry-800">
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={`lg:hidden fixed inset-0 bg-white z-40 transition-transform duration-300 ease-in-out transform ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        } pt-20`}
+      >
+        <div className="flex flex-col space-y-4 p-4">
+          <Link to="/" className="text-lg font-medium py-2 border-b" onClick={toggleMenu}>
+            Home
+          </Link>
+
+          <div>
+            <button 
+              onClick={() => toggleDropdown('mobileProducts')}
+              className="flex justify-between items-center w-full text-lg font-medium py-2 border-b"
+            >
+              Products <ChevronDown className={`h-5 w-5 transition-transform ${dropdownOpen === 'mobileProducts' ? 'rotate-180' : ''}`} />
+            </button>
+
+            {dropdownOpen === 'mobileProducts' && (
+              <div className="pl-4 py-2 space-y-2">
+                <Link to="/fasteners" className="block py-1" onClick={toggleMenu}>
+                  Fasteners
+                </Link>
+                <Link to="/electrical" className="block py-1" onClick={toggleMenu}>
+                  Electrical Components
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <Link to="/about" className="text-lg font-medium py-2 border-b" onClick={toggleMenu}>
+            About
+          </Link>
+
+          <Link to="/contact" className="text-lg font-medium py-2 border-b" onClick={toggleMenu}>
+            Contact
+          </Link>
+
+          {isAdmin && (
+            <Link to="/admin" className="text-lg font-medium py-2 border-b flex items-center" onClick={toggleMenu}>
+              <Settings className="mr-2 h-5 w-5" />
+              Admin Panel
             </Link>
           )}
 
-          <Sheet>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu />
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <div className="flex flex-col space-y-4 mt-8">
-                <Link to="/" className="p-2 hover:bg-muted rounded-md">
-                  Home
-                </Link>
-                <Link to="/fasteners" className="p-2 hover:bg-muted rounded-md">
-                  Fasteners
-                </Link>
-                <Link to="/electrical" className="p-2 hover:bg-muted rounded-md">
-                  Electrical
-                </Link>
-                <Link to="/about" className="p-2 hover:bg-muted rounded-md">
-                  About Us
-                </Link>
-                <Link to="/contact" className="p-2 hover:bg-muted rounded-md">
-                  Contact
-                </Link>
-                <Link to="/wishlist" className="p-2 hover:bg-muted rounded-md">
-                  Wishlist
-                </Link>
-                {user ? (
-                  <>
-                    <Link to="/profile" className="p-2 hover:bg-muted rounded-md">
-                      Profile
-                    </Link>
-                    {user.email === "admin@example.com" && (
-                      <Link to="/admin" className="p-2 hover:bg-muted rounded-md">
-                        Admin Panel
-                      </Link>
-                    )}
-                    <Button onClick={logout} variant="destructive">
-                      Logout
-                    </Button>
-                  </>
-                ) : (
-                  <Link to="/auth">
-                    <Button>Sign In</Button>
-                  </Link>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+          {user ? (
+            <Button onClick={handleSignOut} className="w-full">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button onClick={() => navigate("/auth")} className="w-full">
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
+            </Button>
+          )}
         </div>
       </div>
-    </div>
+    </nav>
   );
-
-  return <DesktopNav />;
 };
 
 export default Navbar;
