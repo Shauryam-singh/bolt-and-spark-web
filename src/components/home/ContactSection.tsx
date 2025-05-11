@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import useWeb3Forms from '@web3forms/react'; // Import Web3Forms
-import HCaptcha from '@hcaptcha/react-hcaptcha'; // Import HCaptcha
+import useWeb3Forms from '@web3forms/react';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useToast } from "@/hooks/use-toast";
 
 const ContactSection = () => {
@@ -17,13 +17,13 @@ const ContactSection = () => {
     message: '',
   });
 
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null); // State to hold the captcha token
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [captchaLoaded, setCaptchaLoaded] = useState(false);
   const { toast } = useToast();
 
-  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "test_access_key";  // Access key for Web3Forms with fallback
+  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "test_access_key";
 
   useEffect(() => {
     // Add a safety timeout to set captchaLoaded to true if the captcha doesn't load
@@ -54,7 +54,7 @@ const ContactSection = () => {
         subject: '',
         message: '',
       });
-      setCaptchaToken(null); // Reset captcha token
+      setCaptchaToken(null);
       toast({
         title: "Success",
         description: "Message sent successfully!",

@@ -19,11 +19,25 @@ const Contact = () => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null); // State to store captcha token
+  const [captchaLoaded, setCaptchaLoaded] = useState(false); // Added state to track captcha loading
 
   // Web3Forms access key
-  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;  
-  const siteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
+  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "test_access_key";  
+  const siteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001";
   const secretKey = import.meta.env.VITE_HCAPTCHA_SECRET_KEY;
+  
+  // Add safety timeout for captcha loading
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!captchaLoaded) {
+        console.log("HCaptcha loading timed out, setting captcha as loaded");
+        setCaptchaLoaded(true);
+      }
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, [captchaLoaded]);
+
   const { submit: onSubmit } = useWeb3Forms({
     access_key: accessKey,
     settings: {
@@ -58,16 +72,33 @@ const Contact = () => {
 
   const handleCaptcha = (token: string) => {
     setCaptchaToken(token); // Store the captcha token when it's resolved
+    setCaptchaLoaded(true); // Mark captcha as loaded
+  };
+  
+  const handleCaptchaLoad = () => {
+    console.log("HCaptcha loaded successfully");
+    setCaptchaLoaded(true);
+  };
+
+  const handleCaptchaError = (err: any) => {
+    console.error("HCaptcha error:", err);
+    setCaptchaLoaded(true); // Consider it loaded even on error to avoid blocking the form
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!captchaToken) {
+    
+    // If captcha is loaded but no token, require verification
+    if (captchaLoaded && !captchaToken) {
       toast.error('Please complete the captcha verification.');
       return;
     }
+    
     setIsSubmitting(true);
-    onSubmit({ ...formData, captcha_token: captchaToken }); // Include captcha token in the form data
+    onSubmit({ 
+      ...formData, 
+      captcha_token: captchaToken || "captcha_load_failure" 
+    }); // Include captcha token in the form data
   };
 
   const contactInfo = [
@@ -254,6 +285,8 @@ const Contact = () => {
                     <HCaptcha
                       sitekey={siteKey}
                       onVerify={handleCaptcha}
+                      onLoad={handleCaptchaLoad}
+                      onError={handleCaptchaError}
                     />
                   </div>
 
