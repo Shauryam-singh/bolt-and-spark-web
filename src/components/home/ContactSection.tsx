@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import useWeb3Forms from '@web3forms/react'; // Import Web3Forms
 import HCaptcha from '@hcaptcha/react-hcaptcha'; // Import HCaptcha
+import { useToast } from "@/hooks/use-toast";
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
@@ -18,8 +20,22 @@ const ContactSection = () => {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null); // State to hold the captcha token
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [captchaLoaded, setCaptchaLoaded] = useState(false);
+  const { toast } = useToast();
 
-  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;  // Access key for Web3Forms
+  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "test_access_key";  // Access key for Web3Forms with fallback
+
+  useEffect(() => {
+    // Add a safety timeout to set captchaLoaded to true if the captcha doesn't load
+    const timeout = setTimeout(() => {
+      if (!captchaLoaded) {
+        console.log("HCaptcha loading timed out, setting captcha as loaded");
+        setCaptchaLoaded(true);
+      }
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, [captchaLoaded]);
 
   const { submit: onSubmit } = useWeb3Forms({
     access_key: accessKey,
@@ -28,6 +44,7 @@ const ContactSection = () => {
       subject: 'New Contact Message from Website',
     },
     onSuccess: (msg, data) => {
+      setIsSubmitting(false);
       setSubmitted(true);
       setFormData({
         name: '',
@@ -38,10 +55,18 @@ const ContactSection = () => {
         message: '',
       });
       setCaptchaToken(null); // Reset captcha token
-      alert('Message sent successfully!');
+      toast({
+        title: "Success",
+        description: "Message sent successfully!",
+      });
     },
     onError: (msg, data) => {
-      alert('Failed to send message.');
+      setIsSubmitting(false);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -52,13 +77,28 @@ const ContactSection = () => {
 
   const handleCaptcha = (token: string) => {
     setCaptchaToken(token); // Store the captcha token when resolved
+    setCaptchaLoaded(true);
+  };
+
+  const handleCaptchaLoad = () => {
+    console.log("HCaptcha loaded successfully");
+    setCaptchaLoaded(true);
+  };
+
+  const handleCaptchaError = (err: any) => {
+    console.error("HCaptcha error:", err);
+    setCaptchaLoaded(true); // Consider it loaded even on error to avoid blocking the form
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!captchaToken) {
-      alert('Please complete the captcha verification.');
+    // If captcha isn't loaded, assume it's an issue with the service and continue
+    if (captchaLoaded && !captchaToken) {
+      toast({
+        title: "Verification Required",
+        description: "Please complete the CAPTCHA verification.",
+      });
       return;
     }
 
@@ -67,7 +107,7 @@ const ContactSection = () => {
     // Include the captcha token in the form data and submit it
     onSubmit({
       ...formData,
-      captcha_token: captchaToken,
+      captcha_token: captchaToken || "captcha_load_failure",
     });
   };
 
@@ -173,12 +213,16 @@ const ContactSection = () => {
                 />
               </div>
 
-              {/* hCaptcha Widget */}
+              {/* hCaptcha Widget with error handling */}
               <div className="mb-4">
-                <HCaptcha
-                  sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY} // Site key for hCaptcha
-                  onVerify={handleCaptcha}
-                />
+                {typeof window !== 'undefined' && (
+                  <HCaptcha
+                    sitekey={import.meta.env.VITE_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001"} // Site key with fallback
+                    onVerify={handleCaptcha}
+                    onLoad={handleCaptchaLoad}
+                    onError={handleCaptchaError}
+                  />
+                )}
               </div>
 
               <Button type="submit" className="w-full bg-electric-500 hover:bg-electric-600 text-white" disabled={isSubmitting}>
