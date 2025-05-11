@@ -1,22 +1,28 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, PlugZap, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'react-router-dom';
+import { getProductsByType } from '@/services/productService';
+import { useToast } from '@/hooks/use-toast';
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface ProductCardProps {
+  id: string;
   name: string;
   image: string;
   description: string;
   categories: string[];
   isNew?: boolean;
-  id: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description, categories, isNew }) => {
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const isWishlisted = isInWishlist(id);
+
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
       {isNew && (
@@ -24,6 +30,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description,
           New
         </div>
       )}
+      <button 
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleWishlist(id, { id, name, image, description, categories, isNew });
+        }}
+        className="absolute top-2 left-2 bg-white rounded-full p-1 shadow-sm z-10"
+      >
+        {isWishlisted ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ff4545" stroke="#ff4545" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        )}
+      </button>
       <div className="h-48 overflow-hidden">
         <img src={image} alt={name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
       </div>
@@ -51,197 +75,86 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description,
 
 const Electrical = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  
+  // Categories for tabs
+  const [switchboardsProducts, setSwitchboardsProducts] = useState<any[]>([]);
+  const [wiresProducts, setWiresProducts] = useState<any[]>([]);
+  const [accessoriesProducts, setAccessoriesProducts] = useState<any[]>([]);
 
-  const switchboards = [
-    {
-      id: "distribution-board-12-way",
-      name: "Distribution Board 12-Way",
-      image: "https://cdn.moglix.com/p/LJQ1jN6NcFNt7-xxlarge.jpg",
-      description: "12-way DB with MCB protection.",
-      categories: ["Distribution", "Protection", "Commercial"],
-      isNew: true
-    },
-    {
-      id: "industrial-switchboard",
-      name: "Industrial Switchboard",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9ru5uHeu7wf0TTn73g5tl9zkpFd2tccqFmA&s",
-      description: "Heavy-duty industrial switchboard.",
-      categories: ["Industrial", "Heavy-duty", "Power"],
-      isNew: false
-    },
-    {
-      id: "smart-distribution-board",
-      name: "Smart Distribution Board",
-      image: "https://powereasy.in/assets/images/products/main/smart-db/single-phase/smart-db-single-phase.png",
-      description: "IoT-enabled DB.",
-      categories: ["Smart", "IoT", "Automation"],
-      isNew: true
-    },
-    {
-      id: "outdoor-waterproof-cabinet",
-      name: "Outdoor Waterproof Cabinet",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTexWTeW6IeUBRN3QT6CWf5fypeoKS_FbI5kn2uv0BQLGIAX-EOUZ-pvJrQYHaNvfjFEfU&usqp=CAU",
-      description: "Weather-resistant cabinet.",
-      categories: ["Outdoor", "Waterproof", "Protection"],
-      isNew: false
-    },
-    {
-      id: "load-center-8-way",
-      name: "Load Center 8-Way",
-      image: "https://s.alicdn.com/@sc04/kf/HTB1rha7KkSWBuNjSszdq6zeSpXaT.jpg_720x720q50.jpg",
-      description: "8-way load center for residential and commercial use.",
-      categories: ["Residential", "Commercial", "Power"],
-      isNew: true
-    },
-    {
-      id: "heavy-duty-power-switchboard",
-      name: "Heavy Duty Power Switchboard",
-      image: "https://tiimg.tistatic.com/fp/1/007/875/rectangular-shape-plastic-electrical-switch-board-for-home-and-office--449.jpg",
-      description: "For heavy industrial applications.",
-      categories: ["Industrial", "Heavy-duty", "Power"],
-      isNew: false
-    },
-    {
-      id: "panelboard-24-way",
-      name: "Panelboard 24-Way",
-      image: "https://5.imimg.com/data5/SX/TN/FJ/SELLER-4015706/electric-distribution-board-500x500.jpg",
-      description: "24-way panelboard for large-scale systems.",
-      categories: ["Industrial", "Power", "Commercial"],
-      isNew: true
-    },
-    {
-      id: "compact-distribution-board",
-      name: "Compact Distribution Board",
-      image: "https://3.imimg.com/data3/EW/OH/MY-2693575/compact-distribution-board-500x500.jpg",
-      description: "Compact distribution board for smaller installations.",
-      categories: ["Residential", "Compact", "Energy"],
-      isNew: false
-    }
-  ];
+  // Fetch products from Firebase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const productsData = await getProductsByType('electrical');
+        console.log('Fetched electrical products:', productsData);
+        
+        if (productsData.length > 0) {
+          setProducts(productsData);
+          
+          // Categorize products
+          const switchboards = productsData.filter(p => 
+            p.categories?.some((cat: string) => 
+              ['distribution', 'switchboard', 'panel', 'board', 'db'].some(keyword => 
+                cat.toLowerCase().includes(keyword)
+              )
+            )
+          );
+          
+          const wires = productsData.filter(p => 
+            p.categories?.some((cat: string) => 
+              ['cable', 'wire', 'extension'].some(keyword => 
+                cat.toLowerCase().includes(keyword)
+              )
+            )
+          );
+          
+          const accessories = productsData.filter(p => 
+            p.categories?.some((cat: string) => 
+              ['switch', 'socket', 'outlet', 'accessory'].some(keyword => 
+                cat.toLowerCase().includes(keyword)
+              )
+            )
+          );
+          
+          // If a product doesn't fit in any category, put it in accessories
+          const uncategorized = productsData.filter(p => 
+            !switchboards.includes(p) && !wires.includes(p) && !accessories.includes(p)
+          );
+          
+          setSwitchboardsProducts(switchboards);
+          setWiresProducts(wires);
+          setAccessoriesProducts([...accessories, ...uncategorized]);
+        } else {
+          toast({
+            title: "No products found",
+            description: "No electrical products found in the database.",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load products.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const wires = [
-    {
-      id: "copper-building-wire-100m",
-      name: "Copper Building Wire (100m)",
-      image: "https://image.made-in-china.com/202f0j00CicbyIUzgEkD/Weight-Copper-Cable-Cable-Electrical-Italy-100m-Power-Cable.jpg",
-      description: "High-quality copper building wire.",
-      categories: ["Copper", "Building", "Industrial"],
-      isNew: true
-    },
-    {
-      id: "armored-cable-50m",
-      name: "Armored Cable (50m)",
-      image: "https://m.media-amazon.com/images/I/51rofQXGpKL.jpg",
-      description: "Steel wire armored cable.",
-      categories: ["Armored", "Steel", "Industrial"],
-      isNew: false
-    },
-    {
-      id: "fire-resistant-cable-25m",
-      name: "Fire Resistant Cable (25m)",
-      image: "https://media.screwfix.com/is/image/ae235/339PF_P?$fxSharpen$=&wid=257&hei=257&dpr=on",
-      description: "Fire-safe cabling.",
-      categories: ["Fire Resistant", "Safety", "Building"],
-      isNew: true
-    },
-    {
-      id: "electrical-pvc-insulated-cable",
-      name: "Electrical PVC Insulated Cable",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTftG1mNNmxE825d7ZuOfJfzKwHAxIyhs9eTQ&s",
-      description: "PVC insulated cable for general wiring.",
-      categories: ["PVC", "Insulated", "Building"],
-      isNew: false
-    },
-    {
-      id: "flexible-extension-cable-10m",
-      name: "Flexible Extension Cable (10m)",
-      image: "https://m.media-amazon.com/images/I/61+neQ3vAzL._AC_UF1000,1000_QL80_.jpg",
-      description: "Flexible and durable extension cable.",
-      categories: ["Flexible", "Extension", "Power"],
-      isNew: false
-    },
-    {
-      id: "multi-core-cable-100m",
-      name: "Multi-Core Cable (100m)",
-      image: "https://5.imimg.com/data5/CU/IK/JC/SELLER-3059229/electrical-wires-1-mm-4-core-500x500.jpg",
-      description: "Multi-core cable for various applications.",
-      categories: ["Multi-Core", "Industrial", "Power"],
-      isNew: true
-    },
-    {
-      id: "low-voltage-power-cable",
-      name: "Low Voltage Power Cable",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTZTxgCL5Sq9nLsAaRxMK7vL356yLKswISNg&s",
-      description: "Low voltage cable for power distribution.",
-      categories: ["Low Voltage", "Power", "Building"],
-      isNew: false
-    }
-  ];
+    fetchProducts();
+  }, [toast]);
 
-  const accessories = [
-    {
-      id: "modular-wall-switches",
-      name: "Modular Wall Switches",
-      image: "https://5.imimg.com/data5/SELLER/Default/2023/10/352782418/GA/AJ/KV/90013704/black-modular-electrical-switch-boards.jpg",
-      description: "Modern design modular switches.",
-      categories: ["Modular", "Switches", "Residential"],
-      isNew: false
-    },
-    {
-      id: "industrial-sockets-set",
-      name: "Industrial Sockets Set",
-      image: "https://images-cdn.ubuy.co.in/661730a73ce78476ff438d8b-industrial-plug-socket-3-phase-plug-4.jpg",
-      description: "Heavy-duty sockets.",
-      categories: ["Industrial", "Sockets", "Power"],
-      isNew: false
-    },
-    {
-      id: "smart-wi-fi-power-outlets",
-      name: "Smart Wi-Fi Power Outlets",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU35Bo-yaB3gHwjCyhRedXTNtdMEQpqT20UsQaC2vW9IOo2SALjufLk0Hvv4jgVkwyDKk&usqp=CAU",
-      description: "Remote-controlled outlets.",
-      categories: ["Smart", "Wi-Fi", "Automation"],
-      isNew: true
-    },
-    {
-      id: "ceiling-fan-regulator",
-      name: "Ceiling Fan Regulator",
-      image: "https://havells.com/media/catalog/product/cache/844a913d283fe95e56e39582c5f2767b/import/REO-Switches/AHERFXW001.jpg",
-      description: "Regulate ceiling fan speed.",
-      categories: ["Fan", "Regulator", "Residential"],
-      isNew: false
-    },
-    {
-      id: "power-strip-with-usb",
-      name: "Power Strip with USB",
-      image: "https://m.media-amazon.com/images/I/71FtSiqsK3L.jpg",
-      description: "Power strip with multiple outlets and USB ports.",
-      categories: ["Power", "USB", "Accessories"],
-      isNew: true
-    },
-    {
-      id: "smart-led-light-switch",
-      name: "Smart LED Light Switch",
-      image: "https://img.joomcdn.net/ddb08b986aa428e819f3e5f70791d46e5c0e9794_original.jpeg",
-      description: "Smart LED light switch for modern homes.",
-      categories: ["Smart", "LED", "Switches"],
-      isNew: false
-    },
-    {
-      id: "surge-protector-power-strip",
-      name: "Surge Protector Power Strip",
-      image: "https://honeywellconnection.com/in/wp-content/uploads/2024/08/1-2.jpg",
-      description: "Surge protector power strip with 6 outlets.",
-      categories: ["Surge Protector", "Power", "Safety"],
-      isNew: false
-    }
-  ];
-
-  const filterProducts = (products: ProductCardProps[]) => {
-    return products.filter(product =>
+  const filterProducts = (productsToFilter: ProductCardProps[]) => {
+    return productsToFilter.filter(product =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.categories.some(category => category.toLowerCase().includes(searchTerm.toLowerCase()))
+      product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.categories?.some(category => category.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   };
 
@@ -274,43 +187,64 @@ const Electrical = () => {
             </div>
           </div>
 
-          <Tabs defaultValue="switchboards" className="w-full mb-8">
-            <TabsList className="w-full flex justify-center mb-8">
-              <TabsTrigger value="switchboards" className="text-base px-5 py-2.5">Switchboards</TabsTrigger>
-              <TabsTrigger value="wires" className="text-base px-5 py-2.5">Wires & Cables</TabsTrigger>
-              <TabsTrigger value="accessories" className="text-base px-5 py-2.5">Accessories</TabsTrigger>
-            </TabsList>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-industry-700"></div>
+            </div>
+          ) : (
+            <Tabs defaultValue="switchboards" className="w-full mb-8">
+              <TabsList className="w-full flex justify-center mb-8">
+                <TabsTrigger value="switchboards" className="text-base px-5 py-2.5">Switchboards</TabsTrigger>
+                <TabsTrigger value="wires" className="text-base px-5 py-2.5">Wires & Cables</TabsTrigger>
+                <TabsTrigger value="accessories" className="text-base px-5 py-2.5">Accessories</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="switchboards">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filterProducts(switchboards).map((product, index) => (
-                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
-                    <ProductCard {...product} />
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
+              <TabsContent value="switchboards">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {filterProducts(switchboardsProducts).map((product, index) => (
+                    <div key={product.id || index} data-aos="fade-up" data-aos-delay={index * 50}>
+                      <ProductCard {...product} />
+                    </div>
+                  ))}
+                  {filterProducts(switchboardsProducts).length === 0 && (
+                    <div className="col-span-full text-center py-10">
+                      <p className="text-gray-500">No products match your search.</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
 
-            <TabsContent value="wires">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filterProducts(wires).map((product, index) => (
-                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
-                    <ProductCard {...product} />
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
+              <TabsContent value="wires">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {filterProducts(wiresProducts).map((product, index) => (
+                    <div key={product.id || index} data-aos="fade-up" data-aos-delay={index * 50}>
+                      <ProductCard {...product} />
+                    </div>
+                  ))}
+                  {filterProducts(wiresProducts).length === 0 && (
+                    <div className="col-span-full text-center py-10">
+                      <p className="text-gray-500">No products match your search.</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
 
-            <TabsContent value="accessories">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filterProducts(accessories).map((product, index) => (
-                  <div key={index} data-aos="fade-up" data-aos-delay={index * 50}>
-                    <ProductCard {...product} />
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+              <TabsContent value="accessories">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {filterProducts(accessoriesProducts).map((product, index) => (
+                    <div key={product.id || index} data-aos="fade-up" data-aos-delay={index * 50}>
+                      <ProductCard {...product} />
+                    </div>
+                  ))}
+                  {filterProducts(accessoriesProducts).length === 0 && (
+                    <div className="col-span-full text-center py-10">
+                      <p className="text-gray-500">No products match your search.</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
 
           <div className="mt-12 bg-white p-8 rounded-lg shadow-md border border-electric-100" data-aos="fade-up">
             <h2 className="text-2xl font-bold text-industry-900 mb-4">Custom Electrical Solutions</h2>
