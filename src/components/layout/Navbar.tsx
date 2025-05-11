@@ -18,14 +18,14 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { User, Menu, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { CartDrawer } from "@/components/cart/CartDrawer";
-import { useMobile } from "@/hooks/use-mobile";
+import CartDrawer from "@/components/cart/CartDrawer"; // Fixed: Changed from named import to default import
+import { useIsMobile } from "@/hooks/use-mobile"; // Fixed: Changed from useMobile to useIsMobile
 import { useWishlist } from "@/hooks/useWishlist";
 
 const Navbar = () => {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  const { isMobile } = useMobile();
+  const isMobile = useIsMobile(); // Fixed: Changed from destructuring to direct assignment
   const { user, logout } = useAuth();
   const { wishlistItems } = useWishlist();
 
