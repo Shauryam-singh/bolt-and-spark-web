@@ -16,7 +16,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { User, Menu, Heart } from "lucide-react";
+import { User, Menu, Heart, ShoppingCart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import CartDrawer from "@/components/cart/CartDrawer"; // Fixed: Changed from named import to default import
 import { useIsMobile } from "@/hooks/use-mobile"; // Fixed: Changed from useMobile to useIsMobile
@@ -28,6 +28,7 @@ const Navbar = () => {
   const isMobile = useIsMobile(); // Fixed: Changed from destructuring to direct assignment
   const { user, logout } = useAuth();
   const { wishlistItems } = useWishlist();
+  const [isCartOpen, setIsCartOpen] = useState(false); // Added state for cart drawer
 
   // Handle scroll event for changing navbar background
   useEffect(() => {
@@ -210,7 +211,21 @@ const Navbar = () => {
             </Button>
           </Link>
           
-          <CartDrawer />
+          {/* Updated Cart Button to toggle cart drawer */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full"
+            onClick={() => setIsCartOpen(true)}
+          >
+            <ShoppingCart />
+          </Button>
+          
+          {/* Cart drawer with required props */}
+          <CartDrawer 
+            isOpen={isCartOpen} 
+            onClose={() => setIsCartOpen(false)} 
+          />
           
           {user ? (
             <DropdownMenu>
