@@ -1,10 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useLocation } from 'react-router-dom';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/integrations/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 const ContactSection = () => {
+  const location = useLocation();
+  const { toast } = useToast();
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,7 +21,22 @@ const ContactSection = () => {
     message: '',
   });
 
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Check for product query parameter
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const productName = query.get('product');
+    
+    if (productName) {
+      setFormData(prev => ({
+        ...prev,
+        subject: `Inquiry about ${productName}`,
+        message: `I'm interested in learning more about ${productName}. Please provide additional information.`
+      }));
+    }
+  }, [location.search]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -22,31 +44,39 @@ const ContactSection = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      // Save contact form data to Firebase
+      await addDoc(collection(db, 'contacts'), {
+        ...formData,
+        createdAt: serverTimestamp()
       });
 
-      if (response.ok) {
-        setSubmitted(true);
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          company: '',
-          subject: '',
-          message: '',
-        });
-        alert('Message sent successfully!');
-      } else {
-        alert('Failed to send message.');
-      }
+      setSubmitted(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        subject: '',
+        message: '',
+      });
+      
+      toast({
+        title: "Message sent successfully!",
+        description: "We'll get back to you as soon as possible.",
+      });
     } catch (err) {
       console.error('Error submitting contact form:', err);
-      alert('An error occurred.');
+      toast({
+        variant: "destructive",
+        title: "Failed to send message",
+        description: "Please try again later or contact us directly.",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,8 +176,12 @@ const ContactSection = () => {
                   className="w-full h-40 resize-none"
                 />
               </div>
-              <Button type="submit" className="w-full bg-electric-500 hover:bg-electric-600 text-white">
-                Send Message
+              <Button 
+                type="submit" 
+                className="w-full bg-electric-500 hover:bg-electric-600 text-white"
+                disabled={loading}
+              >
+                {loading ? "Sending..." : "Send Message"}
               </Button>
             </div>
           </form>
