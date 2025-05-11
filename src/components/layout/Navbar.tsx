@@ -16,19 +16,15 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { User, Menu, Heart, ShoppingCart } from "lucide-react";
+import { User, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import CartDrawer from "@/components/cart/CartDrawer"; // Fixed: Changed from named import to default import
-import { useIsMobile } from "@/hooks/use-mobile"; // Fixed: Changed from useMobile to useIsMobile
-import { useWishlist } from "@/hooks/useWishlist";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  const isMobile = useIsMobile(); // Fixed: Changed from destructuring to direct assignment
+  const isMobile = useIsMobile();
   const { user, logout } = useAuth();
-  const { wishlistItems } = useWishlist();
-  const [isCartOpen, setIsCartOpen] = useState(false); // Added state for cart drawer
 
   // Handle scroll event for changing navbar background
   useEffect(() => {
@@ -200,33 +196,6 @@ const Navbar = () => {
         </NavigationMenu>
 
         <div className="flex items-center gap-2">
-          <Link to="/wishlist" className="relative">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Heart className={wishlistItems.length > 0 ? "text-red-500" : ""} />
-              {wishlistItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {wishlistItems.length}
-                </span>
-              )}
-            </Button>
-          </Link>
-          
-          {/* Updated Cart Button to toggle cart drawer */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="rounded-full"
-            onClick={() => setIsCartOpen(true)}
-          >
-            <ShoppingCart />
-          </Button>
-          
-          {/* Cart drawer with required props */}
-          <CartDrawer 
-            isOpen={isCartOpen} 
-            onClose={() => setIsCartOpen(false)} 
-          />
-          
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -284,9 +253,6 @@ const Navbar = () => {
                 </Link>
                 <Link to="/contact" className="p-2 hover:bg-muted rounded-md">
                   Contact
-                </Link>
-                <Link to="/wishlist" className="p-2 hover:bg-muted rounded-md">
-                  Wishlist
                 </Link>
                 {user ? (
                   <>

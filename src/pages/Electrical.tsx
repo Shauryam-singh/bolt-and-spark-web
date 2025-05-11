@@ -4,11 +4,9 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, PlugZap, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'react-router-dom';
 import { getProductsByType } from '@/services/productService';
 import { useToast } from '@/hooks/use-toast';
-import { useWishlist } from '@/hooks/useWishlist';
 
 interface ProductCardProps {
   id: string;
@@ -20,9 +18,6 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description, categories, isNew }) => {
-  const { isInWishlist, toggleWishlist } = useWishlist();
-  const isWishlisted = isInWishlist(id);
-
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 relative">
       {isNew && (
@@ -30,24 +25,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description,
           New
         </div>
       )}
-      <button 
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          toggleWishlist(id, { id, name, image, description, categories, isNew });
-        }}
-        className="absolute top-2 left-2 bg-white rounded-full p-1 shadow-sm z-10"
-      >
-        {isWishlisted ? (
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ff4545" stroke="#ff4545" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-        )}
-      </button>
       <div className="h-48 overflow-hidden">
         <img src={image} alt={name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
       </div>
@@ -78,11 +55,6 @@ const Electrical = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  
-  // Categories for tabs
-  const [switchboardsProducts, setSwitchboardsProducts] = useState<any[]>([]);
-  const [wiresProducts, setWiresProducts] = useState<any[]>([]);
-  const [accessoriesProducts, setAccessoriesProducts] = useState<any[]>([]);
 
   // Fetch products from Firebase
   useEffect(() => {
@@ -94,40 +66,6 @@ const Electrical = () => {
         
         if (productsData.length > 0) {
           setProducts(productsData);
-          
-          // Categorize products
-          const switchboards = productsData.filter(p => 
-            p.categories?.some((cat: string) => 
-              ['distribution', 'switchboard', 'panel', 'board', 'db'].some(keyword => 
-                cat.toLowerCase().includes(keyword)
-              )
-            )
-          );
-          
-          const wires = productsData.filter(p => 
-            p.categories?.some((cat: string) => 
-              ['cable', 'wire', 'extension'].some(keyword => 
-                cat.toLowerCase().includes(keyword)
-              )
-            )
-          );
-          
-          const accessories = productsData.filter(p => 
-            p.categories?.some((cat: string) => 
-              ['switch', 'socket', 'outlet', 'accessory'].some(keyword => 
-                cat.toLowerCase().includes(keyword)
-              )
-            )
-          );
-          
-          // If a product doesn't fit in any category, put it in accessories
-          const uncategorized = productsData.filter(p => 
-            !switchboards.includes(p) && !wires.includes(p) && !accessories.includes(p)
-          );
-          
-          setSwitchboardsProducts(switchboards);
-          setWiresProducts(wires);
-          setAccessoriesProducts([...accessories, ...uncategorized]);
         } else {
           toast({
             title: "No products found",
@@ -192,58 +130,18 @@ const Electrical = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-industry-700"></div>
             </div>
           ) : (
-            <Tabs defaultValue="switchboards" className="w-full mb-8">
-              <TabsList className="w-full flex justify-center mb-8">
-                <TabsTrigger value="switchboards" className="text-base px-5 py-2.5">Switchboards</TabsTrigger>
-                <TabsTrigger value="wires" className="text-base px-5 py-2.5">Wires & Cables</TabsTrigger>
-                <TabsTrigger value="accessories" className="text-base px-5 py-2.5">Accessories</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="switchboards">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {filterProducts(switchboardsProducts).map((product, index) => (
-                    <div key={product.id || index} data-aos="fade-up" data-aos-delay={index * 50}>
-                      <ProductCard {...product} />
-                    </div>
-                  ))}
-                  {filterProducts(switchboardsProducts).length === 0 && (
-                    <div className="col-span-full text-center py-10">
-                      <p className="text-gray-500">No products match your search.</p>
-                    </div>
-                  )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filterProducts(products).map((product, index) => (
+                <div key={product.id || index} data-aos="fade-up" data-aos-delay={index * 50}>
+                  <ProductCard {...product} />
                 </div>
-              </TabsContent>
-
-              <TabsContent value="wires">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {filterProducts(wiresProducts).map((product, index) => (
-                    <div key={product.id || index} data-aos="fade-up" data-aos-delay={index * 50}>
-                      <ProductCard {...product} />
-                    </div>
-                  ))}
-                  {filterProducts(wiresProducts).length === 0 && (
-                    <div className="col-span-full text-center py-10">
-                      <p className="text-gray-500">No products match your search.</p>
-                    </div>
-                  )}
+              ))}
+              {filterProducts(products).length === 0 && (
+                <div className="col-span-full text-center py-10">
+                  <p className="text-gray-500">No products match your search.</p>
                 </div>
-              </TabsContent>
-
-              <TabsContent value="accessories">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {filterProducts(accessoriesProducts).map((product, index) => (
-                    <div key={product.id || index} data-aos="fade-up" data-aos-delay={index * 50}>
-                      <ProductCard {...product} />
-                    </div>
-                  ))}
-                  {filterProducts(accessoriesProducts).length === 0 && (
-                    <div className="col-span-full text-center py-10">
-                      <p className="text-gray-500">No products match your search.</p>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
+              )}
+            </div>
           )}
 
           <div className="mt-12 bg-white p-8 rounded-lg shadow-md border border-electric-100" data-aos="fade-up">

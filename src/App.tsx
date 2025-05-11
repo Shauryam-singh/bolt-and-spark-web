@@ -14,7 +14,6 @@ import AdminProducts from "./pages/AdminProducts";
 import AdminCategories from "./pages/AdminCategories";
 import AdminSettings from "./pages/AdminSettings";
 import AdminProductEdit from "./pages/AdminProductEdit";
-import Wishlist from "./pages/Wishlist";
 import { AuthProvider } from "./hooks/useAuth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -46,7 +45,6 @@ function App() {
           <Route path="/fasteners" element={<Fasteners />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/electrical/:id" element={<ProductDetails />} />
           <Route path="/fasteners/:id" element={<ProductDetails />} />
           <Route path="/auth" element={<Auth />} />
