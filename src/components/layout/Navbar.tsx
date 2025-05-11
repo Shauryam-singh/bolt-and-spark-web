@@ -16,15 +16,18 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { User, Menu } from "lucide-react";
+import { User, Menu, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { CartDrawer } from "@/components/cart/CartDrawer";
+import { useMobile } from "@/hooks/use-mobile";
+import { useWishlist } from "@/hooks/useWishlist";
 
 const Navbar = () => {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  const isMobile = useIsMobile();
+  const { isMobile } = useMobile();
   const { user, logout } = useAuth();
+  const { wishlistItems } = useWishlist();
 
   // Handle scroll event for changing navbar background
   useEffect(() => {
@@ -196,6 +199,19 @@ const Navbar = () => {
         </NavigationMenu>
 
         <div className="flex items-center gap-2">
+          <Link to="/wishlist" className="relative">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Heart className={wishlistItems.length > 0 ? "text-red-500" : ""} />
+              {wishlistItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {wishlistItems.length}
+                </span>
+              )}
+            </Button>
+          </Link>
+          
+          <CartDrawer />
+          
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -253,6 +269,9 @@ const Navbar = () => {
                 </Link>
                 <Link to="/contact" className="p-2 hover:bg-muted rounded-md">
                   Contact
+                </Link>
+                <Link to="/wishlist" className="p-2 hover:bg-muted rounded-md">
+                  Wishlist
                 </Link>
                 {user ? (
                   <>
