@@ -58,8 +58,8 @@ const TestimonialsSection = () => {
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-industry-900 mb-4 reveal">What Drives Us Forward</h2>
-          <p className="text-lg text-industry-700 max-w-2xl mx-auto reveal">
+          <h2 className="text-3xl font-bold text-industry-900 mb-4">What Drives Us Forward</h2>
+          <p className="text-lg text-industry-700 max-w-2xl mx-auto">
             As a new startup, our story is just beginning — but our purpose is clear. Here’s what inspires and motivates our team.
           </p>
         </div>

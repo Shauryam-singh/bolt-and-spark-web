@@ -164,8 +164,8 @@ const ProductsSection = () => {
     <section id="products" className="py-20 bg-gradient-to-b from-white to-industry-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-industry-900 mb-4 reveal">Our Product Range</h2>
-          <p className="text-lg text-industry-700 max-w-2xl mx-auto reveal">
+          <h2 className="text-3xl font-bold text-industry-900 mb-4">Our Product Range</h2>
+          <p className="text-lg text-industry-700 max-w-2xl mx-auto">
             Shayam Venchers offers a comprehensive selection of high-quality fasteners and electrical components for all your project needs.
           </p>
         </div>

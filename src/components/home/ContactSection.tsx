@@ -84,15 +84,15 @@ const ContactSection = () => {
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-industry-900 mb-4 reveal">Get In Touch</h2>
-          <p className="text-lg text-industry-700 max-w-2xl mx-auto reveal">
+          <h2 className="text-3xl font-bold text-industry-900 mb-4">Get In Touch</h2>
+          <p className="text-lg text-industry-700 max-w-2xl mx-auto">
             Have questions about our products or services? Contact us today and our team will be happy to assist you.
           </p>
         </div>
 
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4 reveal-left">
+            <div className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-industry-800 mb-1">
                   Full Name
@@ -148,7 +148,7 @@ const ContactSection = () => {
                 />
               </div>
             </div>
-            <div className="space-y-4 reveal-right">
+            <div className="space-y-4">
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-industry-800 mb-1">
                   Subject

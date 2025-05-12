@@ -102,7 +102,7 @@ const Contact = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Information */}
-            <div className="reveal-left">
+            <div className="">
               <h2 className="text-2xl font-bold text-industry-900 mb-8">Get In Touch</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -143,7 +143,7 @@ const Contact = () => {
             </div>
             
             {/* Contact Form */}
-            <div className="reveal-right">
+            <div className="">
               <div className="bg-industry-50 p-8 rounded-lg shadow-md">
                 <h2 className="text-2xl font-bold text-industry-900 mb-6">Send Us a Message</h2>
                 

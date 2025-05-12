@@ -16,7 +16,7 @@ const AboutSection = () => {
     <section className="py-20 bg-industry-50">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="reveal-left">
+          <div className="t">
             <div className="relative">
               <div className="rounded-lg overflow-hidden shadow-xl">
                 <img 
@@ -32,7 +32,7 @@ const AboutSection = () => {
             </div>
           </div>
           
-          <div className="reveal-right">
+          <div className="">
             <h2 className="text-3xl font-bold text-industry-900 mb-4">About Shayam Venchers</h2>
             <p className="text-lg text-industry-700 mb-6">
               Shayam Venchers is a newly launched startup with a bold vision to redefine how fasteners and electrical components are sourced and delivered. Built on passion and purpose, we aim to blend cutting-edge technology with quality manufacturing to meet the demands of modern industries.

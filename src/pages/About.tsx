@@ -81,7 +81,7 @@ const About = () => {
     <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="reveal-left">
+            <div className="">
                 <h2 className="text-3xl font-bold text-industry-900 mb-5">Our Story</h2>
                 <p className="text-industry-700 mb-4">
                 Shayam Ventures was born out of a shared vision: to rethink how modern industries access smart, sustainable, and reliable manufacturing solutions. Founded in 2023 by a team of engineers and innovators, we set out to bridge the gap between traditional manufacturing and future-forward technologies.
@@ -123,7 +123,7 @@ const About = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 reveal-right">
+            <div className="grid grid-cols-2 gap-4t">
                 <div className="rounded-lg overflow-hidden shadow-md">
                 <img 
                     src="https://images.unsplash.com/photo-1502810190503-8303352d0dd1?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3JlYXRpdmUlMjB3b3Jrc3BhY2V8ZW58MHx8MHx8fDA%3D" 
@@ -161,8 +161,8 @@ const About = () => {
       <section className="py-16 bg-industry-50">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold text-industry-900 mb-4 reveal">Our Values</h2>
-            <p className="text-lg text-industry-700 reveal">
+            <h2 className="text-3xl font-bold text-industry-900 mb-4">Our Values</h2>
+            <p className="text-lg text-industry-700">
               The principles that guide our business and shape our culture
             </p>
           </div>
@@ -190,8 +190,8 @@ const About = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold text-industry-900 mb-4 reveal">Our Journey</h2>
-            <p className="text-lg text-industry-700 reveal">
+            <h2 className="text-3xl font-bold text-industry-900 mb-4">Our Journey</h2>
+            <p className="text-lg text-industry-700">
               Key milestones in our company's history
             </p>
           </div>

@@ -86,10 +86,13 @@ export const getPaginatedProducts = async (
     }
     
     const snapshot = await getDocs(q);
-    const products = snapshot.docs.map(doc => ({ 
-      id: doc.id,
-      ...doc.data()
-    } as Product));
+    const products = snapshot.docs.map(doc => {
+  const data = doc.data() as Omit<Product, 'id'>; // all Product fields except 'id'
+  return {
+    id: doc.id,
+    ...data
+  };
+});
     
     const newLastDoc = snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null;
     
@@ -308,20 +311,23 @@ export const deleteProduct = async (id: string): Promise<void> => {
 };
 
 // Get new products (products marked with isNew flag)
-export const getNewProducts = async (limit: number = 8): Promise<Product[]> => {
+export const getNewProducts = async (limitCount: number = 8): Promise<Product[]> => {
   try {
     const productsRef = collection(db, 'products');
     const q = query(
       productsRef, 
       where('isNew', '==', true),
       orderBy('createdAt', 'desc'),
-      limit(limit)
+      limit(limitCount) // now using limitCount, not conflicting
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ 
-      id: doc.id,
-      ...doc.data()
-    } as Product));
+    return snapshot.docs.map(doc => {
+      const data = doc.data() as Omit<Product, 'id'>;
+      return {
+        id: doc.id,
+        ...data
+      };
+    });
   } catch (error) {
     console.error('Error fetching new products:', error);
     throw error;

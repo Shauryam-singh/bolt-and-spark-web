@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Sheet,
@@ -11,8 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useCart } from '@/hooks/useCart';
-import { Package, Settings, Menu, User, ShoppingCart, Home, Info, Phone, Wrench, PlugZap, LogOut } from 'lucide-react';
+import { Package, Settings, Menu, User, Home, Info, Phone, Wrench, PlugZap, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface NavItem {
@@ -23,10 +21,9 @@ interface NavItem {
 
 const MobileNavDrawer = () => {
   const [open, setOpen] = useState(false);
-  const { user, signOut } = useAuth();
-  const { cart } = useCart();
-  const cartItemCount = cart?.items.length || 0;
-  
+  const { user } = useAuth(); // Removed signOut for now
+  const isAdmin = user?.email === 'admin@shayamvenchers.com';
+
   const mainNavItems: NavItem[] = [
     { label: 'Home', href: '/', icon: <Home size={20} /> },
     { label: 'About', href: '/about', icon: <Info size={20} /> },
@@ -34,18 +31,11 @@ const MobileNavDrawer = () => {
     { label: 'Electrical', href: '/electrical', icon: <PlugZap size={20} /> },
     { label: 'Contact', href: '/contact', icon: <Phone size={20} /> },
   ];
-  
+
   const adminNavItems: NavItem[] = [
     { label: 'Admin Dashboard', href: '/admin', icon: <Settings size={20} /> },
     { label: 'Manage Products', href: '/admin/products', icon: <Package size={20} /> },
   ];
-
-  const isAdmin = user?.email === 'admin@shayamvenchers.com';
-  
-  const handleSignOut = async () => {
-    await signOut();
-    setOpen(false);
-  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -59,8 +49,9 @@ const MobileNavDrawer = () => {
         <SheetHeader className="mb-6">
           <SheetTitle className="text-2xl">Shayam Venchers</SheetTitle>
         </SheetHeader>
-        
+
         <div className="space-y-6">
+          {/* Main navigation */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-gray-500 px-1">Navigation</h3>
             <div className="space-y-1">
@@ -79,7 +70,8 @@ const MobileNavDrawer = () => {
               ))}
             </div>
           </div>
-          
+
+          {/* Admin section */}
           {isAdmin && (
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-gray-500 px-1">Admin</h3>
@@ -100,7 +92,8 @@ const MobileNavDrawer = () => {
               </div>
             </div>
           )}
-          
+
+          {/* Account section */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-gray-500 px-1">Account</h3>
             <div className="space-y-1">
@@ -117,14 +110,7 @@ const MobileNavDrawer = () => {
                       </motion.div>
                     </Link>
                   </SheetClose>
-                  <motion.div
-                    whileTap={{ scale: 0.97 }}
-                    className="flex items-center py-2 px-3 rounded-md text-red-600 hover:bg-red-50 cursor-pointer"
-                    onClick={handleSignOut}
-                  >
-                    <LogOut className="mr-3 h-5 w-5" />
-                    Sign Out
-                  </motion.div>
+                  {/* No logout button for now if signOut isn't available */}
                 </>
               ) : (
                 <SheetClose asChild>
@@ -139,23 +125,6 @@ const MobileNavDrawer = () => {
                   </Link>
                 </SheetClose>
               )}
-              
-              <SheetClose asChild>
-                <Link to="/cart">
-                  <motion.div
-                    whileTap={{ scale: 0.97 }}
-                    className="flex items-center py-2 px-3 rounded-md text-gray-700 hover:bg-gray-100 cursor-pointer"
-                  >
-                    <ShoppingCart className="mr-3 h-5 w-5 text-gray-500" />
-                    Cart
-                    {cartItemCount > 0 && (
-                      <span className="ml-2 bg-electric-600 text-white px-2 py-0.5 rounded-full text-xs">
-                        {cartItemCount}
-                      </span>
-                    )}
-                  </motion.div>
-                </Link>
-              </SheetClose>
             </div>
           </div>
         </div>
