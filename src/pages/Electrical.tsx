@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, PlugZap, Search } from 'lucide-react';
+import { ArrowRight, PlugZap, Search, MessageSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import { getProductsByType } from '@/services/productService';
@@ -37,7 +37,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description,
             </span>
           ))}
         </div>
-        <p className="text-industry-600 mb-4">{description}</p>
+        <p className="text-industry-600 mb-4 line-clamp-2">{description}</p>
         <div className="flex items-center justify-between">
           <Link to={`/electrical/${id}`}>
             <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 group">
@@ -62,6 +62,7 @@ const Electrical = () => {
       try {
         setLoading(true);
         const productsData = await getProductsByType('electrical');
+        console.log("Fetched electrical products:", productsData);
         setProducts(productsData);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -121,12 +122,18 @@ const Electrical = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-industry-700"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filterProducts(products).map((product, index) => (
-                <div key={product.id} data-aos="fade-up" data-aos-delay={index * 50}>
-                  <ProductCard {...product} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filterProducts(products).length > 0 ? (
+                filterProducts(products).map((product, index) => (
+                  <div key={product.id} data-aos="fade-up" data-aos-delay={index * 50}>
+                    <ProductCard {...product} />
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-lg text-industry-600">No products found matching your search.</p>
                 </div>
-              ))}
+              )}
             </div>
           )}
 

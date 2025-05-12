@@ -3,29 +3,29 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Mail, MessageSquare } from 'lucide-react';
+import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { getProductById } from '@/services/productService';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 
 const ProductDetails = () => {
-  const { productId, productType } = useParams<{ productId: string; productType: string }>();
+  const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchProductDetails = async () => {
-      if (!productId) return;
+      if (!id) return;
 
       try {
         setLoading(true);
-        console.log("Fetching product details for ID:", productId);
-        const data = await getProductById(productId);
+        console.log("Fetching product details for ID:", id);
+        const productData = await getProductById(id);
         
-        if (data) {
-          console.log("Product data fetched:", data);
-          setProduct(data);
+        if (productData) {
+          console.log("Product data fetched:", productData);
+          setProduct(productData);
         } else {
           console.log("Product not found");
           toast({
@@ -47,11 +47,18 @@ const ProductDetails = () => {
     };
 
     fetchProductDetails();
-  }, [productId, toast]);
+  }, [id, toast]);
 
   const handleContactClick = () => {
-    // Scroll to contact form or redirect to contact page with product info
-    window.location.href = `/contact?product=${encodeURIComponent(product?.name || 'Product Inquiry')}`;
+    // Prepare product information for contact form
+    const productInfo = product?.name ? encodeURIComponent(product.name) : 'Product Inquiry';
+    window.location.href = `/contact?product=${productInfo}`;
+  };
+
+  // Determine which product type page to go back to
+  const getBackLink = () => {
+    if (!product) return "/";
+    return product.categoryType === "fasteners" ? "/fasteners" : "/electrical";
   };
 
   if (loading) {
@@ -73,9 +80,9 @@ const ProductDetails = () => {
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-industry-800 mb-4">Product Not Found</h2>
             <p className="mb-8 text-industry-600">The product you're looking for could not be found.</p>
-            <Link to={`/${productType || ''}`}>
+            <Link to="/">
               <Button className="bg-industry-700 hover:bg-industry-800">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Products
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
               </Button>
             </Link>
           </div>
@@ -89,10 +96,11 @@ const ProductDetails = () => {
       <div className="container mx-auto px-4 pt-28 pb-16">
         <div className="mb-8">
           <Link 
-            to={`/${productType || ''}`} 
+            to={getBackLink()} 
             className="inline-flex items-center text-industry-600 hover:text-industry-800"
           >
-            <ArrowLeft className="mr-1 h-4 w-4" /> Back to {productType ? productType.charAt(0).toUpperCase() + productType.slice(1) : 'Products'}
+            <ArrowLeft className="mr-1 h-4 w-4" /> 
+            Back to {product.categoryType === "fasteners" ? "Fasteners" : "Electrical Components"}
           </Link>
         </div>
 
@@ -102,7 +110,7 @@ const ProductDetails = () => {
             <img 
               src={product.image} 
               alt={product.name} 
-              className="w-full h-auto object-contain rounded-lg"
+              className="w-full h-auto object-contain rounded-lg mx-auto"
               style={{ maxHeight: "400px" }}
             />
           </div>
@@ -137,9 +145,9 @@ const ProductDetails = () => {
                   <h3 className="text-xl font-semibold mb-4">Specifications</h3>
                   <div className="bg-gray-50 rounded-lg p-4">
                     {Object.entries(product.specifications).map(([key, value]: [string, any], index: number) => (
-                      <div key={index} className="grid grid-cols-3 gap-2 py-2 border-b border-gray-200 last:border-0">
+                      <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-2 py-2 border-b border-gray-200 last:border-0">
                         <div className="text-industry-600 font-medium">{key}</div>
-                        <div className="col-span-2 text-industry-800">{value}</div>
+                        <div className="sm:col-span-2 text-industry-800">{value}</div>
                       </div>
                     ))}
                   </div>
@@ -148,7 +156,7 @@ const ProductDetails = () => {
               </>
             )}
 
-            {/* Contact Buttons */}
+            {/* Contact Button */}
             <div className="space-y-4">
               <Button 
                 onClick={handleContactClick}
@@ -157,22 +165,12 @@ const ProductDetails = () => {
                 <MessageSquare className="mr-2 h-4 w-4" /> 
                 Communicate About This Product
               </Button>
-              
-              <Button 
-                asChild
-                variant="outline" 
-                className="w-full border-industry-300 text-industry-700 hover:bg-industry-50"
-              >
-                <Link to="/contact">
-                  <Mail className="mr-2 h-4 w-4" /> Contact Sales Team
-                </Link>
-              </Button>
             </div>
           </div>
         </div>
 
-        {/* Additional Product Information or Related Products */}
-        <div className="mt-12 bg-white p-8 rounded-lg shadow-md border border-industry-100">
+        {/* Additional Product Information */}
+        <div className="mt-12 bg-white p-6 sm:p-8 rounded-lg shadow-md border border-industry-100">
           <h2 className="text-2xl font-bold text-industry-900 mb-4">Need More Information?</h2>
           <p className="text-industry-700 mb-6">
             Our team is ready to assist you with any questions about this product, including custom specifications,

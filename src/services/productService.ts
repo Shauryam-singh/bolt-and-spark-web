@@ -34,13 +34,16 @@ export const getAllProducts = async (): Promise<Product[]> => {
 // Get products by category type (fasteners or electrical)
 export const getProductsByType = async (type: string): Promise<Product[]> => {
   try {
+    console.log(`Fetching ${type} products from Firebase...`);
     const productsRef = collection(db, 'products');
     const q = query(productsRef, where('categoryType', '==', type));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ 
+    const products = snapshot.docs.map(doc => ({ 
       id: doc.id,
       ...doc.data()
     } as Product));
+    console.log(`Found ${products.length} ${type} products`);
+    return products;
   } catch (error) {
     console.error(`Error fetching ${type} products:`, error);
     throw error;
@@ -58,25 +61,29 @@ export const getProductById = async (id: string): Promise<Product | null> => {
     
     if (snapshot.exists()) {
       console.log("Found product by document ID");
-      return {
+      const productData = {
         id: snapshot.id,
         ...snapshot.data()
       } as Product;
+      console.log("Product data:", productData);
+      return productData;
     }
     
     // If not found by document ID, try to find by custom ID field
-    console.log("Trying to find product by custom id field");
+    console.log("Product not found by document ID. Trying to find by custom id field");
     const productsRef = collection(db, 'products');
     const q = query(productsRef, where('id', '==', id));
     const querySnapshot = await getDocs(q);
     
     if (!querySnapshot.empty) {
       console.log("Found product by custom ID field");
-      const doc = querySnapshot.docs[0];
-      return {
-        id: doc.id, // Use Firestore document ID
-        ...doc.data(),
+      const docData = querySnapshot.docs[0];
+      const productData = {
+        id: docData.id, // Use Firestore document ID
+        ...docData.data(),
       } as Product;
+      console.log("Product data:", productData);
+      return productData;
     }
     
     console.log("Product not found with ID:", id);
