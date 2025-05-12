@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, RefreshCw, X } from 'lucide-react';
 
 interface ProductFormData {
   name: string;
@@ -30,6 +30,7 @@ interface ProductFormData {
 interface Category {
   id: string;
   name: string;
+  type?: string;
 }
 
 const ProductForm = () => {
@@ -51,6 +52,8 @@ const ProductForm = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
+  const [imagePreviewError, setImagePreviewError] = useState('');
   
   useEffect(() => {
     fetchCategories();
@@ -69,7 +72,9 @@ const ProductForm = () => {
         ...doc.data()
       })) as Category[];
       
-      setAvailableCategories(categories);
+      // Sort categories by name
+      const sortedCategories = categories.sort((a, b) => a.name.localeCompare(b.name));
+      setAvailableCategories(sortedCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
       toast({
@@ -110,12 +115,39 @@ const ProductForm = () => {
     }
   };
   
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = "Product name is required";
+    }
+    
+    if (!formData.description.trim()) {
+      errors.description = "Product description is required";
+    }
+    
+    if (!formData.image.trim()) {
+      errors.image = "Product image URL is required";
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
     });
+    
+    // Clear validation error when field is updated
+    if (formErrors[name]) {
+      setFormErrors({
+        ...formErrors,
+        [name]: '',
+      });
+    }
   };
   
   const handleCategoryToggle = (categoryId: string) => {
@@ -131,7 +163,7 @@ const ProductForm = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.description || !formData.image) {
+    if (!validateForm()) {
       toast({
         variant: "destructive",
         title: "Validation Error",
@@ -181,10 +213,21 @@ const ProductForm = () => {
     }
   };
   
+  const handleImageError = () => {
+    setImagePreviewError('Unable to load image preview. Please check the URL.');
+  };
+
+  const handleImageLoad = () => {
+    setImagePreviewError('');
+  };
+  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-industry-700"></div>
+        <div className="flex flex-col items-center gap-2">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-industry-700"></div>
+          <p className="text-industry-700 mt-2">Loading product details...</p>
+        </div>
       </div>
     );
   }
@@ -196,6 +239,7 @@ const ProductForm = () => {
           variant="ghost"
           size="icon"
           onClick={() => navigate('/admin/products')}
+          className="hover:bg-gray-100"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -211,38 +255,56 @@ const ProductForm = () => {
         </div>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 rounded-lg border shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Product Name *</Label>
+              <Label htmlFor="name" className={formErrors.name ? "text-red-500" : ""}>
+                Product Name *
+              </Label>
               <Input
                 id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="Enter product name"
-                required
+                className={formErrors.name ? "border-red-500 focus:ring-red-500" : ""}
               />
+              {formErrors.name && (
+                <p className="text-red-500 text-sm">{formErrors.name}</p>
+              )}
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="image">Product Image URL *</Label>
+              <Label htmlFor="image" className={formErrors.image ? "text-red-500" : ""}>
+                Product Image URL *
+              </Label>
               <Input
                 id="image"
                 name="image"
                 value={formData.image}
                 onChange={handleInputChange}
                 placeholder="Enter image URL"
-                required
+                className={formErrors.image ? "border-red-500 focus:ring-red-500" : ""}
               />
+              {formErrors.image && (
+                <p className="text-red-500 text-sm">{formErrors.image}</p>
+              )}
               {formData.image && (
-                <div className="mt-2">
+                <div className="mt-2 relative">
                   <img
                     src={formData.image}
                     alt="Product preview"
-                    className="max-w-[200px] h-auto rounded-md border"
+                    className={`max-w-[200px] h-auto rounded-md border ${imagePreviewError ? 'hidden' : 'block'}`}
+                    onError={handleImageError}
+                    onLoad={handleImageLoad}
                   />
+                  {imagePreviewError && (
+                    <div className="flex items-center space-x-2 text-red-500 text-sm">
+                      <X size={16} />
+                      <span>{imagePreviewError}</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -279,7 +341,9 @@ const ProductForm = () => {
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description" className={formErrors.description ? "text-red-500" : ""}>
+                Description *
+              </Label>
               <Textarea
                 id="description"
                 name="description"
@@ -287,12 +351,22 @@ const ProductForm = () => {
                 onChange={handleInputChange}
                 placeholder="Enter product description"
                 rows={5}
-                required
+                className={formErrors.description ? "border-red-500 focus:ring-red-500" : ""}
               />
+              {formErrors.description && (
+                <p className="text-red-500 text-sm">{formErrors.description}</p>
+              )}
             </div>
             
             <div className="space-y-2">
-              <Label>Categories</Label>
+              <div className="flex justify-between items-center">
+                <Label>Categories</Label>
+                {selectedCategories.length > 0 && (
+                  <span className="text-sm text-gray-500">
+                    {selectedCategories.length} selected
+                  </span>
+                )}
+              </div>
               <div className="border rounded-md p-4 h-[200px] overflow-y-auto">
                 {availableCategories.length > 0 ? (
                   <div className="space-y-2">
@@ -303,32 +377,70 @@ const ProductForm = () => {
                           checked={selectedCategories.includes(category.id)}
                           onCheckedChange={() => handleCategoryToggle(category.id)}
                         />
-                        <Label htmlFor={`category-${category.id}`} className="cursor-pointer">
+                        <Label 
+                          htmlFor={`category-${category.id}`} 
+                          className="cursor-pointer flex-grow"
+                        >
                           {category.name}
                         </Label>
+                        {category.type && (
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            category.type === 'electrical' 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {category.type}
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No categories available</p>
+                  <div className="flex flex-col items-center justify-center h-full space-y-2 text-gray-500">
+                    <RefreshCw size={20} />
+                    <p className="text-center">No categories available</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={fetchCategories}
+                      className="mt-2"
+                    >
+                      Refresh Categories
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
           </div>
         </div>
         
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end space-x-4 pt-4 border-t">
           <Button
             type="button"
             variant="outline"
             onClick={() => navigate('/admin/products')}
             disabled={isSaving}
+            className="border-gray-300"
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditing ? 'Update Product' : 'Create Product'}
+          <Button 
+            type="submit" 
+            disabled={isSaving}
+            className="bg-electric-600 hover:bg-electric-700 transition-colors"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isEditing ? 'Updating...' : 'Creating...'}
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                {isEditing ? 'Update Product' : 'Create Product'}
+              </>
+            )}
           </Button>
         </div>
       </form>
