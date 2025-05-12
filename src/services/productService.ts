@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, where, doc, addDoc, serverTimestamp, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, addDoc, serverTimestamp, updateDoc, deleteDoc, getDoc, orderBy, limit, startAfter, Timestamp, DocumentData } from 'firebase/firestore';
 import { db } from '@/integrations/firebase';
 
 export interface Product {
@@ -14,19 +14,91 @@ export interface Product {
   discountPrice?: number;
   stock?: number;
   specifications?: Record<string, string>;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
 }
 
-// Get all products from Firebase
-export const getAllProducts = async (): Promise<Product[]> => {
+// Get all products from Firebase with pagination
+export const getAllProducts = async (limitCount: number = 100): Promise<Product[]> => {
   try {
+    console.log('Fetching all products...');
     const productsRef = collection(db, 'products');
-    const snapshot = await getDocs(productsRef);
+    const q = query(
+      productsRef,
+      orderBy('createdAt', 'desc'),
+      limit(limitCount)
+    );
+    const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ 
       id: doc.id,
       ...doc.data()
     } as Product));
   } catch (error) {
     console.error('Error fetching products:', error);
+    throw error;
+  }
+};
+
+// Get products with pagination
+export const getPaginatedProducts = async (
+  lastDoc: DocumentData | null = null,
+  pageSize: number = 20,
+  categoryType: string | null = null
+): Promise<{ products: Product[], lastDoc: DocumentData | null }> => {
+  try {
+    console.log(`Fetching paginated products...`);
+    let q;
+    
+    if (categoryType) {
+      // Type-specific query
+      if (lastDoc) {
+        q = query(
+          collection(db, 'products'),
+          where('categoryType', '==', categoryType),
+          orderBy('createdAt', 'desc'),
+          startAfter(lastDoc),
+          limit(pageSize)
+        );
+      } else {
+        q = query(
+          collection(db, 'products'),
+          where('categoryType', '==', categoryType),
+          orderBy('createdAt', 'desc'),
+          limit(pageSize)
+        );
+      }
+    } else {
+      // Query for all products
+      if (lastDoc) {
+        q = query(
+          collection(db, 'products'),
+          orderBy('createdAt', 'desc'),
+          startAfter(lastDoc),
+          limit(pageSize)
+        );
+      } else {
+        q = query(
+          collection(db, 'products'),
+          orderBy('createdAt', 'desc'),
+          limit(pageSize)
+        );
+      }
+    }
+    
+    const snapshot = await getDocs(q);
+    const products = snapshot.docs.map(doc => ({ 
+      id: doc.id,
+      ...doc.data()
+    } as Product));
+    
+    const newLastDoc = snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null;
+    
+    return {
+      products,
+      lastDoc: newLastDoc
+    };
+  } catch (error) {
+    console.error('Error fetching paginated products:', error);
     throw error;
   }
 };
@@ -46,6 +118,108 @@ export const getProductsByType = async (type: string): Promise<Product[]> => {
     return products;
   } catch (error) {
     console.error(`Error fetching ${type} products:`, error);
+    throw error;
+  }
+};
+
+// Get category map to resolve category IDs to names
+export const getCategoryMap = async (): Promise<Record<string, string>> => {
+  try {
+    const categoriesRef = collection(db, 'categories');
+    const snapshot = await getDocs(categoriesRef);
+    const categoryMap: Record<string, string> = {};
+    
+    snapshot.docs.forEach(doc => {
+      categoryMap[doc.id] = doc.data().name;
+    });
+    
+    return categoryMap;
+  } catch (error) {
+    console.error('Error fetching category map:', error);
+    throw error;
+  }
+};
+
+// Map product categories to names using the category map
+export const mapProductCategories = (
+  product: Product, 
+  categoryMap: Record<string, string>
+): Product => {
+  const mappedCategories = product.categories.map(catId => 
+    categoryMap[catId] || catId
+  );
+  
+  return {
+    ...product,
+    categories: mappedCategories
+  };
+};
+
+// Get filtered products with optional category and search constraints
+export const getFilteredProducts = async (filters: {
+  searchTerm?: string;
+  categoryType?: string;
+  categoryIds?: string[];
+  sortBy?: string;
+  limit?: number;
+}): Promise<Product[]> => {
+  try {
+    console.log('Fetching filtered products with:', filters);
+    let q = collection(db, 'products');
+    let queryConstraints = [];
+    
+    // Apply type filter
+    if (filters.categoryType && filters.categoryType !== 'all') {
+      queryConstraints.push(where('categoryType', '==', filters.categoryType));
+    }
+    
+    // Apply sorting
+    switch (filters.sortBy) {
+      case 'newest':
+        queryConstraints.push(orderBy('createdAt', 'desc'));
+        break;
+      case 'name_asc':
+        queryConstraints.push(orderBy('name', 'asc'));
+        break;
+      case 'name_desc':
+        queryConstraints.push(orderBy('name', 'desc'));
+        break;
+      default:
+        queryConstraints.push(orderBy('createdAt', 'desc'));
+    }
+    
+    // Apply limit
+    if (filters.limit) {
+      queryConstraints.push(limit(filters.limit));
+    }
+    
+    const productsQuery = query(q, ...queryConstraints);
+    const snapshot = await getDocs(productsQuery);
+    
+    let products = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Product));
+    
+    // Since Firebase doesn't support OR queries easily, we'll do these filters in memory
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase();
+      products = products.filter(product =>
+        product.name.toLowerCase().includes(searchLower) ||
+        product.description.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Filter by category IDs
+    if (filters.categoryIds && filters.categoryIds.length > 0) {
+      products = products.filter(product =>
+        filters.categoryIds?.some(catId => product.categories.includes(catId))
+      );
+    }
+    
+    return products;
+  } catch (error) {
+    console.error('Error fetching filtered products:', error);
     throw error;
   }
 };
@@ -129,6 +303,27 @@ export const deleteProduct = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, 'products', id));
   } catch (error) {
     console.error('Error deleting product:', error);
+    throw error;
+  }
+};
+
+// Get new products (products marked with isNew flag)
+export const getNewProducts = async (limit: number = 8): Promise<Product[]> => {
+  try {
+    const productsRef = collection(db, 'products');
+    const q = query(
+      productsRef, 
+      where('isNew', '==', true),
+      orderBy('createdAt', 'desc'),
+      limit(limit)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ 
+      id: doc.id,
+      ...doc.data()
+    } as Product));
+  } catch (error) {
+    console.error('Error fetching new products:', error);
     throw error;
   }
 };

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Footer from './Footer';
 import MobileAwareNavbar from './MobileAwareNavbar';
@@ -6,7 +7,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const ResponsiveLayout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
       <MobileAwareNavbar />
@@ -16,4 +17,4 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-export default Layout;
+export default ResponsiveLayout;

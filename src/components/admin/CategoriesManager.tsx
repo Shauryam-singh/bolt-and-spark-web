@@ -2,18 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, doc, deleteDoc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/integrations/firebase';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -23,14 +14,24 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { AlertCircle, Edit, Trash, Plus, Loader2, Search, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Search, Plus, Trash, Edit, Loader2, FileText } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Category {
   id: string;
@@ -43,32 +44,27 @@ const CategoriesManager = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  const [isDeleting, setIsDeleting] = useState<{[key: string]: boolean}>({});
-
-  const [newCategory, setNewCategory] = useState({
-    name: '',
-    type: 'fasteners'
-  });
+  const [filterType, setFilterType] = useState<string>('all');
   
-  const [editCategory, setEditCategory] = useState<Category | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  
-  const [errors, setErrors] = useState({
-    name: '',
-  });
+  // New category dialog state
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
+  const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
+  const [categoryName, setCategoryName] = useState('');
+  const [categoryType, setCategoryType] = useState('fasteners');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<Record<string, boolean>>({});
   
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchCategories();
   }, []);
-  
+
   useEffect(() => {
-    // Filter categories based on search term and type
+    // Filter categories based on search term and filter type
     let filtered = categories;
     
     // Filter by type if not 'all'
@@ -78,8 +74,9 @@ const CategoriesManager = () => {
     
     // Then filter by search term
     if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(
-        category => category.name.toLowerCase().includes(searchTerm.toLowerCase())
+        category => category.name.toLowerCase().includes(searchLower)
       );
     }
     
@@ -89,15 +86,21 @@ const CategoriesManager = () => {
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
-      const categoriesCollection = collection(db, 'categories');
-      const categoriesSnapshot = await getDocs(categoriesCollection);
-      const categoriesList = categoriesSnapshot.docs.map(doc => ({
+      const categoriesRef = collection(db, 'categories');
+      const snapshot = await getDocs(categoriesRef);
+      const categoriesList = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data(),
-      })) as Category[];
+        ...doc.data()
+      } as Category));
       
-      // Sort categories by name
-      categoriesList.sort((a, b) => a.name.localeCompare(b.name));
+      // Sort by type and then by name
+      categoriesList.sort((a, b) => {
+        if (a.type !== b.type) {
+          return a.type.localeCompare(b.type);
+        }
+        return a.name.localeCompare(b.name);
+      });
+      
       setCategories(categoriesList);
       setFilteredCategories(categoriesList);
     } catch (error) {
@@ -112,93 +115,12 @@ const CategoriesManager = () => {
     }
   };
 
-  const validateCategory = (category: {name: string, type: string}) => {
-    const newErrors = { name: '' };
-    let isValid = true;
-    
-    if (!category.name.trim()) {
-      newErrors.name = 'Category name is required';
-      isValid = false;
-    }
-    
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleAddCategory = async () => {
-    if (!validateCategory(newCategory)) {
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      await addDoc(collection(db, 'categories'), {
-        name: newCategory.name.trim(),
-        type: newCategory.type,
-        createdAt: serverTimestamp()
-      });
-
-      setNewCategory({ name: '', type: 'fasteners' });
-      setDialogOpen(false);
-      await fetchCategories();
-
-      toast({
-        title: "Category added",
-        description: "The category has been successfully added.",
-      });
-    } catch (error) {
-      console.error('Error adding category:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to add the category. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleUpdateCategory = async () => {
-    if (!editCategory || !validateCategory(editCategory)) {
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      const categoryRef = doc(db, 'categories', editCategory.id);
-      await updateDoc(categoryRef, {
-        name: editCategory.name.trim(),
-        type: editCategory.type,
-        updatedAt: serverTimestamp()
-      });
-
-      setEditCategory(null);
-      setEditDialogOpen(false);
-      await fetchCategories();
-
-      toast({
-        title: "Category updated",
-        description: "The category has been successfully updated.",
-      });
-    } catch (error) {
-      console.error('Error updating category:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update the category. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDeleteCategory = async (id: string) => {
-    if (confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this category? This may affect products that use this category.')) {
       try {
         setIsDeleting(prev => ({ ...prev, [id]: true }));
         await deleteDoc(doc(db, 'categories', id));
         setCategories(categories.filter(category => category.id !== id));
-        
         toast({
           title: "Category deleted",
           description: "The category has been successfully deleted.",
@@ -216,152 +138,111 @@ const CategoriesManager = () => {
     }
   };
 
+  const handleAddEdit = async () => {
+    // Validate
+    if (!categoryName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Category name is required.",
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      
+      if (dialogMode === 'add') {
+        // Add new category
+        const categoriesRef = collection(db, 'categories');
+        await addDoc(categoriesRef, {
+          name: categoryName.trim(),
+          type: categoryType,
+          createdAt: serverTimestamp()
+        });
+        
+        toast({
+          title: "Success",
+          description: "Category has been added successfully.",
+        });
+      } else if (dialogMode === 'edit' && currentCategory) {
+        // Update existing category
+        const categoryRef = doc(db, 'categories', currentCategory.id);
+        await updateDoc(categoryRef, {
+          name: categoryName.trim(),
+          type: categoryType,
+          updatedAt: serverTimestamp()
+        });
+        
+        toast({
+          title: "Success",
+          description: "Category has been updated successfully.",
+        });
+      }
+      
+      // Close dialog and refresh list
+      setShowDialog(false);
+      resetForm();
+      fetchCategories();
+    } catch (error) {
+      console.error('Error adding/editing category:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to ${dialogMode === 'add' ? 'add' : 'update'} category. Please try again.`,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openAddDialog = () => {
+    setDialogMode('add');
+    resetForm();
+    setShowDialog(true);
+  };
+
+  const openEditDialog = (category: Category) => {
+    setDialogMode('edit');
+    setCurrentCategory(category);
+    setCategoryName(category.name);
+    setCategoryType(category.type);
+    setShowDialog(true);
+  };
+
+  const resetForm = () => {
+    setCurrentCategory(null);
+    setCategoryName('');
+    setCategoryType('fasteners');
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0"
+      >
         <div>
           <h2 className="text-3xl font-bold text-industry-900">Categories</h2>
-          <p className="text-gray-600">Manage your product categories</p>
+          <p className="text-gray-600">Manage product categories</p>
         </div>
-        
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-electric-600 hover:bg-electric-700 transition-colors">
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Category
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New Category</DialogTitle>
-              <DialogDescription>
-                Create a new category for your products.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className={errors.name ? "text-red-500" : ""}>
-                  Category Name
-                </Label>
-                <Input
-                  id="name"
-                  value={newCategory.name}
-                  onChange={(e) => {
-                    setNewCategory({ ...newCategory, name: e.target.value });
-                    setErrors({ ...errors, name: '' });
-                  }}
-                  placeholder="Enter category name"
-                  className={errors.name ? "border-red-500" : ""}
-                />
-                {errors.name && (
-                  <div className="flex items-center space-x-1 text-red-500 text-sm mt-1">
-                    <AlertCircle size={14} />
-                    <span>{errors.name}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="type">Category Type</Label>
-                <Select
-                  value={newCategory.type}
-                  onValueChange={(value) => setNewCategory({ ...newCategory, type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fasteners">Fasteners</SelectItem>
-                    <SelectItem value="electrical">Electrical</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                setDialogOpen(false);
-                setErrors({ name: '' });
-              }} disabled={isSubmitting}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddCategory} disabled={isSubmitting} className="bg-electric-600 hover:bg-electric-700">
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Add Category
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        
-        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Edit Category</DialogTitle>
-              <DialogDescription>
-                Update the selected category.
-              </DialogDescription>
-            </DialogHeader>
-            
-            {editCategory && (
-              <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-name" className={errors.name ? "text-red-500" : ""}>
-                    Category Name
-                  </Label>
-                  <Input
-                    id="edit-name"
-                    value={editCategory.name}
-                    onChange={(e) => {
-                      setEditCategory({ ...editCategory, name: e.target.value });
-                      setErrors({ ...errors, name: '' });
-                    }}
-                    placeholder="Enter category name"
-                    className={errors.name ? "border-red-500" : ""}
-                  />
-                  {errors.name && (
-                    <div className="flex items-center space-x-1 text-red-500 text-sm mt-1">
-                      <AlertCircle size={14} />
-                      <span>{errors.name}</span>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-type">Category Type</Label>
-                  <Select
-                    value={editCategory.type}
-                    onValueChange={(value) => setEditCategory({ ...editCategory, type: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="fasteners">Fasteners</SelectItem>
-                      <SelectItem value="electrical">Electrical</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                setEditDialogOpen(false);
-                setErrors({ name: '' });
-              }} disabled={isSubmitting}>
-                Cancel
-              </Button>
-              <Button onClick={handleUpdateCategory} disabled={isSubmitting} className="bg-electric-600 hover:bg-electric-700">
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Update Category
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+        <Button 
+          onClick={openAddDialog}
+          className="bg-electric-600 hover:bg-electric-700 transition-colors"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add New Category
+        </Button>
+      </motion.div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="flex flex-col sm:flex-row gap-4 items-center"
+      >
         <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <Input
@@ -386,21 +267,7 @@ const CategoriesManager = () => {
             </SelectContent>
           </Select>
         </div>
-        {(searchTerm || filterType !== 'all') && (
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => {
-              setSearchTerm('');
-              setFilterType('all');
-            }}
-            className="h-10"
-          >
-            <X className="mr-2 h-4 w-4" />
-            Clear Filters
-          </Button>
-        )}
-      </div>
+      </motion.div>
 
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
@@ -410,81 +277,175 @@ const CategoriesManager = () => {
           </div>
         </div>
       ) : (
-        <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           {filteredCategories.length === 0 ? (
             <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-500 mb-4">No categories found matching your criteria.</p>
-              {(searchTerm || filterType !== 'all') && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setSearchTerm('');
-                    setFilterType('all');
-                  }}
-                >
-                  Clear Filters
-                </Button>
-              )}
+              <div className="inline-flex justify-center items-center w-16 h-16 bg-industry-100 rounded-full mb-4">
+                <FileText size={24} className="text-industry-500" />
+              </div>
+              <p className="text-gray-500 mb-4">No categories found.</p>
+              <Button 
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilterType('all');
+                }}
+                variant="outline"
+              >
+                Clear Filters
+              </Button>
             </div>
           ) : (
             <div className="bg-white rounded-md border shadow-sm overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Category Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead className="w-[150px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCategories.map((category) => (
-                    <TableRow key={category.id} className="group hover:bg-gray-50 transition-colors">
-                      <TableCell className="font-medium">{category.name}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          category.type === 'electrical' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-amber-100 text-amber-800'
-                        }`}>
-                          {category.type}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => {
-                              setEditCategory(category);
-                              setEditDialogOpen(true);
-                            }}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => handleDeleteCategory(category.id)}
-                            disabled={isDeleting[category.id]}
-                          >
-                            {isDeleting[category.id] ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Category Name</TableHead>
+                      <TableHead>Type</TableHead>
+                      {!isMobile && <TableHead>Created</TableHead>}
+                      <TableHead className="w-[120px] text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    <AnimatePresence>
+                      {filteredCategories.map((category) => (
+                        <motion.tr 
+                          key={category.id}
+                          initial={{ opacity: 0, backgroundColor: '#f3f4f6' }}
+                          animate={{ opacity: 1, backgroundColor: '#ffffff' }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="group hover:bg-gray-50"
+                        >
+                          <TableCell className="font-medium">{category.name}</TableCell>
+                          <TableCell>
+                            <Badge
+                              className={
+                                category.type === 'electrical'
+                                  ? 'bg-blue-100 text-blue-800 hover:bg-blue-100'
+                                  : 'bg-amber-100 text-amber-800 hover:bg-amber-100'
+                              }
+                            >
+                              {category.type}
+                            </Badge>
+                          </TableCell>
+                          {!isMobile && (
+                            <TableCell>
+                              {category.createdAt?.toDate ? 
+                                new Date(category.createdAt.toDate()).toLocaleDateString() : 
+                                'N/A'
+                              }
+                            </TableCell>
+                          )}
+                          <TableCell className="text-right">
+                            <div className="flex justify-end space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => openEditDialog(category)}
+                                className="h-8 w-8 p-0"
+                              >
+                                <Edit className="h-4 w-4 text-gray-500" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(category.id)}
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                disabled={isDeleting[category.id]}
+                              >
+                                {isDeleting[category.id] ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </motion.tr>
+                      ))}
+                    </AnimatePresence>
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           )}
-        </>
+        </motion.div>
       )}
+
+      {/* Add/Edit Category Dialog */}
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{dialogMode === 'add' ? 'Add New Category' : 'Edit Category'}</DialogTitle>
+            <DialogDescription>
+              {dialogMode === 'add' 
+                ? 'Create a new category for your products.' 
+                : 'Update the details of this category.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="categoryName" className="text-sm font-medium">
+                Category Name
+              </label>
+              <Input
+                id="categoryName"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                placeholder="Enter category name"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="categoryType" className="text-sm font-medium">
+                Category Type
+              </label>
+              <Select
+                value={categoryType}
+                onValueChange={setCategoryType}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="fasteners">Fasteners</SelectItem>
+                  <SelectItem value="electrical">Electrical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDialog(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddEdit}
+              disabled={isSubmitting}
+              className="bg-electric-600 hover:bg-electric-700"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {dialogMode === 'add' ? 'Adding...' : 'Updating...'}
+                </>
+              ) : (
+                dialogMode === 'add' ? 'Add Category' : 'Update Category'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

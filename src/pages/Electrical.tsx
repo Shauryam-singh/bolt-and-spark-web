@@ -1,13 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, PlugZap, Search, MessageSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
-import { getProductsByType } from '@/services/productService';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/integrations/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
+import ProductFilter, { FilterOptions } from '@/components/ProductFilter';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { motion } from 'framer-motion';
 
 interface ProductCardProps {
   id: string;
@@ -20,66 +23,115 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description, categories, isNew }) => {
   return (
-    <Card className="bg-white overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 h-full group">
-      {isNew && (
-        <div className="bg-secondary text-white text-xs font-bold px-3 py-1 absolute top-2 right-2 rounded-full z-10 animate-pulse">
-          New
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="bg-white overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 h-full group">
+        {isNew && (
+          <div className="bg-secondary text-white text-xs font-bold px-3 py-1 absolute top-2 right-2 rounded-full z-10 animate-pulse">
+            New
+          </div>
+        )}
+        <div className="h-48 overflow-hidden relative">
+          <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors z-10"></div>
+          <img 
+            src={image} 
+            alt={name} 
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/placeholder.svg';
+            }}
+          />
         </div>
-      )}
-      <div className="h-48 overflow-hidden relative">
-        <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors z-10"></div>
-        <img 
-          src={image} 
-          alt={name} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-        />
-      </div>
-      <CardContent className="p-6">
-        <div className="flex flex-wrap gap-2 mb-3">
-          {categories.slice(0, 2).map((category, index) => (
-            <span 
-              key={index} 
-              className="bg-industry-100 text-industry-700 px-2 py-1 rounded text-xs inline-block"
-              style={{ animationDelay: `${index * 150}ms` }}
-            >
-              {category}
-            </span>
-          ))}
-          {categories.length > 2 && (
-            <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-              +{categories.length - 2} more
-            </span>
-          )}
-        </div>
-        <h3 className="text-xl font-semibold mb-2 text-industry-800 line-clamp-1 group-hover:text-electric-600 transition-colors">{name}</h3>
-        <p className="text-industry-600 mb-4 line-clamp-2 text-sm">{description}</p>
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <Link to={`/electrical/${id}`} className="w-full">
-            <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 w-full group">
-              View Details 
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
+        <CardContent className="p-6">
+          <div className="flex flex-wrap gap-2 mb-3">
+            {categories.slice(0, 2).map((category, index) => (
+              <span 
+                key={index} 
+                className="bg-industry-100 text-industry-700 px-2 py-1 rounded text-xs inline-block"
+                style={{ animationDelay: `${index * 150}ms` }}
+              >
+                {category}
+              </span>
+            ))}
+            {categories.length > 2 && (
+              <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                +{categories.length - 2} more
+              </span>
+            )}
+          </div>
+          <h3 className="text-xl font-semibold mb-2 text-industry-800 line-clamp-1 group-hover:text-electric-600 transition-colors">{name}</h3>
+          <p className="text-industry-600 mb-4 line-clamp-2 text-sm">{description}</p>
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+            <Link to={`/product/${id}`} className="w-full">
+              <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 w-full group">
+                View Details 
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
 const Electrical = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoriesMap, setCategoriesMap] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
-  // Fetch products from Firebase
+  // Fetch categories to map category IDs to names
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesRef = collection(db, 'categories');
+        const snapshot = await getDocs(categoriesRef);
+        const categoryMap: Record<string, string> = {};
+        
+        snapshot.docs.forEach(doc => {
+          categoryMap[doc.id] = doc.data().name;
+        });
+        
+        setCategoriesMap(categoryMap);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    
+    fetchCategories();
+  }, []);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const productsData = await getProductsByType('electrical');
-        console.log("Fetched electrical products:", productsData);
+        const productsRef = collection(db, 'products');
+        const q = query(productsRef, where('categoryType', '==', 'electrical'));
+        const snapshot = await getDocs(q);
+        
+        const productsData = snapshot.docs.map(doc => {
+          const data = doc.data();
+          // Map category IDs to category names
+          const mappedCategories = (data.categories || []).map((catId: string) => 
+            categoriesMap[catId] || catId
+          );
+          
+          return {
+            id: doc.id,
+            ...data,
+            categories: mappedCategories
+          };
+        });
+        
         setProducts(productsData);
+        setFilteredProducts(productsData);
       } catch (error) {
         console.error("Error fetching products:", error);
         toast({
@@ -88,50 +140,95 @@ const Electrical = () => {
           description: "Failed to load electrical products. Please try again later.",
         });
         setProducts([]);
+        setFilteredProducts([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
-  }, [toast]);
+    // Only fetch products if we have the categories map
+    if (Object.keys(categoriesMap).length > 0) {
+      fetchProducts();
+    }
+  }, [toast, categoriesMap]);
 
-  const filterProducts = (products) => {
-    return products.filter(product =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.categories.some(category => category.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+  const handleFilterChange = (filters: FilterOptions) => {
+    let filtered = [...products];
+    
+    // Filter by search term
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase();
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchLower) ||
+        product.description.toLowerCase().includes(searchLower) ||
+        product.categories.some((category: string) => 
+          category.toLowerCase().includes(searchLower)
+        )
+      );
+    }
+    
+    // Filter by categories
+    if (filters.categories && filters.categories.length > 0) {
+      filtered = filtered.filter(product =>
+        filters.categories.some(catId => product.categories.includes(categoriesMap[catId]))
+      );
+    }
+    
+    // Sort products
+    switch (filters.sortBy) {
+      case 'name_asc':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name_desc':
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'newest':
+        // Assuming we have a createdAt field, otherwise keep default order
+        filtered.sort((a, b) => {
+          if (a.createdAt && b.createdAt) {
+            return b.createdAt.seconds - a.createdAt.seconds;
+          }
+          return 0;
+        });
+        break;
+      default:
+        break;
+    }
+    
+    setFilteredProducts(filtered);
   };
 
   return (
     <Layout>
-      <div className="pt-24 pb-12 bg-industry-50">
+      <div className="pt-24 pb-12 bg-industry-50 min-h-screen">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 mb-6" data-aos="fade-up">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }} 
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center gap-3 mb-6"
+          >
             <div className="bg-electric-100 p-2 rounded-full">
               <PlugZap size={24} className="text-electric-600" />
             </div>
             <h1 className="text-4xl font-bold text-industry-900">Electrical Components</h1>
-          </div>
+          </motion.div>
 
-          <p className="text-lg text-industry-700 max-w-3xl mb-12" data-aos="fade-up" data-aos-delay="100">
+          <motion.p 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-lg text-industry-700 max-w-3xl mb-8"
+          >
             Browse our comprehensive range of high-quality electrical components designed for various applications.
             All products meet or exceed industry standards for safety and performance.
-          </p>
+          </motion.p>
 
-          <div className="max-w-md mx-auto mt-6 mb-10" data-aos="fade-up" data-aos-delay="200">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Search electrical products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10 bg-white shadow-sm border-electric-100 focus:border-electric-300 focus-visible:ring-electric-200 transition-all"
-              />
-              <Search className="absolute right-3 top-2.5 h-5 w-5 text-electric-400" />
-            </div>
-          </div>
+          <ProductFilter 
+            onFilterChange={handleFilterChange}
+            defaultCategoryType="electrical"
+            showCategoryTypeFilter={false}
+          />
 
           {loading ? (
             <div className="flex justify-center items-center h-64">
@@ -141,37 +238,55 @@ const Electrical = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filterProducts(products).length > 0 ? (
-                filterProducts(products).map((product, index) => (
-                  <div 
-                    key={product.id} 
-                    data-aos="fade-up" 
-                    data-aos-delay={index * 50} 
-                    className="h-full"
-                  >
-                    <ProductCard {...product} />
-                  </div>
-                ))
+            <>
+              {filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredProducts.map((product, index) => (
+                    <div 
+                      key={product.id} 
+                      className="h-full"
+                      style={{ 
+                        animationDelay: `${index * 100}ms`
+                      }}
+                    >
+                      <ProductCard {...product} />
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <div className="col-span-full text-center py-12 bg-white rounded-lg shadow">
+                <motion.div 
+                  initial={{ opacity: 0 }} 
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="col-span-full text-center py-12 bg-white rounded-lg shadow"
+                >
                   <div className="inline-flex justify-center items-center w-16 h-16 bg-industry-100 rounded-full mb-4">
                     <Search className="h-8 w-8 text-industry-500" />
                   </div>
-                  <p className="text-lg text-industry-600 mb-4">No products found matching your search.</p>
+                  <p className="text-lg text-industry-600 mb-4">No products found matching your search criteria.</p>
                   <Button 
-                    onClick={() => setSearchTerm('')}
+                    onClick={() => handleFilterChange({
+                      searchTerm: '',
+                      categoryType: 'electrical',
+                      categories: [],
+                      sortBy: 'newest'
+                    })}
                     variant="outline" 
                     className="border-electric-300 text-electric-600 hover:bg-electric-50"
                   >
-                    Clear Search
+                    Clear Filters
                   </Button>
-                </div>
+                </motion.div>
               )}
-            </div>
+            </>
           )}
 
-          <div className="mt-16 bg-white p-8 rounded-lg shadow-md border border-electric-100" data-aos="fade-up">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-16 bg-white p-8 rounded-lg shadow-md border border-electric-100"
+          >
             <div className="grid md:grid-cols-3 gap-8 items-center">
               <div className="md:col-span-2">
                 <h2 className="text-2xl font-bold text-industry-900 mb-4">Custom Electrical Solutions</h2>
@@ -191,7 +306,7 @@ const Electrical = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </Layout>
