@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -32,6 +31,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description,
           src={image} 
           alt={name} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/placeholder.svg';
+          }}
         />
       </div>
       <CardContent className="p-6">
@@ -54,7 +57,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ id, name, image, description,
         <h3 className="text-xl font-semibold mb-2 text-industry-800 line-clamp-1 group-hover:text-electric-600 transition-colors">{name}</h3>
         <p className="text-industry-600 mb-4 line-clamp-2 text-sm">{description}</p>
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <Link to={`/fasteners/${id}`} className="w-full">
+          <Link to={`/product/${id}`} className="w-full">
             <Button variant="outline" className="text-electric-600 hover:text-electric-700 border-electric-300 hover:bg-electric-50 w-full group">
               View Details 
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -72,7 +75,6 @@ const Fasteners = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // Fetch products from Firebase
   useEffect(() => {
     const fetchProducts = async () => {
       try {
