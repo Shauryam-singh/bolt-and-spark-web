@@ -9,9 +9,9 @@ import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
 // EmailJS service configuration
-const EMAILJS_SERVICE_ID = 'service_senshss';
-const EMAILJS_TEMPLATE_ID = 'template_pncfmad';
-const EMAILJS_PUBLIC_KEY = 'F_gtW51ngLRCqT0_K';
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -42,13 +42,13 @@ const Contact = () => {
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         {
-          from_name: formData.name,
-          from_email: formData.email,
-          from_phone: formData.phone,
-          subject: formData.subject,
-          message: formData.message,
-          reply_to: formData.email,
-        },
+        from_name: formData.name,
+        from_email: formData.email,
+        from_phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message,
+        reply_to: formData.email,
+      },
         EMAILJS_PUBLIC_KEY
       );
       
