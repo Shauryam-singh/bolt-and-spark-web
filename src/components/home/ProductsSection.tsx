@@ -166,7 +166,7 @@ const ProductsSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-industry-900 mb-4">Our Product Range</h2>
           <p className="text-lg text-industry-700 max-w-2xl mx-auto">
-            Shayam Venchers offers a comprehensive selection of high-quality fasteners and electrical components for all your project needs.
+            Shayama Venchers offers a comprehensive selection of high-quality fasteners and electrical components for all your project needs.
           </p>
         </div>
 

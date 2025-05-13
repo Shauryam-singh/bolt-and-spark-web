@@ -49,8 +49,8 @@ const Contact = () => {
       icon: <MapPin className="h-5 w-5 text-electric-500" />,
       title: "Our Location",
       details: [
-        "Unit 27-28, Industrial Area",
-        "Phase II, New Delhi - 110020",
+        "Modinagar",
+        "Ghaziabad - 201204",
         "India"
       ]
     },
@@ -58,18 +58,18 @@ const Contact = () => {
       icon: <Phone className="h-5 w-5 text-electric-500" />,
       title: "Phone Numbers",
       details: [
-        "+91 11 2234 5678 (Main Office)",
-        "+91 98765 43210 (Sales)",
-        "+91 98765 43211 (Support)"
+        "+91 63929 42464 (Main Office)",
+        "+91 63929 42464 (Sales)",
+        "+91 63929 42464 (Support)"
       ]
     },
     {
       icon: <Mail className="h-5 w-5 text-electric-500" />,
       title: "Email Addresses",
       details: [
-        "info@shayamvenchers.com",
-        "sales@shayamvenchers.com",
-        "support@shayamvenchers.com"
+        "shyamatraders96@gmail.com",
+        "shyamatraders96@gmail.com",
+        "shyamatraders96@gmail.com"
       ]
     },
     {
@@ -131,13 +131,13 @@ const Contact = () => {
               {/* Map */}
               <div className="rounded-lg overflow-hidden shadow-md h-64 md:h-80" data-aos="fade-up">
                 <iframe 
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.066736272497!2d77.0651147!3d28.6283771!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d04ab3c053653%3A0x45ac1a6e2610de66!2sIndustrial%20Area%20Phase%20II%2C%20Naraina%2C%20Delhi!5e0!3m2!1sen!2sin!4v1619784261930!5m2!1sen!2sin" 
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d55921.6364489176!2d77.53066029683977!3d28.835814831791357!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390c8aaeec09f0cf%3A0xb1471116544b1093!2sModinagar%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1747127268896!5m2!1sen!2sin"
                   width="100%" 
                   height="100%" 
                   style={{ border: 0 }} 
                   allowFullScreen
                   loading="lazy"
-                  title="Shayam Venchers Location"
+                  title="Shayama Venchers Location"
                 ></iframe>
               </div>
             </div>

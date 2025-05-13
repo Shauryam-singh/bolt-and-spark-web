@@ -22,7 +22,7 @@ interface NavItem {
 const MobileNavDrawer = () => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth(); // Removed signOut for now
-  const isAdmin = user?.email === 'admin@shayamvenchers.com';
+  const isAdmin = user?.email === 'admin@shayamavenchers.com';
 
   const mainNavItems: NavItem[] = [
     { label: 'Home', href: '/', icon: <Home size={20} /> },
@@ -47,7 +47,7 @@ const MobileNavDrawer = () => {
       </SheetTrigger>
       <SheetContent side="left" className="w-[280px] sm:w-[350px] overflow-y-auto">
         <SheetHeader className="mb-6">
-          <SheetTitle className="text-2xl">Shayam Venchers</SheetTitle>
+          <SheetTitle className="text-2xl">Shayama Venchers</SheetTitle>
         </SheetHeader>
 
         <div className="space-y-6">

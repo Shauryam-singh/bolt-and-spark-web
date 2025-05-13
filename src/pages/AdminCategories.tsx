@@ -6,7 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import CategoriesManager from '@/components/admin/CategoriesManager';
 
 // Admin email address
-const ADMIN_EMAIL = "admin@shayamvenchers.com";
+const ADMIN_EMAIL = "admin@shayamavenchers.com";
 
 const AdminCategories = () => {
   const { user } = useAuth();

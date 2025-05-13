@@ -68,9 +68,9 @@ const About = () => {
       <section className="pt-32 pb-16 bg-industry-50">
         <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-industry-900 mb-6" data-aos="fade-up">About Shayam Ventures</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-industry-900 mb-6" data-aos="fade-up">About Shayama Ventures</h1>
             <p className="text-lg text-industry-700 mb-8" data-aos="fade-up" data-aos-delay="100">
-                Shayam Ventures is a bold, innovative startup on a mission to transform the future of smart manufacturing and sustainable tech. 
+                Shayama Ventures is a bold, innovative startup on a mission to transform the future of smart manufacturing and sustainable tech. 
                 With cutting-edge ideas and a passion for excellence, we’re building the next generation of products to empower industries and uplift communities.
             </p>
             </div>
@@ -84,7 +84,7 @@ const About = () => {
             <div className="">
                 <h2 className="text-3xl font-bold text-industry-900 mb-5">Our Story</h2>
                 <p className="text-industry-700 mb-4">
-                Shayam Ventures was born out of a shared vision: to rethink how modern industries access smart, sustainable, and reliable manufacturing solutions. Founded in 2023 by a team of engineers and innovators, we set out to bridge the gap between traditional manufacturing and future-forward technologies.
+                Shayama Ventures was born out of a shared vision: to rethink how modern industries access smart, sustainable, and reliable manufacturing solutions. Founded in 2023 by a team of engineers and innovators, we set out to bridge the gap between traditional manufacturing and future-forward technologies.
                 </p>
                 <p className="text-industry-700 mb-4">
                 From our humble beginnings in a small co-working lab, we’ve grown into a fast-moving startup, developing modular fasteners and intelligent electrical components that adapt to the needs of next-gen industries.
@@ -231,7 +231,7 @@ const About = () => {
     <section className="py-16 bg-industry-900 text-white text-center">
         <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-4">Ready to Work With Us?</h2>
-            <p className="text-lg mb-6">Join hundreds of clients who trust Shayam Venchers for quality and reliability.</p>
+            <p className="text-lg mb-6">Join hundreds of clients who trust Shayama Venchers for quality and reliability.</p>
             <Link to="/contact">
             <Button className="bg-electric-600 hover:bg-electric-700 text-white">Contact Us</Button>
             </Link>
