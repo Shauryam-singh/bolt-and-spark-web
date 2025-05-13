@@ -1,4 +1,3 @@
-
 import { db } from '@/integrations/firebase';
 import { 
   collection, 
@@ -8,7 +7,7 @@ import {
   query, 
   where, 
   orderBy, 
-  limit,
+  limit as firestoreLimit,
   addDoc,
   updateDoc,
   serverTimestamp,
@@ -162,13 +161,13 @@ export const getProductById = async (id: string): Promise<Product | null> => {
   }
 };
 
-export const getFeaturedProducts = async (limit: number = 6): Promise<Product[]> => {
+export const getFeaturedProducts = async (limitCount: number = 6): Promise<Product[]> => {
   try {
     const featuredQuery = query(
       collection(db, 'products'),
       where('featured', '==', true),
       orderBy('createdAt', 'desc'),
-      limit
+      firestoreLimit(limitCount)
     );
     
     const productsSnapshot = await getDocs(featuredQuery);
@@ -199,7 +198,7 @@ export const getNewProducts = async (limitCount: number = 8): Promise<Product[]>
       collection(db, 'products'),
       where('isNew', '==', true),
       orderBy('createdAt', 'desc'),
-      limit(limitCount)
+      firestoreLimit(limitCount)
     );
     
     const productsSnapshot = await getDocs(newProductsQuery);
@@ -256,8 +255,8 @@ export const getFilteredProducts = async (
       constraints.push(startAfter(lastDoc));
     }
     
-    // Add limit
-    constraints.push(limit(limitCount + 1)); // +1 to check if there are more results
+    // Add limit - using firestoreLimit instead of limit to avoid collision
+    constraints.push(firestoreLimit(limitCount + 1)); // +1 to check if there are more results
     
     // Create the query
     const productsQuery = query(collection(db, 'products'), ...constraints);
