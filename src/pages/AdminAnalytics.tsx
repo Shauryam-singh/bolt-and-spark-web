@@ -3,12 +3,12 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import AdminLayout from '@/components/admin/AdminLayout';
-import AdminDashboard from '@/components/admin/AdminDashboard';
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 
-// Admin email address - this is the only account that can access the admin panel
+// Admin email address
 const ADMIN_EMAIL = "admin@shayamavenchers.com";
 
-const Admin = () => {
+const AdminAnalytics = () => {
   const { user } = useAuth();
   
   // Only allow access if the user is logged in and has the admin email
@@ -22,9 +22,9 @@ const Admin = () => {
   
   return (
     <AdminLayout>
-      <AdminDashboard />
+      <AnalyticsDashboard />
     </AdminLayout>
   );
 };
 
-export default Admin;
+export default AdminAnalytics;

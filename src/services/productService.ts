@@ -1,306 +1,349 @@
 
-import { collection, getDocs, query, where, doc, addDoc, serverTimestamp, updateDoc, deleteDoc, getDoc, orderBy, limit, startAfter, Timestamp, DocumentData } from 'firebase/firestore';
 import { db } from '@/integrations/firebase';
+import { 
+  collection, 
+  doc, 
+  getDoc, 
+  getDocs, 
+  query, 
+  where, 
+  orderBy, 
+  limit,
+  addDoc,
+  updateDoc,
+  serverTimestamp,
+  deleteDoc,
+  Timestamp,
+  QueryConstraint,
+  startAfter,
+  DocumentSnapshot
+} from 'firebase/firestore';
 
 export interface Product {
   id: string;
   name: string;
   description: string;
+  price: number;
   image: string;
-  categories: string[];
   categoryType: string;
+  categories: string[];
   isNew?: boolean;
-  price?: number;
+  createdAt?: any;
+  specs?: Record<string, any>;
+  featured?: boolean;
+  stockQuantity?: number;
+  sku?: string;
+  minOrderQuantity?: number;
   discountPrice?: number;
-  stock?: number;
-  specifications?: Record<string, string>;
-  createdAt?: Timestamp;
-  updatedAt?: Timestamp;
+  weight?: number;
+  dimensions?: {
+    length?: number;
+    width?: number;
+    height?: number;
+  };
 }
 
-// Get all products from Firebase with pagination
-export const getAllProducts = async (limitCount: number = 100): Promise<Product[]> => {
+export interface PaginatedProducts {
+  products: Product[];
+  lastDoc: DocumentSnapshot | null;
+  hasMore: boolean;
+}
+
+// Helper function to resolve category IDs to names
+export const resolveCategoryNames = async (categoryIds: string[]): Promise<string[]> => {
   try {
-    console.log('Fetching all products...');
-    const productsRef = collection(db, 'products');
-    const q = query(
-      productsRef,
+    if (!categoryIds || categoryIds.length === 0) return [];
+    
+    const categoryNames: string[] = [];
+    
+    for (const categoryId of categoryIds) {
+      try {
+        // Check if it's already a name (string without special characters)
+        if (/^[a-zA-Z0-9\s-]+$/.test(categoryId)) {
+          categoryNames.push(categoryId);
+          continue;
+        }
+        
+        const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
+        if (categoryDoc.exists()) {
+          const categoryData = categoryDoc.data();
+          categoryNames.push(categoryData.name || categoryId);
+        } else {
+          categoryNames.push(categoryId);
+        }
+      } catch (err) {
+        console.error(`Error resolving category ${categoryId}:`, err);
+        categoryNames.push(categoryId);
+      }
+    }
+    
+    return categoryNames;
+  } catch (error) {
+    console.error('Error in resolveCategoryNames:', error);
+    return categoryIds;
+  }
+};
+
+export const getAllProducts = async (): Promise<Product[]> => {
+  try {
+    const productsSnapshot = await getDocs(collection(db, 'products'));
+    
+    const productsPromises = productsSnapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      
+      // Resolve category names
+      const categoryNames = await resolveCategoryNames(data.categories || []);
+      
+      return {
+        id: doc.id,
+        ...data as Omit<Product, 'id' | 'categories'>,
+        categories: categoryNames
+      } as Product;
+    });
+    
+    const products = await Promise.all(productsPromises);
+    return products;
+  } catch (error) {
+    console.error('Error getting products:', error);
+    return [];
+  }
+};
+
+export const getProductsByType = async (type: string): Promise<Product[]> => {
+  try {
+    const productsQuery = query(
+      collection(db, 'products'),
+      where('categoryType', '==', type)
+    );
+    
+    const productsSnapshot = await getDocs(productsQuery);
+    const productsPromises = productsSnapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      
+      // Resolve category names
+      const categoryNames = await resolveCategoryNames(data.categories || []);
+      
+      return {
+        id: doc.id,
+        ...data as Omit<Product, 'id' | 'categories'>,
+        categories: categoryNames
+      } as Product;
+    });
+    
+    const products = await Promise.all(productsPromises);
+    return products;
+  } catch (error) {
+    console.error(`Error getting ${type} products:`, error);
+    return [];
+  }
+};
+
+export const getProductById = async (id: string): Promise<Product | null> => {
+  try {
+    const productDoc = await getDoc(doc(db, 'products', id));
+    
+    if (!productDoc.exists()) {
+      return null;
+    }
+    
+    const data = productDoc.data();
+    
+    // Resolve category names
+    const categoryNames = await resolveCategoryNames(data.categories || []);
+    
+    return {
+      id: productDoc.id,
+      ...data as Omit<Product, 'id' | 'categories'>,
+      categories: categoryNames
+    } as Product;
+  } catch (error) {
+    console.error('Error getting product:', error);
+    return null;
+  }
+};
+
+export const getFeaturedProducts = async (limit: number = 6): Promise<Product[]> => {
+  try {
+    const featuredQuery = query(
+      collection(db, 'products'),
+      where('featured', '==', true),
+      orderBy('createdAt', 'desc'),
+      limit
+    );
+    
+    const productsSnapshot = await getDocs(featuredQuery);
+    const productsPromises = productsSnapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      
+      // Resolve category names
+      const categoryNames = await resolveCategoryNames(data.categories || []);
+      
+      return {
+        id: doc.id,
+        ...data as Omit<Product, 'id' | 'categories'>,
+        categories: categoryNames
+      } as Product;
+    });
+    
+    const products = await Promise.all(productsPromises);
+    return products;
+  } catch (error) {
+    console.error('Error getting featured products:', error);
+    return [];
+  }
+};
+
+export const getNewProducts = async (limitCount: number = 8): Promise<Product[]> => {
+  try {
+    const newProductsQuery = query(
+      collection(db, 'products'),
+      where('isNew', '==', true),
       orderBy('createdAt', 'desc'),
       limit(limitCount)
     );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ 
-      id: doc.id,
-      ...doc.data()
-    } as Product));
+    
+    const productsSnapshot = await getDocs(newProductsQuery);
+    const productsPromises = productsSnapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      
+      // Resolve category names
+      const categoryNames = await resolveCategoryNames(data.categories || []);
+      
+      return {
+        id: doc.id,
+        ...data as Omit<Product, 'id' | 'categories'>,
+        categories: categoryNames
+      } as Product;
+    });
+    
+    const products = await Promise.all(productsPromises);
+    return products;
   } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error;
+    console.error('Error getting new products:', error);
+    return [];
   }
 };
 
-// Get products with pagination
-export const getPaginatedProducts = async (
-  lastDoc: DocumentData | null = null,
-  pageSize: number = 20,
-  categoryType: string | null = null
-): Promise<{ products: Product[], lastDoc: DocumentData | null }> => {
+export const getFilteredProducts = async (
+  type: string | null = null,
+  categoryIds: string[] = [],
+  searchTerm: string = '',
+  sortBy: string = 'createdAt',
+  sortOrder: 'asc' | 'desc' = 'desc',
+  limitCount: number = 20,
+  lastDoc: DocumentSnapshot | null = null
+): Promise<PaginatedProducts> => {
   try {
-    console.log(`Fetching paginated products...`);
-    let q;
+    const constraints: QueryConstraint[] = [];
     
-    if (categoryType) {
-      // Type-specific query
-      if (lastDoc) {
-        q = query(
-          collection(db, 'products'),
-          where('categoryType', '==', categoryType),
-          orderBy('createdAt', 'desc'),
-          startAfter(lastDoc),
-          limit(pageSize)
-        );
-      } else {
-        q = query(
-          collection(db, 'products'),
-          where('categoryType', '==', categoryType),
-          orderBy('createdAt', 'desc'),
-          limit(pageSize)
-        );
-      }
-    } else {
-      // Query for all products
-      if (lastDoc) {
-        q = query(
-          collection(db, 'products'),
-          orderBy('createdAt', 'desc'),
-          startAfter(lastDoc),
-          limit(pageSize)
-        );
-      } else {
-        q = query(
-          collection(db, 'products'),
-          orderBy('createdAt', 'desc'),
-          limit(pageSize)
-        );
-      }
+    // Filter by type if provided
+    if (type) {
+      constraints.push(where('categoryType', '==', type));
     }
     
-    const snapshot = await getDocs(q);
-    const products = snapshot.docs.map(doc => {
-  const data = doc.data() as Omit<Product, 'id'>; // all Product fields except 'id'
-  return {
-    id: doc.id,
-    ...data
-  };
-});
+    // Filter by categories if provided
+    if (categoryIds.length > 0) {
+      // Firebase doesn't support multiple array-contains clauses
+      // We'll use array-contains-any for multiple categories
+      constraints.push(where('categories', 'array-contains-any', categoryIds));
+    }
     
-    const newLastDoc = snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null;
+    // Add sorting
+    constraints.push(orderBy(sortBy, sortOrder));
+    
+    // If we have a lastDoc (for pagination), start after it
+    if (lastDoc) {
+      constraints.push(startAfter(lastDoc));
+    }
+    
+    // Add limit
+    constraints.push(limit(limitCount + 1)); // +1 to check if there are more results
+    
+    // Create the query
+    const productsQuery = query(collection(db, 'products'), ...constraints);
+    
+    // Get the results
+    const productsSnapshot = await getDocs(productsQuery);
+    
+    // Check if we have more results than the limit
+    const hasMore = productsSnapshot.docs.length > limitCount;
+    
+    // Get the documents up to the limit
+    const docs = hasMore 
+      ? productsSnapshot.docs.slice(0, limitCount) 
+      : productsSnapshot.docs;
+    
+    // Get the last document for pagination
+    const newLastDoc = docs.length > 0 ? docs[docs.length - 1] : null;
+    
+    // Process the documents
+    let products = await Promise.all(docs.map(async (doc) => {
+      const data = doc.data();
+      
+      // Resolve category names
+      const categoryNames = await resolveCategoryNames(data.categories || []);
+      
+      return {
+        id: doc.id,
+        ...data as Omit<Product, 'id' | 'categories'>,
+        categories: categoryNames
+      } as Product;
+    }));
+    
+    // Filter by search term if provided (client-side filtering)
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      products = products.filter(product => 
+        product.name.toLowerCase().includes(searchLower) ||
+        product.description.toLowerCase().includes(searchLower) ||
+        product.categories.some(category => 
+          category.toLowerCase().includes(searchLower)
+        )
+      );
+    }
     
     return {
       products,
-      lastDoc: newLastDoc
+      lastDoc: newLastDoc,
+      hasMore
     };
   } catch (error) {
-    console.error('Error fetching paginated products:', error);
-    throw error;
+    console.error('Error getting filtered products:', error);
+    return {
+      products: [],
+      lastDoc: null,
+      hasMore: false
+    };
   }
 };
 
-// Get products by category type (fasteners or electrical)
-export const getProductsByType = async (type: string): Promise<Product[]> => {
+export const createProduct = async (productData: Omit<Product, 'id'>): Promise<string> => {
   try {
-    console.log(`Fetching ${type} products from Firebase...`);
-    const productsRef = collection(db, 'products');
-    const q = query(productsRef, where('categoryType', '==', type));
-    const snapshot = await getDocs(q);
-    const products = snapshot.docs.map(doc => ({ 
-      id: doc.id,
-      ...doc.data()
-    } as Product));
-    console.log(`Found ${products.length} ${type} products`);
-    return products;
-  } catch (error) {
-    console.error(`Error fetching ${type} products:`, error);
-    throw error;
-  }
-};
-
-// Get category map to resolve category IDs to names
-export const getCategoryMap = async (): Promise<Record<string, string>> => {
-  try {
-    const categoriesRef = collection(db, 'categories');
-    const snapshot = await getDocs(categoriesRef);
-    const categoryMap: Record<string, string> = {};
-    
-    snapshot.docs.forEach(doc => {
-      categoryMap[doc.id] = doc.data().name;
-    });
-    
-    return categoryMap;
-  } catch (error) {
-    console.error('Error fetching category map:', error);
-    throw error;
-  }
-};
-
-// Map product categories to names using the category map
-export const mapProductCategories = (
-  product: Product, 
-  categoryMap: Record<string, string>
-): Product => {
-  const mappedCategories = product.categories.map(catId => 
-    categoryMap[catId] || catId
-  );
-  
-  return {
-    ...product,
-    categories: mappedCategories
-  };
-};
-
-// Get filtered products with optional category and search constraints
-export const getFilteredProducts = async (filters: {
-  searchTerm?: string;
-  categoryType?: string;
-  categoryIds?: string[];
-  sortBy?: string;
-  limit?: number;
-}): Promise<Product[]> => {
-  try {
-    console.log('Fetching filtered products with:', filters);
-    let q = collection(db, 'products');
-    let queryConstraints = [];
-    
-    // Apply type filter
-    if (filters.categoryType && filters.categoryType !== 'all') {
-      queryConstraints.push(where('categoryType', '==', filters.categoryType));
-    }
-    
-    // Apply sorting
-    switch (filters.sortBy) {
-      case 'newest':
-        queryConstraints.push(orderBy('createdAt', 'desc'));
-        break;
-      case 'name_asc':
-        queryConstraints.push(orderBy('name', 'asc'));
-        break;
-      case 'name_desc':
-        queryConstraints.push(orderBy('name', 'desc'));
-        break;
-      default:
-        queryConstraints.push(orderBy('createdAt', 'desc'));
-    }
-    
-    // Apply limit
-    if (filters.limit) {
-      queryConstraints.push(limit(filters.limit));
-    }
-    
-    const productsQuery = query(q, ...queryConstraints);
-    const snapshot = await getDocs(productsQuery);
-    
-    let products = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Product));
-    
-    // Since Firebase doesn't support OR queries easily, we'll do these filters in memory
-    if (filters.searchTerm) {
-      const searchLower = filters.searchTerm.toLowerCase();
-      products = products.filter(product =>
-        product.name.toLowerCase().includes(searchLower) ||
-        product.description.toLowerCase().includes(searchLower)
-      );
-    }
-    
-    // Filter by category IDs
-    if (filters.categoryIds && filters.categoryIds.length > 0) {
-      products = products.filter(product =>
-        filters.categoryIds?.some(catId => product.categories.includes(catId))
-      );
-    }
-    
-    return products;
-  } catch (error) {
-    console.error('Error fetching filtered products:', error);
-    throw error;
-  }
-};
-
-// Get a single product by ID
-export const getProductById = async (id: string): Promise<Product | null> => {
-  try {
-    console.log(`Attempting to fetch product with ID: ${id}`);
-    
-    // First, try to get the product by document ID
-    const productRef = doc(db, 'products', id);
-    const snapshot = await getDoc(productRef);
-    
-    if (snapshot.exists()) {
-      console.log("Found product by document ID");
-      const productData = {
-        id: snapshot.id,
-        ...snapshot.data()
-      } as Product;
-      console.log("Product data:", productData);
-      return productData;
-    }
-    
-    // If not found by document ID, try to find by custom ID field
-    console.log("Product not found by document ID. Trying to find by custom id field");
-    const productsRef = collection(db, 'products');
-    const q = query(productsRef, where('id', '==', id));
-    const querySnapshot = await getDocs(q);
-    
-    if (!querySnapshot.empty) {
-      console.log("Found product by custom ID field");
-      const docData = querySnapshot.docs[0];
-      const productData = {
-        id: docData.id, // Use Firestore document ID
-        ...docData.data(),
-      } as Product;
-      console.log("Product data:", productData);
-      return productData;
-    }
-    
-    console.log("Product not found with ID:", id);
-    return null;
-  } catch (error) {
-    console.error('Error fetching product:', error);
-    throw error;
-  }
-};
-
-// Add a new product
-export const addProduct = async (product: Omit<Product, 'id'>): Promise<string> => {
-  try {
-    const productsRef = collection(db, 'products');
-    const docRef = await addDoc(productsRef, {
-      ...product,
+    const productWithTimestamp = {
+      ...productData,
       createdAt: serverTimestamp()
-    });
+    };
+    
+    const docRef = await addDoc(collection(db, 'products'), productWithTimestamp);
     return docRef.id;
   } catch (error) {
-    console.error('Error adding product:', error);
+    console.error('Error creating product:', error);
     throw error;
   }
 };
 
-// Update an existing product
-export const updateProduct = async (id: string, product: Partial<Product>): Promise<void> => {
+export const updateProduct = async (id: string, productData: Partial<Product>): Promise<void> => {
   try {
-    const productRef = doc(db, 'products', id);
-    await updateDoc(productRef, {
-      ...product,
-      updatedAt: serverTimestamp()
-    });
+    // Remove id if it exists in the update data
+    const { id: _, ...updateData } = productData;
+    
+    await updateDoc(doc(db, 'products', id), updateData);
   } catch (error) {
     console.error('Error updating product:', error);
     throw error;
   }
 };
 
-// Delete a product
 export const deleteProduct = async (id: string): Promise<void> => {
   try {
     await deleteDoc(doc(db, 'products', id));
@@ -310,129 +353,110 @@ export const deleteProduct = async (id: string): Promise<void> => {
   }
 };
 
-// Get new products (products marked with isNew flag)
-export const getNewProducts = async (limitCount: number = 8): Promise<Product[]> => {
+// Analytics helper functions
+export const getProductStats = async () => {
   try {
-    const productsRef = collection(db, 'products');
-    const q = query(
-      productsRef, 
-      where('isNew', '==', true),
-      orderBy('createdAt', 'desc'),
-      limit(limitCount) // now using limitCount, not conflicting
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => {
-      const data = doc.data() as Omit<Product, 'id'>;
-      return {
-        id: doc.id,
-        ...data
-      };
+    const productsSnapshot = await getDocs(collection(db, 'products'));
+    
+    let totalProducts = 0;
+    let fasteners = 0;
+    let electrical = 0;
+    let newProducts = 0;
+    let featuredProducts = 0;
+    
+    productsSnapshot.forEach(doc => {
+      totalProducts++;
+      const data = doc.data();
+      
+      if (data.categoryType === 'fasteners') fasteners++;
+      if (data.categoryType === 'electrical') electrical++;
+      if (data.isNew) newProducts++;
+      if (data.featured) featuredProducts++;
     });
+    
+    return {
+      totalProducts,
+      fasteners,
+      electrical,
+      newProducts,
+      featuredProducts
+    };
   } catch (error) {
-    console.error('Error fetching new products:', error);
-    throw error;
+    console.error('Error getting product stats:', error);
+    return {
+      totalProducts: 0,
+      fasteners: 0,
+      electrical: 0,
+      newProducts: 0,
+      featuredProducts: 0
+    };
   }
 };
 
-// Migrate fasteners and electrical data to Firebase
-export const migrateProductsToFirebase = async (
-  fastenersData: any[], 
-  electricalData: any[]
-) => {
+export const getInventoryValue = async () => {
   try {
-    const productsRef = collection(db, 'products');
+    const productsSnapshot = await getDocs(collection(db, 'products'));
     
-    // Upload fasteners data
-    for (const fastener of fastenersData) {
-      // Ensure each product has an ID field that matches what's used in the URL
-      const productData = {
-        ...fastener,
-        categoryType: 'fasteners',
-        createdAt: serverTimestamp()
-      };
+    let totalValue = 0;
+    let fastenersValue = 0;
+    let electricalValue = 0;
+    
+    productsSnapshot.forEach(doc => {
+      const data = doc.data();
+      const price = data.price || 0;
+      const quantity = data.stockQuantity || 0;
+      const itemValue = price * quantity;
       
-      await addDoc(productsRef, productData);
-    }
-    
-    // Upload electrical data
-    for (const electrical of electricalData) {
-      // Ensure each product has an ID field that matches what's used in the URL
-      const productData = {
-        ...electrical,
-        categoryType: 'electrical',
-        createdAt: serverTimestamp()
-      };
+      totalValue += itemValue;
       
-      await addDoc(productsRef, productData);
-    }
+      if (data.categoryType === 'fasteners') fastenersValue += itemValue;
+      if (data.categoryType === 'electrical') electricalValue += itemValue;
+    });
     
-    return true;
+    return {
+      totalValue,
+      fastenersValue,
+      electricalValue
+    };
   } catch (error) {
-    console.error('Error migrating products to Firebase:', error);
-    throw error;
+    console.error('Error calculating inventory value:', error);
+    return {
+      totalValue: 0,
+      fastenersValue: 0,
+      electricalValue: 0
+    };
   }
 };
 
-// Helper for initial migration (to be called once)
-export const initializeFirebaseData = async () => {
-  try {
-    // Check if products collection already has data
-    const productsRef = collection(db, 'products');
-    const snapshot = await getDocs(productsRef);
-    
-    if (snapshot.docs.length > 0) {
-      console.log('Firebase already has product data. Skipping migration.');
-      return;
-    }
-    
-    console.log('Starting data migration to Firebase...');
-    
-    // Get the data from the hardcoded arrays
-    const fastenersProducts = [];
-    const electricalProducts = [];
-    
-    // Create categories collection
-    const categoriesRef = collection(db, 'categories');
-    
-    const fastenerCategories = new Set();
-    const electricalCategories = new Set();
-    
-    // Extract unique categories
-    fastenersProducts.forEach(product => {
-      product.categories.forEach(category => {
-        fastenerCategories.add(category);
-      });
-    });
-    
-    electricalProducts.forEach(product => {
-      product.categories.forEach(category => {
-        electricalCategories.add(category);
-      });
-    });
-    
-    // Add fastener categories
-    for (const category of Array.from(fastenerCategories)) {
-      await addDoc(categoriesRef, {
-        name: category,
-        type: 'fasteners',
-        createdAt: serverTimestamp()
-      });
-    }
-    
-    // Add electrical categories
-    for (const category of Array.from(electricalCategories)) {
-      await addDoc(categoriesRef, {
-        name: category,
-        type: 'electrical',
-        createdAt: serverTimestamp()
-      });
-    }
-    
-    // Migrate product data
-    await migrateProductsToFirebase(fastenersProducts, electricalProducts);
-    
-    console.log('Data migration to Firebase completed successfully.');
-  } catch (error) {
-    console.error('Error initializing Firebase data:', error);
-  }
+// Get sales analytics data (mocked for now)
+export const getSalesAnalytics = async () => {
+  // In a real app, this would retrieve data from a sales collection
+  // For now, return mock data
+  return {
+    monthly: [
+      { month: 'Jan', sales: 12000 },
+      { month: 'Feb', sales: 18000 },
+      { month: 'Mar', sales: 15000 },
+      { month: 'Apr', sales: 21000 },
+      { month: 'May', sales: 16000 },
+      { month: 'Jun', sales: 19000 },
+      { month: 'Jul', sales: 22000 },
+      { month: 'Aug', sales: 25000 },
+      { month: 'Sep', sales: 20000 },
+      { month: 'Oct', sales: 23000 },
+      { month: 'Nov', sales: 28000 },
+      { month: 'Dec', sales: 30000 }
+    ],
+    categoryBreakdown: [
+      { name: 'Fasteners', value: 65 },
+      { name: 'Electrical', value: 35 }
+    ],
+    topProducts: [
+      { name: 'Socket Head Cap Screws', sales: 1200 },
+      { name: 'Hex Bolts', sales: 980 },
+      { name: 'Wire Connectors', sales: 850 },
+      { name: 'Circuit Breakers', sales: 720 },
+      { name: 'Nylon Lock Nuts', sales: 650 }
+    ]
+  };
 };
