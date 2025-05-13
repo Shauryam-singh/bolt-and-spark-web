@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -5,10 +6,8 @@ import { Button } from '@/components/ui/button';
 import { 
   LayoutGrid, 
   Package, 
-  Tag, 
+  ListOrdered, 
   Settings, 
-  Home, 
-  BarChart2,
   LogOut, 
   Menu, 
   X, 
@@ -45,12 +44,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     }
   };
 
-  const sidebarLinks = [
-    { name: "Dashboard", href: "/admin", icon: <Home size={18} /> },
-    { name: "Products", href: "/admin/products", icon: <Package size={18} /> },
-    { name: "Categories", href: "/admin/categories", icon: <Tag size={18} /> },
-    { name: "Analytics", href: "/admin/analytics", icon: <BarChart2 size={18} /> },
-    { name: "Settings", href: "/admin/settings", icon: <Settings size={18} /> },
+  const navItems = [
+    { name: 'Dashboard', path: '/admin', icon: <LayoutGrid size={20} /> },
+    { name: 'Products', path: '/admin/products', icon: <Package size={20} /> },
+    { name: 'Categories', path: '/admin/categories', icon: <ListOrdered size={20} /> },
+    { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
 
   const isActive = (path: string) => {
@@ -84,19 +82,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
 
           <nav className="flex-1 p-5 space-y-1">
-            {sidebarLinks.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.name}
-                to={item.href}
+                to={item.path}
                 className={`flex items-center px-4 py-3 rounded-md transition-colors ${
-                  isActive(item.href)
+                  isActive(item.path)
                     ? 'bg-industry-100 text-industry-800'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
                 <span className="mr-3">{item.icon}</span>
                 <span>{item.name}</span>
-                {isActive(item.href) && (
+                {isActive(item.path) && (
                   <ChevronRight size={16} className="ml-auto" />
                 )}
               </Link>

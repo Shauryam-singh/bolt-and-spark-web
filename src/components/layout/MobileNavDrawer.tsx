@@ -1,97 +1,135 @@
-
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet';
+import React, { useState } from 'react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Home, Package, Zap, Info, Phone, User, LogOut } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { Package, Settings, Menu, User, Home, Info, Phone, Wrench, PlugZap, LogOut } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+}
 
 const MobileNavDrawer = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const { user } = useAuth(); // Removed signOut for now
+  const isAdmin = user?.email === 'admin@shayamavenchers.com';
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
+  const mainNavItems: NavItem[] = [
+    { label: 'Home', href: '/', icon: <Home size={20} /> },
+    { label: 'About', href: '/about', icon: <Info size={20} /> },
+    { label: 'Fasteners', href: '/fasteners', icon: <Wrench size={20} /> },
+    { label: 'Electrical', href: '/electrical', icon: <PlugZap size={20} /> },
+    { label: 'Contact', href: '/contact', icon: <Phone size={20} /> },
+  ];
+
+  const adminNavItems: NavItem[] = [
+    { label: 'Admin Dashboard', href: '/admin', icon: <Settings size={20} /> },
+    { label: 'Manage Products', href: '/admin/products', icon: <Package size={20} /> },
+  ];
 
   return (
-    <SheetContent side="left" className="w-[250px] sm:w-[300px]">
-      <SheetHeader className="pb-4">
-        <SheetTitle className="text-industry-800">Menu</SheetTitle>
-      </SheetHeader>
-      <div className="flex flex-col gap-4 py-4">
-        <SheetClose asChild>
-          <Link to="/">
-            <Button variant="ghost" className="w-full justify-start">
-              <Home className="mr-2 h-5 w-5" />
-              Home
-            </Button>
-          </Link>
-        </SheetClose>
-        <SheetClose asChild>
-          <Link to="/fasteners">
-            <Button variant="ghost" className="w-full justify-start">
-              <Package className="mr-2 h-5 w-5" />
-              Fasteners
-            </Button>
-          </Link>
-        </SheetClose>
-        <SheetClose asChild>
-          <Link to="/electrical">
-            <Button variant="ghost" className="w-full justify-start">
-              <Zap className="mr-2 h-5 w-5" />
-              Electrical
-            </Button>
-          </Link>
-        </SheetClose>
-        <SheetClose asChild>
-          <Link to="/about">
-            <Button variant="ghost" className="w-full justify-start">
-              <Info className="mr-2 h-5 w-5" />
-              About
-            </Button>
-          </Link>
-        </SheetClose>
-        <SheetClose asChild>
-          <Link to="/contact">
-            <Button variant="ghost" className="w-full justify-start">
-              <Phone className="mr-2 h-5 w-5" />
-              Contact
-            </Button>
-          </Link>
-        </SheetClose>
-        
-        <Separator />
-        
-        {user ? (
-          <>
-            <SheetClose asChild>
-              <Link to="/profile">
-                <Button variant="ghost" className="w-full justify-start">
-                  <User className="mr-2 h-5 w-5" />
-                  Profile
-                </Button>
-              </Link>
-            </SheetClose>
-            <Button variant="ghost" className="w-full justify-start text-red-500" onClick={handleLogout}>
-              <LogOut className="mr-2 h-5 w-5" />
-              Logout
-            </Button>
-          </>
-        ) : (
-          <SheetClose asChild>
-            <Link to="/auth">
-              <Button variant="ghost" className="w-full justify-start">
-                <User className="mr-2 h-5 w-5" />
-                Login / Register
-              </Button>
-            </Link>
-          </SheetClose>
-        )}
-      </div>
-    </SheetContent>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle navigation menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-[280px] sm:w-[350px] overflow-y-auto">
+        <SheetHeader className="mb-6">
+          <SheetTitle className="text-2xl">Shayama Venchers</SheetTitle>
+        </SheetHeader>
+
+        <div className="space-y-6">
+          {/* Main navigation */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-gray-500 px-1">Navigation</h3>
+            <div className="space-y-1">
+              {mainNavItems.map((item, index) => (
+                <SheetClose asChild key={index}>
+                  <Link to={item.href}>
+                    <motion.div
+                      whileTap={{ scale: 0.97 }}
+                      className="flex items-center py-2 px-3 rounded-md text-gray-700 hover:bg-gray-100 cursor-pointer"
+                    >
+                      <span className="mr-3 text-gray-500">{item.icon}</span>
+                      {item.label}
+                    </motion.div>
+                  </Link>
+                </SheetClose>
+              ))}
+            </div>
+          </div>
+
+          {/* Admin section */}
+          {isAdmin && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-500 px-1">Admin</h3>
+              <div className="space-y-1">
+                {adminNavItems.map((item, index) => (
+                  <SheetClose asChild key={index}>
+                    <Link to={item.href}>
+                      <motion.div
+                        whileTap={{ scale: 0.97 }}
+                        className="flex items-center py-2 px-3 rounded-md text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      >
+                        <span className="mr-3 text-gray-500">{item.icon}</span>
+                        {item.label}
+                      </motion.div>
+                    </Link>
+                  </SheetClose>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Account section */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-gray-500 px-1">Account</h3>
+            <div className="space-y-1">
+              {user ? (
+                <>
+                  <SheetClose asChild>
+                    <Link to="/profile">
+                      <motion.div
+                        whileTap={{ scale: 0.97 }}
+                        className="flex items-center py-2 px-3 rounded-md text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      >
+                        <User className="mr-3 h-5 w-5 text-gray-500" />
+                        My Profile
+                      </motion.div>
+                    </Link>
+                  </SheetClose>
+                  {/* No logout button for now if signOut isn't available */}
+                </>
+              ) : (
+                <SheetClose asChild>
+                  <Link to="/auth">
+                    <motion.div
+                      whileTap={{ scale: 0.97 }}
+                      className="flex items-center py-2 px-3 rounded-md text-gray-700 hover:bg-gray-100 cursor-pointer"
+                    >
+                      <User className="mr-3 h-5 w-5 text-gray-500" />
+                      Sign In
+                    </motion.div>
+                  </Link>
+                </SheetClose>
+              )}
+            </div>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 
