@@ -8,36 +8,35 @@ import { db } from '@/integrations/firebase';
 import { useToast } from '@/hooks/use-toast';
 import emailjs from '@emailjs/browser';
 
-// EmailJS service configuration
-const EMAILJS_SERVICE_ID = 'service_senshss';
-const EMAILJS_TEMPLATE_ID = 'template_pncfmad';
+// EmailJS config via environment variables
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const ContactSection = () => {
   const location = useLocation();
   const { toast } = useToast();
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    company: '',
     subject: '',
     message: '',
   });
 
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
-  // Check for product query parameter
+  // Autofill subject/message if product query param exists
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const productName = query.get('product');
-    
+
     if (productName) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         subject: `Inquiry about ${productName}`,
-        message: `I'm interested in learning more about ${productName}. Please provide additional information.`
+        message: `I'm interested in learning more about ${productName}. Please provide additional information.`,
       }));
     }
   }, [location.search]);
@@ -52,13 +51,13 @@ const ContactSection = () => {
     setLoading(true);
 
     try {
-      // Save contact form data to Firebase
+      // Save to Firebase Firestore
       await addDoc(collection(db, 'contacts'), {
         ...formData,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
       });
 
-      // Send email using EmailJS
+      // Send via EmailJS
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
@@ -66,33 +65,31 @@ const ContactSection = () => {
           from_name: formData.name,
           from_email: formData.email,
           from_phone: formData.phone,
-          company: formData.company,
           subject: formData.subject,
           message: formData.message,
           reply_to: formData.email,
-        }
+        },
+        EMAILJS_PUBLIC_KEY
       );
 
-      setSubmitted(true);
       setFormData({
         name: '',
         email: '',
         phone: '',
-        company: '',
         subject: '',
         message: '',
       });
-      
+
       toast({
-        title: "Message sent successfully!",
+        title: 'Message sent successfully!',
         description: "We'll get back to you as soon as possible.",
       });
     } catch (err) {
       console.error('Error submitting contact form:', err);
       toast({
-        variant: "destructive",
-        title: "Failed to send message",
-        description: "Please try again later or contact us directly.",
+        variant: 'destructive',
+        title: 'Failed to send message',
+        description: 'Please try again later or contact us directly.',
       });
     } finally {
       setLoading(false);
@@ -123,7 +120,6 @@ const ContactSection = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full"
                 />
               </div>
               <div>
@@ -137,7 +133,6 @@ const ContactSection = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full"
                 />
               </div>
               <div>
@@ -150,20 +145,6 @@ const ContactSection = () => {
                   placeholder="+91 1234567890"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full"
-                />
-              </div>
-              <div>
-                <label htmlFor="company" className="block text-sm font-medium text-industry-800 mb-1">
-                  Company Name
-                </label>
-                <Input
-                  id="company"
-                  type="text"
-                  placeholder="Your Company"
-                  value={formData.company}
-                  onChange={handleChange}
-                  className="w-full"
                 />
               </div>
             </div>
@@ -179,7 +160,6 @@ const ContactSection = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full"
                 />
               </div>
               <div>
@@ -192,15 +172,15 @@ const ContactSection = () => {
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  className="w-full h-40 resize-none"
+                  className="h-40 resize-none"
                 />
               </div>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-electric-500 hover:bg-electric-600 text-white"
                 disabled={loading}
               >
-                {loading ? "Sending..." : "Send Message"}
+                {loading ? 'Sending...' : 'Send Message'}
               </Button>
             </div>
           </form>
