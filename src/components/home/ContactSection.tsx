@@ -7,6 +7,12 @@ import { useLocation } from 'react-router-dom';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/integrations/firebase';
 import { useToast } from '@/hooks/use-toast';
+import emailjs from '@emailjs/browser';
+
+// EmailJS service configuration
+const EMAILJS_SERVICE_ID = 'service_senshss';
+const EMAILJS_TEMPLATE_ID = 'template_pncfmad';
+const EMAILJS_PUBLIC_KEY = 'F_gtW51ngLRCqT0_K';
 
 const ContactSection = () => {
   const location = useLocation();
@@ -53,6 +59,22 @@ const ContactSection = () => {
         ...formData,
         createdAt: serverTimestamp()
       });
+
+      // Send email using EmailJS
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          from_phone: formData.phone,
+          company: formData.company,
+          subject: formData.subject,
+          message: formData.message,
+          reply_to: formData.email,
+        },
+        EMAILJS_PUBLIC_KEY
+      );
 
       setSubmitted(true);
       setFormData({

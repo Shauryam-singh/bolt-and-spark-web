@@ -6,6 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
+import emailjs from '@emailjs/browser';
+
+// EmailJS service configuration
+const EMAILJS_SERVICE_ID = 'service_senshss';
+const EMAILJS_TEMPLATE_ID = 'template_pncfmad';
+const EMAILJS_PUBLIC_KEY = 'F_gtW51ngLRCqT0_K';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -26,13 +32,28 @@ const Contact = () => {
     }));
   };
   
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      // Send email using EmailJS
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          from_phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+          reply_to: formData.email,
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+      
       toast.success("Your message has been sent successfully! We'll get back to you shortly.");
+      
       setFormData({
         name: '',
         email: '',
@@ -40,8 +61,12 @@ const Contact = () => {
         subject: '',
         message: '',
       });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error("Failed to send your message. Please try again or contact us directly.");
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
   
   const contactInfo = [
