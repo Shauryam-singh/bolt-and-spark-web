@@ -4,15 +4,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Home, Package, Zap, Info, Phone, User, LogOut, ShoppingCart } from 'lucide-react';
+import { Home, Package, Zap, Info, Phone, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useCart } from '@/hooks/useCart';
 
 const MobileNavDrawer = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const cart = useCart();
-  const cartItemsCount = cart && cart.items ? cart.items.length : 0;
 
   const handleLogout = async () => {
     await logout();
@@ -67,15 +64,6 @@ const MobileNavDrawer = () => {
         </SheetClose>
         
         <Separator />
-        
-        <SheetClose asChild>
-          <Link to="/cart">
-            <Button variant="ghost" className="w-full justify-start">
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              Cart {cartItemsCount > 0 && <span className="ml-2 bg-electric-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{cartItemsCount}</span>}
-            </Button>
-          </Link>
-        </SheetClose>
         
         {user ? (
           <>
