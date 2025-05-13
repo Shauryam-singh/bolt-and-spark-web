@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +11,6 @@ import emailjs from '@emailjs/browser';
 // EmailJS service configuration
 const EMAILJS_SERVICE_ID = 'service_senshss';
 const EMAILJS_TEMPLATE_ID = 'template_pncfmad';
-const EMAILJS_PUBLIC_KEY = 'F_gtW51ngLRCqT0_K';
 
 const ContactSection = () => {
   const location = useLocation();
@@ -72,8 +70,7 @@ const ContactSection = () => {
           subject: formData.subject,
           message: formData.message,
           reply_to: formData.email,
-        },
-        EMAILJS_PUBLIC_KEY
+        }
       );
 
       setSubmitted(true);
