@@ -162,7 +162,7 @@ const Contact = () => {
                   style={{ border: 0 }} 
                   allowFullScreen
                   loading="lazy"
-                  title="Shayama Venchers Location"
+                  title="Shayama Ventures Location"
                 ></iframe>
               </div>
             </div>

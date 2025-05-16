@@ -231,7 +231,7 @@ const About = () => {
     <section className="py-16 bg-industry-900 text-white text-center">
         <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-4">Ready to Work With Us?</h2>
-            <p className="text-lg mb-6">Join hundreds of clients who trust Shayama Venchers for quality and reliability.</p>
+            <p className="text-lg mb-6">Join hundreds of clients who trust Shayama Ventures for quality and reliability.</p>
             <Link to="/contact">
             <Button className="bg-electric-600 hover:bg-electric-700 text-white">Contact Us</Button>
             </Link>

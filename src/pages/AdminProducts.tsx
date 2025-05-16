@@ -6,7 +6,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import ProductsManager from '@/components/admin/ProductsManager';
 
 // Admin email address
-const ADMIN_EMAIL = "admin@shayamavenchers.com";
+const ADMIN_EMAIL = "admin@shayamaventures.com";
 
 const AdminProducts = () => {
   const { user } = useAuth();

@@ -1,6 +1,6 @@
-# Shyama-Venchers Web Store
+# Shyama-Ventures Web Store
 
-Welcome to the **Shyama-Venchers Web Store** – your go-to platform for premium quality fasteners and electrical components that meet the highest industry standards. We offer a wide range of industrial fasteners, specialty fasteners, marine fasteners, switchboards, wires, and accessories.
+Welcome to the **Shyama-Ventures Web Store** – your go-to platform for premium quality fasteners and electrical components that meet the highest industry standards. We offer a wide range of industrial fasteners, specialty fasteners, marine fasteners, switchboards, wires, and accessories.
 
 ## Features
 - Browse through various product categories
