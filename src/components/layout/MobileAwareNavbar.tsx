@@ -25,7 +25,7 @@ const MobileAwareNavbar = () => {
             {isMobile && <MobileNavDrawer />}
 
             <Link to="/" className="text-2xl font-bold text-industry-900 mr-8">
-              HS <span className="text-electric-600">Industries</span>
+              Shayama <span className="text-electric-600">Venchers</span>
             </Link>
 
             {!isMobile && (
@@ -75,7 +75,7 @@ const MobileAwareNavbar = () => {
               </>
             )}
 
-            {!isMobile && user && user.email === 'admin@hsindustries.com' && (
+            {!isMobile && user && user.email === 'admin@shayamavenchers.com' && (
               <motion.div whileTap={{ scale: 0.97 }}>
                 <Link to="/admin">
                   <Button className="bg-industry-700 hover:bg-industry-800">

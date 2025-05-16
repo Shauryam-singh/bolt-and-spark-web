@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -161,7 +162,7 @@ const Contact = () => {
                   style={{ border: 0 }} 
                   allowFullScreen
                   loading="lazy"
-                  title="HS Industries Location"
+                  title="Shayama Venchers Location"
                 ></iframe>
               </div>
             </div>
