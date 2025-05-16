@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Shayama Venchers</h3>
+            <h3 className="text-xl font-bold mb-4">HS Industries</h3>
             <p className="mb-4 text-industry-100">
               Your trusted partner for quality fasteners and electrical components.
             </p>
@@ -92,8 +92,8 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Mail className="mr-2 h-5 w-5 text-industry-100" />
-                <a href="mailto:shyamatraders96@gmail.com" className="text-industry-100 hover:text-white transition-colors">
-                  shyamatraders96@gmail.com
+                <a href="mailto:hsindustries@gmail.com" className="text-industry-100 hover:text-white transition-colors">
+                  hsindustries@gmail.com
                 </a>
               </li>
             </ul>
@@ -101,7 +101,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-industry-700 mt-8 pt-6 text-center text-industry-100">
-          <p>&copy; {new Date().getFullYear()} Shayama Venchers. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} HS Industries. All rights reserved.</p>
         </div>
       </div>
     </footer>

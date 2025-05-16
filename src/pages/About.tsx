@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -68,94 +67,94 @@ const About = () => {
       <section className="pt-32 pb-16 bg-industry-50">
         <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-industry-900 mb-6" data-aos="fade-up">About Shayama Ventures</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-industry-900 mb-6" data-aos="fade-up">About HS Industries</h1>
             <p className="text-lg text-industry-700 mb-8" data-aos="fade-up" data-aos-delay="100">
-                Shayama Ventures is a bold, innovative startup on a mission to transform the future of smart manufacturing and sustainable tech. 
-                With cutting-edge ideas and a passion for excellence, we’re building the next generation of products to empower industries and uplift communities.
+                HS Industries is a bold, innovative startup on a mission to transform the future of smart manufacturing and sustainable tech. 
+                With cutting-edge ideas and a passion for excellence, we're building the next generation of products to empower industries and uplift communities.
             </p>
             </div>
         </div>
       </section>
 
       {/* Company Overview */}
-    <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="">
-                <h2 className="text-3xl font-bold text-industry-900 mb-5">Our Story</h2>
-                <p className="text-industry-700 mb-4">
-                Shayama Ventures was born out of a shared vision: to rethink how modern industries access smart, sustainable, and reliable manufacturing solutions. Founded in 2023 by a team of engineers and innovators, we set out to bridge the gap between traditional manufacturing and future-forward technologies.
-                </p>
-                <p className="text-industry-700 mb-4">
-                From our humble beginnings in a small co-working lab, we’ve grown into a fast-moving startup, developing modular fasteners and intelligent electrical components that adapt to the needs of next-gen industries.
-                </p>
-                <p className="text-industry-700 mb-6">
-                As we scale, our mission remains clear — to empower manufacturers and builders with tools that are not only efficient but also eco-conscious. We believe that great products come from a blend of innovation, empathy, and resilience.
-                </p>
-                <div className="flex flex-wrap gap-4 mt-6">
-                <div className="flex items-center">
-                    <div className="bg-industry-100 p-3 rounded-full mr-3">
-                    <Users className="h-6 w-6 text-industry-700" />
-                    </div>
-                    <div>
-                    <h4 className="font-bold text-industry-900">20+</h4>
-                    <p className="text-sm text-industry-600">Core Team Members</p>
-                    </div>
-                </div>
-                <div className="flex items-center">
-                    <div className="bg-industry-100 p-3 rounded-full mr-3">
-                    <Globe className="h-6 w-6 text-industry-700" />
-                    </div>
-                    <div>
-                    <h4 className="font-bold text-industry-900">50+</h4>
-                    <p className="text-sm text-industry-600">Clients Onboarded</p>
-                    </div>
-                </div>
-                <div className="flex items-center">
-                    <div className="bg-industry-100 p-3 rounded-full mr-3">
-                    <Award className="h-6 w-6 text-industry-700" />
-                    </div>
-                    <div>
-                    <h4 className="font-bold text-industry-900">1+</h4>
-                    <p className="text-sm text-industry-600">Years of Disruption</p>
-                    </div>
-                </div>
-                </div>
-            </div>
+      <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="">
+                  <h2 className="text-3xl font-bold text-industry-900 mb-5">Our Story</h2>
+                  <p className="text-industry-700 mb-4">
+                  HS Industries was born out of a shared vision: to rethink how modern industries access smart, sustainable, and reliable manufacturing solutions. Founded in 2023 by a team of engineers and innovators, we set out to bridge the gap between traditional manufacturing and future-forward technologies.
+                  </p>
+                  <p className="text-industry-700 mb-4">
+                  From our humble beginnings in a small co-working lab, we've grown into a fast-moving startup, developing modular fasteners and intelligent electrical components that adapt to the needs of next-gen industries.
+                  </p>
+                  <p className="text-industry-700 mb-6">
+                  As we scale, our mission remains clear — to empower manufacturers and builders with tools that are not only efficient but also eco-conscious. We believe that great products come from a blend of innovation, empathy, and resilience.
+                  </p>
+                  <div className="flex flex-wrap gap-4 mt-6">
+                  <div className="flex items-center">
+                      <div className="bg-industry-100 p-3 rounded-full mr-3">
+                      <Users className="h-6 w-6 text-industry-700" />
+                      </div>
+                      <div>
+                      <h4 className="font-bold text-industry-900">20+</h4>
+                      <p className="text-sm text-industry-600">Core Team Members</p>
+                      </div>
+                  </div>
+                  <div className="flex items-center">
+                      <div className="bg-industry-100 p-3 rounded-full mr-3">
+                      <Globe className="h-6 w-6 text-industry-700" />
+                      </div>
+                      <div>
+                      <h4 className="font-bold text-industry-900">50+</h4>
+                      <p className="text-sm text-industry-600">Clients Onboarded</p>
+                      </div>
+                  </div>
+                  <div className="flex items-center">
+                      <div className="bg-industry-100 p-3 rounded-full mr-3">
+                      <Award className="h-6 w-6 text-industry-700" />
+                      </div>
+                      <div>
+                      <h4 className="font-bold text-industry-900">1+</h4>
+                      <p className="text-sm text-industry-600">Years of Disruption</p>
+                      </div>
+                  </div>
+                  </div>
+              </div>
 
-            <div className="grid grid-cols-2 gap-4t">
-                <div className="rounded-lg overflow-hidden shadow-md">
-                <img 
-                    src="https://images.unsplash.com/photo-1502810190503-8303352d0dd1?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3JlYXRpdmUlMjB3b3Jrc3BhY2V8ZW58MHx8MHx8fDA%3D" 
-                    alt="Innovating Workspace" 
-                    className="w-full h-full object-cover"
-                />
-                </div>
-                <div className="rounded-lg overflow-hidden shadow-md mt-8">
-                <img 
-                    src="https://images.unsplash.com/photo-1602267774924-38124c047174?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZmFzdGVuZXJzfGVufDB8fDB8fHww" 
-                    alt="Smart Prototyping" 
-                    className="w-full h-full object-cover"
-                />
-                </div>
-                <div className="rounded-lg overflow-hidden shadow-md">
-                <img 
-                    src="https://plus.unsplash.com/premium_photo-1682129816388-22b6b6f489a4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8UXVhbGl0eSUyMFRlc3Rpbmd8ZW58MHx8MHx8fDA%3D" 
-                    alt="Quality Testing" 
-                    className="w-full h-full object-cover"
-                />
-                </div>
-                <div className="rounded-lg overflow-hidden shadow-md mt-8">
-                <img 
-                    src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600&h=600" 
-                    alt="Driven Team" 
-                    className="w-full h-full object-cover"
-                />
-                </div>
-            </div>
-            </div>
-        </div>
-    </section>
+              <div className="grid grid-cols-2 gap-4t">
+                  <div className="rounded-lg overflow-hidden shadow-md">
+                  <img 
+                      src="https://images.unsplash.com/photo-1502810190503-8303352d0dd1?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3JlYXRpdmUlMjB3b3Jrc3BhY2V8ZW58MHx8MHx8fDA%3D" 
+                      alt="Innovating Workspace" 
+                      className="w-full h-full object-cover"
+                  />
+                  </div>
+                  <div className="rounded-lg overflow-hidden shadow-md mt-8">
+                  <img 
+                      src="https://images.unsplash.com/photo-1602267774924-38124c047174?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZmFzdGVuZXJzfGVufDB8fDB8fHww" 
+                      alt="Smart Prototyping" 
+                      className="w-full h-full object-cover"
+                  />
+                  </div>
+                  <div className="rounded-lg overflow-hidden shadow-md">
+                  <img 
+                      src="https://plus.unsplash.com/premium_photo-1682129816388-22b6b6f489a4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8UXVhbGl0eSUyMFRlc3Rpbmd8ZW58MHx8MHx8fDA%3D" 
+                      alt="Quality Testing" 
+                      className="w-full h-full object-cover"
+                  />
+                  </div>
+                  <div className="rounded-lg overflow-hidden shadow-md mt-8">
+                  <img 
+                      src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600&h=600" 
+                      alt="Driven Team" 
+                      className="w-full h-full object-cover"
+                  />
+                  </div>
+              </div>
+              </div>
+          </div>
+      </section>
 
       {/* Values */}
       <section className="py-16 bg-industry-50">
@@ -228,16 +227,15 @@ const About = () => {
       </section>
 
       {/* CTA */}
-    <section className="py-16 bg-industry-900 text-white text-center">
-        <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold mb-4">Ready to Work With Us?</h2>
-            <p className="text-lg mb-6">Join hundreds of clients who trust Shayama Venchers for quality and reliability.</p>
-            <Link to="/contact">
-            <Button className="bg-electric-600 hover:bg-electric-700 text-white">Contact Us</Button>
-            </Link>
-        </div>
-    </section>
-
+      <section className="py-16 bg-industry-900 text-white text-center">
+          <div className="container mx-auto px-4">
+              <h2 className="text-3xl font-bold mb-4">Ready to Work With Us?</h2>
+              <p className="text-lg mb-6">Join hundreds of clients who trust HS Industries for quality and reliability.</p>
+              <Link to="/contact">
+              <Button className="bg-electric-600 hover:bg-electric-700 text-white">Contact Us</Button>
+              </Link>
+          </div>
+      </section>
     </Layout>
   );
 };

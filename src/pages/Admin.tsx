@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,7 +10,7 @@ import { db } from '@/integrations/firebase';
 import { Package, Tag, Database, Settings, Presentation, ArrowRight } from 'lucide-react';
 
 // Admin email address - this is the only account that can access the admin panel
-const ADMIN_EMAIL = "admin@shayamavenchers.com";
+const ADMIN_EMAIL = "admin@hsindustries.com";
 
 interface AdminDashboardCardProps {
   title: string;

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown, User, LogIn, LogOut, Settings } from 'lucide-react';
@@ -15,7 +16,7 @@ const Navbar = () => {
   const { toast } = useToast();
 
   // Admin email for access control
-  const ADMIN_EMAIL = "admin@shayamavenchers.com";
+  const ADMIN_EMAIL = "admin@hsindustries.com";
   const isAdmin = user?.email === ADMIN_EMAIL;
 
   useEffect(() => {
@@ -60,7 +61,7 @@ const Navbar = () => {
     }`}>
       <div className="container mx-auto flex items-center justify-between px-4">
         <Link to="/" className="flex items-center">
-          <span className="text-2xl font-bold text-industry-900">Shayama Venchers</span>
+          <span className="text-2xl font-bold text-industry-900">HS Industries</span>
         </Link>
 
         <div className="hidden lg:flex items-center space-x-8">

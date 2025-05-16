@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -33,9 +34,9 @@ const AboutSection = () => {
           </div>
           
           <div className="">
-            <h2 className="text-3xl font-bold text-industry-900 mb-4">About Shayama Venchers</h2>
+            <h2 className="text-3xl font-bold text-industry-900 mb-4">About HS Industries</h2>
             <p className="text-lg text-industry-700 mb-6">
-              Shayama Venchers is a newly launched startup with a bold vision to redefine how fasteners and electrical components are sourced and delivered. Built on passion and purpose, we aim to blend cutting-edge technology with quality manufacturing to meet the demands of modern industries.
+              HS Industries is a newly launched startup with a bold vision to redefine how fasteners and electrical components are sourced and delivered. Built on passion and purpose, we aim to blend cutting-edge technology with quality manufacturing to meet the demands of modern industries.
             </p>
             
             <div className="mb-8">
