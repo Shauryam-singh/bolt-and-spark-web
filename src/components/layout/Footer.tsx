@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Shayama Ventures</h3>
+            <h3 className="text-xl font-bold mb-4">Shyama Ventures</h3>
             <p className="mb-4 text-industry-100">
               Your trusted partner for quality fasteners and electrical components.
             </p>
@@ -101,7 +101,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-industry-700 mt-8 pt-6 text-center text-industry-100">
-          <p>&copy; {new Date().getFullYear()} Shayama Ventures. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Shyama Ventures. All rights reserved.</p>
         </div>
       </div>
     </footer>

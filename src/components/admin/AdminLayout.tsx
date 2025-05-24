@@ -78,7 +78,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <div className="flex flex-col h-full">
           <div className="p-5 border-b">
             <h1 className="text-xl font-bold text-industry-900">Admin Panel</h1>
-            <p className="text-sm text-gray-500 mt-1">Shayama Ventures</p>
+            <p className="text-sm text-gray-500 mt-1">Shyama Ventures</p>
           </div>
 
           <nav className="flex-1 p-5 space-y-1">

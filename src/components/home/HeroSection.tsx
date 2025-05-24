@@ -29,7 +29,7 @@ const HeroSection = () => {
             data-aos="fade-up" 
             data-aos-delay="100"
           >
-            Shayama Ventures: Engineering Excellence
+            Shyama Ventures: Engineering Excellence
           </h1>
           <p 
             className="text-lg md:text-xl text-industry-100 mb-8"

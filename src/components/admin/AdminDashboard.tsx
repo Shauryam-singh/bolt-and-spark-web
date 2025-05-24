@@ -154,7 +154,7 @@ const AdminDashboard = () => {
     >
       <div>
         <h2 className="text-3xl font-bold text-industry-900">Dashboard</h2>
-        <p className="text-gray-600 mt-2">Welcome to the Shayama Ventures Admin Panel</p>
+        <p className="text-gray-600 mt-2">Welcome to the Shyama Ventures Admin Panel</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -363,7 +363,7 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Admin Email</p>
-                  <p>admin@shayamaventures.com</p>
+                  <p>admin@shyamaventures.com</p>
                 </div>
               </div>
             </CardContent>

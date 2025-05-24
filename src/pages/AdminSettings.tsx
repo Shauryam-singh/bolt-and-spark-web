@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Admin email address
-const ADMIN_EMAIL = "admin@shayamaventures.com";
+const ADMIN_EMAIL = "admin@shyamaventures.com";
 
 const AdminSettings = () => {
   const { user } = useAuth();

@@ -39,7 +39,7 @@ const TestimonialsSection = () => {
   const earlyFeedback = [
     {
       quote: "We're on a mission to redefine how industries source electrical and hardware components — faster, smarter, and with purpose.",
-      author: "Founders of Shayama Ventures",
+      author: "Founders of Shyama Ventures",
       delay: 100,
     },
     {
